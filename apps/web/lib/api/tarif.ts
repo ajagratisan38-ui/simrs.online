@@ -47,6 +47,11 @@ export interface TarifStats {
   byKategori: { kategori: string; count: number }[]
 }
 
+interface ApiResponse<T> {
+  success: boolean
+  data: T
+}
+
 export async function listTarif(filters?: {
   kategori?: string
   search?: string
@@ -57,36 +62,46 @@ export async function listTarif(filters?: {
   if (filters?.search) params.set('search', filters.search)
   if (filters?.is_active) params.set('is_active', filters.is_active)
   const qs = params.toString()
-  const res = await apiClient.get(`/tarif${qs ? `?${qs}` : ''}`)
-  return res.data.data as KomponenTarif[]
+  const res = await apiClient<ApiResponse<KomponenTarif[]>>(`/tarif${qs ? `?${qs}` : ''}`)
+  return res.data
 }
 
 export async function getTarifById(id: string) {
-  const res = await apiClient.get(`/tarif/${id}`)
-  return res.data.data as KomponenTarif
+  const res = await apiClient<ApiResponse<KomponenTarif>>(`/tarif/${id}`)
+  return res.data
 }
 
 export async function createTarif(data: CreateTarifInput) {
-  const res = await apiClient.post('/tarif', data)
-  return res.data.data as KomponenTarif
+  const res = await apiClient<ApiResponse<KomponenTarif>>('/tarif', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  return res.data
 }
 
 export async function updateTarif(id: string, data: UpdateTarifInput) {
-  const res = await apiClient.put(`/tarif/${id}`, data)
-  return res.data.data as KomponenTarif
+  const res = await apiClient<ApiResponse<KomponenTarif>>(`/tarif/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+  return res.data
 }
 
 export async function deleteTarif(id: string) {
-  const res = await apiClient.delete(`/tarif/${id}`)
-  return res.data.data
+  const res = await apiClient<ApiResponse<{ deleted: boolean }>>(`/tarif/${id}`, {
+    method: 'DELETE',
+  })
+  return res.data
 }
 
 export async function toggleTarifActive(id: string) {
-  const res = await apiClient.patch(`/tarif/${id}/toggle`)
-  return res.data.data as KomponenTarif
+  const res = await apiClient<ApiResponse<KomponenTarif>>(`/tarif/${id}/toggle`, {
+    method: 'PATCH',
+  })
+  return res.data
 }
 
 export async function getTarifStats() {
-  const res = await apiClient.get('/tarif/stats')
-  return res.data.data as TarifStats
+  const res = await apiClient<ApiResponse<TarifStats>>('/tarif/stats')
+  return res.data
 }
