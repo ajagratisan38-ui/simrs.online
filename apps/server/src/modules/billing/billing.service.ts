@@ -265,7 +265,7 @@ export class BillingService {
             const diffMs = new Date().getTime() - admDate.getTime()
             const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
             items.push({
-              kategori: 'keperawatan',
+              kategori: 'tindakan',
               deskripsi: `Jasa Perawatan Harian (${days} hari)`,
               qty: days,
               harga_satuan: tarifPrw,
@@ -286,7 +286,7 @@ export class BillingService {
         const tarifAdm = resolveKompTarif(kompAdmin)
         if (tarifAdm > 0) {
           items.push({
-            kategori: 'administrasi',
+            kategori: 'admin',
             deskripsi: 'Biaya Administrasi',
             qty: 1,
             harga_satuan: tarifAdm,

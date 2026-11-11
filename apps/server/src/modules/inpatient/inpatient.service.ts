@@ -7,6 +7,8 @@ interface BillItem {
   deskripsi: string
   qty: number
   harga_satuan: number
+  subtotal: number
+  discount: number
   total: number
   referensi_id?: string
   referensi_tipe?: string
@@ -700,6 +702,8 @@ export class InpatientService {
           deskripsi,
           qty: 1,
           harga_satuan: tarif,
+          subtotal: tarif,
+          discount: 0,
           total: tarif,
         })
       }
@@ -734,6 +738,8 @@ export class InpatientService {
         deskripsi: proc.nama_tindakan,
         qty,
         harga_satuan: tarif,
+        subtotal: total,
+        discount: 0,
         total,
         referensi_id: proc.id,
         referensi_tipe: 'procedure',
@@ -761,6 +767,8 @@ export class InpatientService {
         deskripsi: di.drug_nama,
         qty,
         harga_satuan: harga,
+        subtotal: total,
+        discount: 0,
         total,
         referensi_id: di.di_id,
         referensi_tipe: 'dispensing_item',
@@ -804,6 +812,8 @@ export class InpatientService {
             deskripsi: `${roomNama}${kelas} (${days} hari)`,
             qty: days,
             harga_satuan: tarif,
+            subtotal: total,
+            discount: 0,
             total,
           })
         }
@@ -827,6 +837,8 @@ export class InpatientService {
             deskripsi: `${bed.room_nama}${kelas} (${days} hari)`,
             qty: days,
             harga_satuan: tarif,
+            subtotal: total,
+            discount: 0,
             total,
           })
         }
@@ -852,10 +864,12 @@ export class InpatientService {
             ? (roomKelas === 0 ? 'VIP' : `Kelas ${roomKelas}`)
             : ''
           items.push({
-            kategori: 'keperawatan',
+            kategori: 'tindakan',
             deskripsi: `Jasa Perawatan Harian${kelasLabel ? ` (${kelasLabel})` : ''} (${days} hari)`,
             qty: days,
             harga_satuan: tarifPerawatan,
+            subtotal: totalPerawatan,
+            discount: 0,
             total: totalPerawatan,
           })
         }
@@ -871,10 +885,12 @@ export class InpatientService {
       const tarifAdmin = this.resolveKompTarif(kompAdmin, visitTipe, roomKelas)
       if (tarifAdmin > 0) {
         items.push({
-          kategori: 'administrasi',
+          kategori: 'admin',
           deskripsi: 'Biaya Administrasi',
           qty: 1,
           harga_satuan: tarifAdmin,
+          subtotal: tarifAdmin,
+          discount: 0,
           total: tarifAdmin,
         })
       }
