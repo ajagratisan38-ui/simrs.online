@@ -418,6 +418,55 @@ export class DoctorService {
     return tx
   }
 
+  /**
+   * Record fee from a visit, automatically routing to the correct doctor.
+   * If visit was substituted, fee goes to the substitute (visit.doctor_id),
+   * and deskripsi notes the substitution.
+   */
+  async recordFeeFromVisit(
+    visitId: string,
+    deskripsi: string,
+    tarif: number,
+    tenantSchema: string,
+    feeId?: string,
+    persentaseDokter?: number,
+    persentaseRs?: number,
+  ) {
+    const visit = await this.db
+      .withSchema(tenantSchema)
+      .select('doctor_id', 'original_doctor_id', 'substitution_id')
+      .from('visits')
+      .where('id', visitId)
+      .first()
+
+    if (!visit) throw new NotFoundError('Visit')
+
+    let finalDeskripsi = deskripsi
+    if (visit.original_doctor_id && visit.substitution_id) {
+      const originalDoc = await this.db
+        .withSchema(tenantSchema)
+        .select('u.name')
+        .from('doctors as d')
+        .join('users as u', 'u.id', 'd.user_id')
+        .where('d.id', visit.original_doctor_id)
+        .first()
+
+      if (originalDoc) {
+        finalDeskripsi += ` (pengganti dr. ${originalDoc.name})`
+      }
+    }
+
+    return this.recordFeeTransaction({
+      doctor_id: visit.doctor_id,
+      visit_id: visitId,
+      fee_id: feeId,
+      deskripsi: finalDeskripsi,
+      tarif,
+      persentase_dokter: persentaseDokter,
+      persentase_rs: persentaseRs,
+    }, tenantSchema)
+  }
+
   async getDoctorEarnings(
     doctorId: string,
     tenantSchema: string,
@@ -429,11 +478,16 @@ export class DoctorService {
         'doctor_fee_transactions.*',
         'visits.visit_number',
         'visits.tanggal',
+        'visits.original_doctor_id',
+        'visits.substitution_id',
         'patients.nama as patient_nama',
+        'u_orig.name as original_doctor_nama',
       )
       .from('doctor_fee_transactions')
       .join('visits', 'doctor_fee_transactions.visit_id', 'visits.id')
       .join('patients', 'visits.patient_id', 'patients.id')
+      .leftJoin('doctors as d_orig', 'd_orig.id', 'visits.original_doctor_id')
+      .leftJoin('users as u_orig', 'u_orig.id', 'd_orig.user_id')
       .where('doctor_fee_transactions.doctor_id', doctorId)
       .orderBy('doctor_fee_transactions.created_at', 'desc')
 
