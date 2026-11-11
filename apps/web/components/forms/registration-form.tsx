@@ -1071,6 +1071,13 @@ export function RegistrationForm() {
         </div>
       )}
 
+      {/* Debug info (temporary) */}
+      {step === 1 && (
+        <div className="text-[10px] text-red-500 bg-red-50 rounded p-2 mt-2 font-mono">
+          DEBUG: room={roomId ? '✅' : '❌'} doctor={doctorId ? '✅' : '❌'} bed={bedId ? '✅' : '❌'} tipe={tipe} laka={String(isLakaLantas)} canGo={String(canGoNext())}
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="flex items-center justify-between mt-6 pt-4 border-t">
         <Button
