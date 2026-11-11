@@ -1074,6 +1074,7 @@ export function RegistrationForm() {
       {/* Navigation */}
       <div className="flex items-center justify-between mt-6 pt-4 border-t">
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
@@ -1085,6 +1086,7 @@ export function RegistrationForm() {
 
         {step < STEPS.length - 1 ? (
           <Button
+            type="button"
             size="sm"
             onClick={() => setStep((s) => s + 1)}
             disabled={!canGoNext()}
@@ -1094,6 +1096,7 @@ export function RegistrationForm() {
           </Button>
         ) : (
           <Button
+            type="button"
             size="sm"
             onClick={handleSubmit}
             disabled={!canGoNext() || isSubmitting}
