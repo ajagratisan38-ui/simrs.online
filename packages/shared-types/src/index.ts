@@ -612,7 +612,7 @@ export interface Surgery extends BaseEntity {
 // --- CPPT Types ---
 export const CPPT_PROFESI = [
   'Dokter', 'Perawat', 'Apoteker', 'Analis Lab', 'Radiografer',
-  'Rekam Medis', 'Admin',
+  'Rekam Medis', 'Admin', 'Fisioterapis', 'Terapis Wicara', 'Terapis Okupasi',
 ] as const
 export type CpptProfesi = (typeof CPPT_PROFESI)[number]
 
@@ -699,4 +699,89 @@ export interface McuExamination extends BaseEntity {
   is_completed: boolean
   completed_at: string | null
   completed_by: string | null
+}
+
+// --- Rehabilitation Types ---
+export const REHAB_THERAPY_TYPES = [
+  'fisioterapi', 'terapi_wicara', 'terapi_okupasi', 'terapi_psikologi',
+  'terapi_respirasi', 'rehabilitasi_jantung', 'rehabilitasi_neurologi', 'lainnya',
+] as const
+export type RehabTherapyType = (typeof REHAB_THERAPY_TYPES)[number]
+
+export const REHAB_THERAPY_LABELS: Record<RehabTherapyType, string> = {
+  fisioterapi: 'Fisioterapi',
+  terapi_wicara: 'Terapi Wicara',
+  terapi_okupasi: 'Terapi Okupasi',
+  terapi_psikologi: 'Terapi Psikologi',
+  terapi_respirasi: 'Terapi Respirasi',
+  rehabilitasi_jantung: 'Rehabilitasi Jantung',
+  rehabilitasi_neurologi: 'Rehabilitasi Neurologi',
+  lainnya: 'Lainnya',
+}
+
+export const REHAB_ORDER_STATUSES = [
+  'dikirim', 'dijadwalkan', 'berlangsung', 'selesai', 'batal',
+] as const
+export type RehabOrderStatus = (typeof REHAB_ORDER_STATUSES)[number]
+
+export type PractitionerStatus = 'aktif' | 'nonaktif' | 'kontrak_habis'
+
+export interface ExternalPractitioner extends BaseEntity {
+  nama: string
+  profesi: string
+  spesialisasi: string | null
+  no_sip: string | null
+  no_str: string | null
+  instansi_asal: string | null
+  telepon: string | null
+  email: string | null
+  alamat: string | null
+  fee_share_persen: number
+  fee_share_rs_persen: number
+  kontrak_mulai: string | null
+  kontrak_selesai: string | null
+  status: PractitionerStatus
+  catatan: string | null
+}
+
+export interface RehabilitationOrder extends BaseEntity {
+  visit_id: string
+  patient_id: string
+  ordering_doctor_id: string
+  practitioner_id: string | null
+  therapy_type: RehabTherapyType
+  status: RehabOrderStatus
+  diagnosa_klinis: string
+  indikasi: string | null
+  target_terapi: string | null
+  jumlah_sesi: number
+  sesi_selesai: number
+  catatan_dokter: string | null
+  catatan_terapis: string | null
+  tarif_per_sesi: number
+  started_at: string | null
+  completed_at: string | null
+  // joined fields
+  patient_nama?: string
+  no_rekam_medis?: string
+  doctor_nama?: string
+  practitioner_nama?: string
+}
+
+export interface RehabilitationSession extends BaseEntity {
+  order_id: string
+  sesi_ke: number
+  tanggal: string
+  waktu_mulai: string | null
+  waktu_selesai: string | null
+  practitioner_id: string | null
+  tindakan: string | null
+  hasil: string | null
+  catatan_progress: string | null
+  skala_nyeri_sebelum: number | null
+  skala_nyeri_sesudah: number | null
+  rom_sebelum: string | null
+  rom_sesudah: string | null
+  status: string
+  performed_by: string | null
 }
