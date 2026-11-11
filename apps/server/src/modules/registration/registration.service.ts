@@ -5,12 +5,17 @@ import {
   ConflictError,
   ValidationError,
 } from '../../shared/errors'
+import { SubstitutionService } from '../doctor/substitution.service'
 import type { CreateVisitInput, ListVisitsInput } from './registration.validator'
 
 const MAX_RETRY = 3
 
 export class RegistrationService {
-  constructor(private db: Knex) {}
+  private substitutionService: SubstitutionService
+
+  constructor(private db: Knex) {
+    this.substitutionService = new SubstitutionService(db)
+  }
 
   /**
    * Daftarkan kunjungan baru.
@@ -56,8 +61,46 @@ export class RegistrationService {
       )
     }
 
-    // 3. Blokir duplikasi pendaftaran (poli + dokter + tanggal sama)
     const today = new Date().toISOString().split('T')[0]
+
+    // 4. Cek dokter available & status aktif — dengan auto-substitusi
+    const doctor = await this.db
+      .withSchema(tenantSchema)
+      .select('id', 'is_available')
+      .from('doctors')
+      .where({ id: data.doctor_id })
+      .first()
+
+    if (!doctor) throw new NotFoundError('Dokter')
+
+    let actualDoctorId = data.doctor_id
+    let originalDoctorId: string | null = null
+    let substitutionId: string | null = null
+
+    if (!doctor.is_available) {
+      // Check for active substitution
+      const substitution = await this.substitutionService.getActiveSubstitute(
+        data.doctor_id,
+        tenantSchema,
+        today,
+      )
+
+      if (substitution) {
+        actualDoctorId = substitution.substitute_doctor_id
+        originalDoctorId = data.doctor_id
+        substitutionId = substitution.id
+        logger.info(
+          `Doctor substitution applied: ${data.doctor_id} → ${actualDoctorId}`,
+          { substitutionId, tenantSchema },
+        )
+      } else {
+        throw new ValidationError(
+          'Dokter tidak tersedia / sedang cuti dan belum ada pengganti yang ditunjuk. Pilih dokter lain.',
+        )
+      }
+    }
+
+    // 5. Blokir duplikasi pendaftaran (poli + dokter aktual + tanggal sama)
     const duplicate = await this.db
       .withSchema(tenantSchema)
       .select('id', 'visit_number')
@@ -65,7 +108,7 @@ export class RegistrationService {
       .where({
         patient_id: data.patient_id,
         room_id: data.room_id,
-        doctor_id: data.doctor_id,
+        doctor_id: actualDoctorId,
         tanggal: today,
       })
       .whereNotIn('status', ['batal', 'selesai', 'pulang'])
@@ -78,22 +121,7 @@ export class RegistrationService {
       )
     }
 
-    // 4. Cek dokter available & status aktif
-    const doctor = await this.db
-      .withSchema(tenantSchema)
-      .select('id', 'is_available')
-      .from('doctors')
-      .where({ id: data.doctor_id })
-      .first()
-
-    if (!doctor) throw new NotFoundError('Dokter')
-    if (!doctor.is_available) {
-      throw new ValidationError(
-        'Dokter tidak tersedia / sedang cuti. Pilih dokter lain.',
-      )
-    }
-
-    // 5. Cek ruangan ada dan aktif
+    // 6. Cek ruangan ada dan aktif
     const room = await this.db
       .withSchema(tenantSchema)
       .select('id', 'nama', 'is_active')
@@ -123,7 +151,9 @@ export class RegistrationService {
               tipe: data.tipe,
               tanggal: today,
               room_id: data.room_id,
-              doctor_id: data.doctor_id,
+              doctor_id: actualDoctorId,
+              original_doctor_id: originalDoctorId,
+              substitution_id: substitutionId,
               bed_id: data.bed_id || null,
               keluhan_utama: data.keluhan_utama || null,
               cara_masuk: data.cara_masuk,
