@@ -409,7 +409,7 @@ export class InpatientService {
     if (visit.status === 'pulang') {
       throw new ValidationError('Pasien sudah dalam status pulang')
     }
-    if (!['rawat_inap', 'diperiksa', 'selesai'].includes(visit.status)) {
+    if (!['rawat_inap', 'diperiksa', 'selesai', 'menunggu', 'dipanggil', 'dilayani'].includes(visit.status as string)) {
       throw new ValidationError(
         `Status kunjungan "${visit.status}" tidak bisa dipulangkan`,
       )
@@ -482,9 +482,16 @@ export class InpatientService {
         .where({ visit_id: visitId }).first()
 
       if (!existingBill) {
-        const billItems = await this.collectBillItems(
-          trx, visitId, visit, tenantSchema,
-        )
+        let billItems: BillItem[] = []
+        try {
+          billItems = await this.collectBillItems(
+            trx, visitId, visit, tenantSchema,
+          )
+        } catch (err) {
+          logger.warn('Failed to collect bill items during discharge, skipping bill generation', {
+            visitId, error: (err as Error).message,
+          })
+        }
 
         if (billItems.length > 0) {
           const totalAmount = billItems.reduce((s, i) => s + i.total, 0)
@@ -635,10 +642,10 @@ export class InpatientService {
         .first()
 
       if (bed && Number(bed.tarif_per_hari) > 0) {
-        const checkIn = new Date(visit.tanggal as string)
+        const checkIn = visit.tanggal ? new Date(visit.tanggal as string) : new Date()
         const now = new Date()
         const diffMs = now.getTime() - checkIn.getTime()
-        const days = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+        const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
         const tarif = Number(bed.tarif_per_hari)
         const total = tarif * days
         items.push({
