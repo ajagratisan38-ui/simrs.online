@@ -516,11 +516,18 @@ function RegisterDialog({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Daftarkan Medical Check Up
-        </h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="relative z-10 bg-background rounded-2xl shadow-2xl border w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-5 py-4 bg-muted/30">
+          <h2 className="text-base font-semibold">
+            Daftarkan Medical Check Up
+          </h2>
+        </div>
+        <div className="p-5 max-h-[70vh] overflow-y-auto">
 
         <div className="space-y-4">
           {/* Patient search */}
@@ -612,8 +619,9 @@ function RegisterDialog({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+        </div>
+        <div className="px-5 py-4 bg-muted/30 flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm border rounded-lg hover:bg-accent">
             Batal
           </button>
           <button
@@ -672,12 +680,18 @@ function PackageDialog({ onClose, editData }: { onClose: () => void; editData?: 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {isEdit ? 'Edit Paket MCU' : 'Tambah Paket MCU'}
-        </h2>
-
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="relative z-10 bg-background rounded-2xl shadow-2xl border w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="px-5 py-4 bg-muted/30">
+          <h2 className="text-base font-semibold">
+            {isEdit ? 'Edit Paket MCU' : 'Tambah Paket MCU'}
+          </h2>
+        </div>
+        <div className="p-5 max-h-[70vh] overflow-y-auto">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -748,8 +762,9 @@ function PackageDialog({ onClose, editData }: { onClose: () => void; editData?: 
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+        </div>
+        <div className="px-5 py-4 bg-muted/30 flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm border rounded-lg hover:bg-accent">
             Batal
           </button>
           <button
