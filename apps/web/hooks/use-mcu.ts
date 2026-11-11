@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getMcuStats, listMcuPackages, createMcuPackage, toggleMcuPackage, deleteMcuPackage,
+  getMcuStats, listMcuPackages, createMcuPackage, updateMcuPackage, toggleMcuPackage, deleteMcuPackage,
   registerMcu, listMcuRegistrations, getMcuRegistration, startMcu,
   inputExamResult, concludeMcu, cancelMcu, getMcuCertificate,
 } from '@/lib/api/mcu'
@@ -17,6 +17,15 @@ export function useCreateMcuPackage() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: createMcuPackage,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['mcu-packages'] }),
+  })
+}
+
+export function useUpdateMcuPackage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+      updateMcuPackage(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['mcu-packages'] }),
   })
 }

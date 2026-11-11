@@ -5,11 +5,11 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ClipboardCheck, Plus, Search, Package, Users, CheckCircle, Clock,
-  AlertTriangle, XCircle, Eye, Trash2, ToggleLeft, ToggleRight, ChevronDown,
+  AlertTriangle, XCircle, Eye, Trash2, ToggleLeft, ToggleRight, ChevronDown, Pencil,
 } from 'lucide-react'
 import {
   useMcuStats, useMcuPackages, useMcuRegistrations,
-  useCreateMcuPackage, useToggleMcuPackage, useDeleteMcuPackage,
+  useCreateMcuPackage, useUpdateMcuPackage, useToggleMcuPackage, useDeleteMcuPackage,
   useRegisterMcu, useCancelMcu,
 } from '@/hooks/use-mcu'
 import { usePatients } from '@/hooks/use-patients'
@@ -328,6 +328,7 @@ function PackagesTab() {
   const togglePkg = useToggleMcuPackage()
   const deletePkg = useDeleteMcuPackage()
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
+  const [editPkg, setEditPkg] = useState<Record<string, unknown> | null>(null)
 
   const getErrMsg = (err: unknown): string => {
     const e = err as Record<string, unknown>
@@ -414,6 +415,13 @@ function PackagesTab() {
               </div>
               <div className="flex items-center gap-1">
                 <button
+                  onClick={() => setEditPkg(pkg)}
+                  className="p-1.5 text-gray-400 hover:text-blue-600 rounded"
+                  title="Edit"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
                   onClick={() => handleToggle(pkg.id, pkg.nama, pkg.is_active)}
                   disabled={togglePkg.isPending}
                   className="p-1.5 text-gray-400 hover:text-teal-600 rounded disabled:opacity-50"
@@ -465,6 +473,13 @@ function PackagesTab() {
         </div>
       ))}
       </div>
+
+      {editPkg && (
+        <PackageDialog
+          onClose={() => setEditPkg(null)}
+          editData={editPkg as Record<string, unknown>}
+        />
+      )}
     </div>
   )
 }
@@ -614,16 +629,22 @@ function RegisterDialog({ onClose }: { onClose: () => void }) {
   )
 }
 
-function PackageDialog({ onClose }: { onClose: () => void }) {
-  const [nama, setNama] = useState('')
-  const [kode, setKode] = useState('')
-  const [deskripsi, setDeskripsi] = useState('')
-  const [harga, setHarga] = useState('')
-  const [items, setItems] = useState<{ kategori: string; nama: string }[]>([])
+function PackageDialog({ onClose, editData }: { onClose: () => void; editData?: Record<string, unknown> }) {
+  const isEdit = !!editData
+  const [nama, setNama] = useState(editData?.nama as string || '')
+  const [kode, setKode] = useState(editData?.kode as string || '')
+  const [deskripsi, setDeskripsi] = useState(editData?.deskripsi as string || '')
+  const [harga, setHarga] = useState(editData?.harga != null ? String(editData.harga) : '')
+  const existingItems = (editData?.items as { kategori: string; nama: string }[] | undefined) || []
+  const [items, setItems] = useState<{ kategori: string; nama: string }[]>(
+    existingItems.map((i) => ({ kategori: i.kategori, nama: i.nama }))
+  )
   const [newKategori, setNewKategori] = useState('fisik_umum')
   const [newNama, setNewNama] = useState('')
 
   const createPkg = useCreateMcuPackage()
+  const updatePkg = useUpdateMcuPackage()
+  const isPending = createPkg.isPending || updatePkg.isPending
 
   const addItem = () => {
     if (!newNama.trim()) return
@@ -637,17 +658,24 @@ function PackageDialog({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = () => {
     if (!nama || !kode || !harga || items.length === 0) return
-    createPkg.mutate(
-      { nama, kode, deskripsi, harga: Number(harga), items },
-      { onSuccess: () => onClose() },
-    )
+    if (isEdit) {
+      updatePkg.mutate(
+        { id: editData.id as string, data: { nama, kode, deskripsi, harga: Number(harga), items } },
+        { onSuccess: () => onClose() },
+      )
+    } else {
+      createPkg.mutate(
+        { nama, kode, deskripsi, harga: Number(harga), items },
+        { onSuccess: () => onClose() },
+      )
+    }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Tambah Paket MCU
+          {isEdit ? 'Edit Paket MCU' : 'Tambah Paket MCU'}
         </h2>
 
         <div className="space-y-4">
@@ -726,10 +754,10 @@ function PackageDialog({ onClose }: { onClose: () => void }) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!nama || !kode || !harga || items.length === 0 || createPkg.isPending}
+            disabled={!nama || !kode || !harga || items.length === 0 || isPending}
             className="px-4 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
           >
-            {createPkg.isPending ? 'Menyimpan...' : 'Simpan Paket'}
+            {isPending ? 'Menyimpan...' : isEdit ? 'Update Paket' : 'Simpan Paket'}
           </button>
         </div>
       </div>

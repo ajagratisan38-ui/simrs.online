@@ -9,6 +9,8 @@ import {
   Package,
   Trash2,
   PlusCircle,
+  Pencil,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +21,7 @@ import { toast } from 'sonner'
 import {
   useWarehouseItems,
   useCreateWarehouseItem,
+  useUpdateWarehouseItem,
   useDeleteWarehouseItem,
   useAddWarehouseStock,
 } from '@/hooks/use-warehouse'
@@ -54,6 +57,15 @@ export default function GudangPage() {
   const [fMinimum, setFMinimum] = useState('5')
   const [fLokasi, setFLokasi] = useState('')
 
+  // Edit form
+  const [editItem, setEditItem] = useState<Record<string, unknown> | null>(null)
+  const [eNama, setENama] = useState('')
+  const [eKat, setEKat] = useState('')
+  const [eSatuan, setESatuan] = useState('')
+  const [eHarga, setEHarga] = useState('')
+  const [eMinimum, setEMinimum] = useState('')
+  const [eLokasi, setELokasi] = useState('')
+
   // Stock add form
   const [sJumlah, setSJumlah] = useState('')
   const [sBatch, setSBatch] = useState('')
@@ -66,6 +78,7 @@ export default function GudangPage() {
   const items = res?.data ?? []
 
   const createMut = useCreateWarehouseItem()
+  const updateMut = useUpdateWarehouseItem()
   const deleteMut = useDeleteWarehouseItem()
   const addStockMut = useAddWarehouseStock()
 
@@ -98,6 +111,37 @@ export default function GudangPage() {
       setShowStockAdd(null); setSJumlah(''); setSBatch(''); setSSupplier('')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Gagal')
+    }
+  }
+
+  const openEdit = (item: Record<string, unknown>) => {
+    setEditItem(item)
+    setENama(item.nama as string || '')
+    setEKat(item.kategori as string || 'lain_lain')
+    setESatuan(item.satuan as string || 'pcs')
+    setEHarga(String(item.harga_beli ?? ''))
+    setEMinimum(String(item.stok_minimum ?? '5'))
+    setELokasi(item.lokasi as string || '')
+  }
+
+  const handleUpdate = async () => {
+    if (!editItem || !eNama) return toast.error('Nama wajib diisi')
+    try {
+      await updateMut.mutateAsync({
+        id: editItem.id as string,
+        data: {
+          nama: eNama,
+          kategori: eKat,
+          satuan: eSatuan,
+          harga_beli: Number(eHarga) || 0,
+          stok_minimum: Number(eMinimum) || 0,
+          lokasi: eLokasi || null,
+        },
+      })
+      toast.success('Barang berhasil diperbarui')
+      setEditItem(null)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Gagal memperbarui')
     }
   }
 
@@ -225,7 +269,16 @@ export default function GudangPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => openEdit(item)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4 text-blue-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setShowStockAdd(showStockAdd === item.id ? null : item.id)}
+                        title="Tambah Stok"
                       >
                         <PlusCircle className="h-4 w-4 text-teal-600" />
                       </Button>
@@ -238,6 +291,7 @@ export default function GudangPage() {
                             onError: (e) => toast.error(e.message),
                           })
                         }
+                        title="Hapus"
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
@@ -260,6 +314,64 @@ export default function GudangPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Edit Dialog */}
+      {editItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Barang</h2>
+              <button onClick={() => setEditItem(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kode</label>
+                <Input value={editItem.kode as string} disabled className="bg-muted text-xs" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Barang *</label>
+                <Input value={eNama} onChange={(e) => setENama(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kategori</label>
+                  <Select value={eKat} onChange={(e) => setEKat(e.target.value)}>
+                    {KATEGORI_OPTIONS.filter((k) => k.value).map((k) => (
+                      <option key={k.value} value={k.value}>{k.label}</option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Satuan</label>
+                  <Input value={eSatuan} onChange={(e) => setESatuan(e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Harga Beli</label>
+                  <Input type="number" value={eHarga} onChange={(e) => setEHarga(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Minimum</label>
+                  <Input type="number" value={eMinimum} onChange={(e) => setEMinimum(e.target.value)} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Lokasi</label>
+                <Input value={eLokasi} onChange={(e) => setELokasi(e.target.value)} placeholder="Opsional" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-5">
+              <Button variant="outline" size="sm" onClick={() => setEditItem(null)}>Batal</Button>
+              <Button size="sm" onClick={handleUpdate} disabled={updateMut.isPending}>
+                {updateMut.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
