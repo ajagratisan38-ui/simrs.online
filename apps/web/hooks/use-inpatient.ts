@@ -16,6 +16,7 @@ export function useInpatientRooms() {
   return useQuery({
     queryKey: ['inpatient', 'rooms'],
     queryFn: api.getInpatientRooms,
+    refetchInterval: 30_000,
   })
 }
 
@@ -49,6 +50,7 @@ export function useBedsByRoom(roomId: string | null) {
     queryKey: ['inpatient', 'beds', roomId],
     queryFn: () => api.getBedsByRoom(roomId!),
     enabled: !!roomId,
+    refetchInterval: 15_000,
   })
 }
 
@@ -56,6 +58,7 @@ export function useAllBeds() {
   return useQuery({
     queryKey: ['inpatient', 'beds', 'all'],
     queryFn: api.getAllBeds,
+    refetchInterval: 30_000,
   })
 }
 

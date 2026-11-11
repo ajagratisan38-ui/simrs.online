@@ -59,6 +59,8 @@ export function useCreateVisit() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['queues'] })
       qc.invalidateQueries({ queryKey: ['visits'] })
+      qc.invalidateQueries({ queryKey: ['inpatient'] })
+      qc.invalidateQueries({ queryKey: ['patients'] })
     },
   })
 }
