@@ -108,6 +108,17 @@ export function RegistrationForm() {
   )
   const availableBeds = bedsInRoom?.filter((b) => b.status === 'tersedia') ?? []
 
+  // Auto-select bed if only one available
+  useEffect(() => {
+    if (tipe === 'rawat_inap' && availableBeds.length === 1 && !bedId) {
+      setBedId(availableBeds[0].id)
+    }
+    // Clear bedId if selected bed no longer in available list
+    if (bedId && availableBeds.length > 0 && !availableBeds.find((b) => b.id === bedId)) {
+      setBedId('')
+    }
+  }, [availableBeds, tipe, bedId])
+
   // BPJS auto-check
   const noBpjs = selectedPatient?.no_bpjs || undefined
   const {
@@ -530,8 +541,8 @@ export function RegistrationForm() {
                       className={cn(
                         'rounded-lg border-2 p-2.5 text-xs font-medium transition-all text-center',
                         bedId === b.id
-                          ? 'border-primary bg-primary/10 text-primary ring-2 ring-primary/20'
-                          : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400',
+                          ? 'border-primary bg-primary/10 text-primary ring-2 ring-primary/20 shadow-sm'
+                          : 'border-gray-300 bg-gray-50 text-gray-600 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300',
                       )}
                     >
                       {b.nomor}
@@ -1068,13 +1079,6 @@ export function RegistrationForm() {
               )}
             </div>
           )}
-        </div>
-      )}
-
-      {/* Debug info (temporary) */}
-      {step === 1 && (
-        <div className="text-[10px] text-red-500 bg-red-50 rounded p-2 mt-2 font-mono">
-          DEBUG: room={roomId ? '✅' : '❌'} doctor={doctorId ? '✅' : '❌'} bed={bedId ? '✅' : '❌'} tipe={tipe} laka={String(isLakaLantas)} canGo={String(canGoNext())}
         </div>
       )}
 
