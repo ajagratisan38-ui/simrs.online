@@ -3,7 +3,7 @@ import { TarifService } from './tarif.service'
 import { TarifController } from './tarif.controller'
 import { authenticate } from '../../middleware/authenticate'
 import { checkPermission } from '../../middleware/check-permission'
-import db from '../../config/database'
+import { db } from '../../config/database'
 
 const service = new TarifService(db)
 const controller = new TarifController(service)
