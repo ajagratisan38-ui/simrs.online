@@ -18,6 +18,7 @@ import {
   ScrollText,
   ClipboardList,
   GraduationCap,
+  Heart,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -288,6 +289,12 @@ export default function ExaminationPage() {
           <Link href={`/rekam-medis/${visitId}/edukasi`}>
             <GraduationCap className="h-4 w-4 mr-1" />
             Edukasi
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/rehabilitasi">
+            <Heart className="h-4 w-4 mr-1" />
+            Rehabilitasi
           </Link>
         </Button>
         {satusehatStatus && satusehatStatus.syncStatus !== 'not_required' && (

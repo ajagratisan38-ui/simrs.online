@@ -49,6 +49,9 @@ const PROFESI_COLORS: Record<string, string> = {
   Radiografer: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   'Rekam Medis': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
   Admin: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  Fisioterapis: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
+  'Terapis Wicara': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
+  'Terapis Okupasi': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
 }
 
 const PROFESI_TIMELINE_COLORS: Record<string, string> = {
@@ -57,6 +60,9 @@ const PROFESI_TIMELINE_COLORS: Record<string, string> = {
   Apoteker: 'border-purple-400 bg-purple-400',
   'Analis Lab': 'border-amber-400 bg-amber-400',
   Radiografer: 'border-orange-400 bg-orange-400',
+  Fisioterapis: 'border-teal-400 bg-teal-400',
+  'Terapis Wicara': 'border-cyan-400 bg-cyan-400',
+  'Terapis Okupasi': 'border-indigo-400 bg-indigo-400',
 }
 
 const FILTER_OPTIONS = [
@@ -66,6 +72,9 @@ const FILTER_OPTIONS = [
   { value: 'Apoteker', label: 'Apoteker' },
   { value: 'Analis Lab', label: 'Analis Lab' },
   { value: 'Radiografer', label: 'Radiografer' },
+  { value: 'Fisioterapis', label: 'Fisioterapis' },
+  { value: 'Terapis Wicara', label: 'Terapis Wicara' },
+  { value: 'Terapis Okupasi', label: 'Terapis Okupasi' },
 ]
 
 interface FormState {
