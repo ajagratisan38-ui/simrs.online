@@ -11,7 +11,7 @@ import {
   Building2, AlertTriangle, RefreshCw, Cloud, ChevronDown,
   BookOpen, BookMarked, Ambulance, BedDouble, CreditCard, Menu, X, Scissors, Utensils, Truck,
   ShoppingCart, ArrowRightLeft, Upload, Database, HardDrive, DoorOpen, Calculator,
-  Heart, ClipboardCheck,
+  Heart, ClipboardCheck, Briefcase,
   LogOut, HelpCircle, Activity, MoreHorizontal,
   Sun, Moon, Monitor, CheckCircle2, XCircle,
   type LucideIcon,
@@ -30,7 +30,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Building2, AlertTriangle, RefreshCw, Cloud,
   BookOpen, BookMarked, Ambulance, BedDouble, CreditCard, Scissors, Utensils,
   ShoppingCart, ArrowRightLeft, Upload, Database, HardDrive, Truck, DoorOpen, Calculator,
-  Heart, ClipboardCheck,
+  Heart, ClipboardCheck, Briefcase,
 }
 
 interface TopNavbarProps {

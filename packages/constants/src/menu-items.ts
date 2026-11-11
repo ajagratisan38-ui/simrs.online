@@ -252,6 +252,12 @@ export const MENU_ITEMS: readonly MenuItem[] = [
         roles: ['admin'],
       },
       {
+        label: 'Tenaga Luar',
+        href: '/admin/tenaga-luar',
+        icon: 'Briefcase',
+        roles: ['admin'],
+      },
+      {
         label: 'Pengguna',
         href: '/admin/pengguna',
         icon: 'UserCog',
