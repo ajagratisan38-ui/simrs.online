@@ -9,18 +9,8 @@ export async function up(knex: Knex): Promise<void> {
     )
     if (schemaExists.rows.length === 0) continue
 
-    await knex.raw(`ALTER TABLE ${schema}.beds ALTER COLUMN nomor TYPE VARCHAR(50)`)
+    await knex.raw(`ALTER TABLE "${schema}".beds ALTER COLUMN nomor TYPE VARCHAR(50)`)
   }
-
-  await knex.raw(`
-    CREATE OR REPLACE FUNCTION create_tenant_schema(tenant_slug TEXT)
-    RETURNS VOID AS $$
-    BEGIN
-      EXECUTE format('ALTER TABLE %I.beds ALTER COLUMN nomor TYPE VARCHAR(50)', 'tenant_' || tenant_slug);
-    EXCEPTION WHEN OTHERS THEN NULL;
-    END;
-    $$ LANGUAGE plpgsql;
-  `)
 }
 
 export async function down(knex: Knex): Promise<void> {
@@ -32,6 +22,6 @@ export async function down(knex: Knex): Promise<void> {
     )
     if (schemaExists.rows.length === 0) continue
 
-    await knex.raw(`ALTER TABLE ${schema}.beds ALTER COLUMN nomor TYPE VARCHAR(10)`)
+    await knex.raw(`ALTER TABLE "${schema}".beds ALTER COLUMN nomor TYPE VARCHAR(10)`)
   }
 }

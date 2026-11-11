@@ -14,7 +14,7 @@ export async function up(knex: Knex): Promise<void> {
 
     // Create komponen_tarif table — master tariff per class
     await knex.raw(`
-      CREATE TABLE IF NOT EXISTS ${schema}.komponen_tarif (
+      CREATE TABLE IF NOT EXISTS "${schema}".komponen_tarif (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         kode VARCHAR(30) NOT NULL,
         nama VARCHAR(200) NOT NULL,
@@ -34,16 +34,16 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kategori
-      ON ${schema}.komponen_tarif (kategori)
+      ON "${schema}".komponen_tarif (kategori)
     `)
     await knex.raw(`
       CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kode
-      ON ${schema}.komponen_tarif (kode)
+      ON "${schema}".komponen_tarif (kode)
     `)
 
     // Seed default komponen tarif
     await knex.raw(`
-      INSERT INTO ${schema}.komponen_tarif (kode, nama, kategori, tarif_kelas_3, tarif_kelas_2, tarif_kelas_1, tarif_vip, tarif_igd, tarif_poli)
+      INSERT INTO "${schema}".komponen_tarif (kode, nama, kategori, tarif_kelas_3, tarif_kelas_2, tarif_kelas_1, tarif_vip, tarif_igd, tarif_poli)
       VALUES
         -- Visite Dokter
         ('VIS-UMUM', 'Visite Dokter Umum', 'visite', 75000, 100000, 150000, 200000, 150000, 100000),
@@ -78,6 +78,6 @@ export async function down(knex: Knex): Promise<void> {
 
   for (const tenant of tenants) {
     const schema = `tenant_${tenant.slug}`
-    await knex.raw(`DROP TABLE IF EXISTS ${schema}.komponen_tarif CASCADE`)
+    await knex.raw(`DROP TABLE IF EXISTS "${schema}".komponen_tarif CASCADE`)
   }
 }
