@@ -242,6 +242,7 @@ export default function GudangPage() {
                 <th className="py-2 pr-3">Kategori</th>
                 <th className="py-2 pr-3">Satuan</th>
                 <th className="py-2 pr-3 text-right">Stok</th>
+                <th className="py-2 pr-3 text-right">Min</th>
                 <th className="py-2 pr-3 text-right">Harga Beli</th>
                 <th className="py-2 text-right">Aksi</th>
               </tr>
@@ -262,6 +263,9 @@ export default function GudangPage() {
                     item.total_stok <= item.stok_minimum && 'text-red-600',
                   )}>
                     {item.total_stok}
+                  </td>
+                  <td className="py-2.5 pr-3 text-right text-muted-foreground text-xs">
+                    {item.stok_minimum}
                   </td>
                   <td className="py-2.5 pr-3 text-right">{formatRupiah(Number(item.harga_beli))}</td>
                   <td className="py-2.5 text-right">

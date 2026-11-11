@@ -9,7 +9,7 @@ const createItemSchema = z.object({
   satuan: z.string().default('pcs'),
   harga_beli: z.coerce.number().min(0).default(0),
   stok_minimum: z.coerce.number().int().min(0).default(5),
-  lokasi: z.string().optional(),
+  lokasi: z.string().nullable().optional(),
 })
 
 const addStockSchema = z.object({
