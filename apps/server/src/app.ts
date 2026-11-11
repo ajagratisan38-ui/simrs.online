@@ -56,6 +56,7 @@ import { doctorRouter } from './modules/doctor/doctor.routes'
 import { warehouseRouter, stockOpnameRouter } from './modules/warehouse/warehouse.routes'
 import { assetRouter } from './modules/asset/asset.routes'
 import { tarifRouter } from './modules/tarif/tarif.routes'
+import { rehabRouter, practitionerRouter } from './modules/rehabilitation/rehabilitation.routes'
 import { insuranceRouter, patientInsuranceRouter } from './modules/insurance/insurance.routes'
 import { nursingRouter } from './modules/nursing/nursing.routes'
 import { backupRoutes } from './modules/backup/backup.routes'
@@ -199,6 +200,8 @@ app.use('/api/v1/warehouse', warehouseRouter)
 app.use('/api/v1/stock-opname', stockOpnameRouter)
 app.use('/api/v1/assets', assetRouter)
 app.use('/api/v1/tarif', tarifRouter)
+app.use('/api/v1/rehabilitation', rehabRouter)
+app.use('/api/v1/external-practitioners', practitionerRouter)
 app.use('/api/v1/insurances', insuranceRouter)
 app.use('/api/v1/patients', patientInsuranceRouter)
 app.use('/api/v1/nursing', nursingRouter)
