@@ -162,10 +162,10 @@ export class RegistrationService {
         throw new ConflictError('Gagal generate nomor kunjungan. Coba lagi.')
       }
 
-      // Rawat inap langsung: assign bed + set status rawat_inap
+      // Rawat inap langsung: assign bed + set status rawat_inap + record transfer
       if (data.tipe === 'rawat_inap' && data.bed_id) {
         const bed = await trx.withSchema(tenantSchema)
-          .select('id', 'status').from('beds').where({ id: data.bed_id }).first()
+          .select('id', 'status', 'room_id').from('beds').where({ id: data.bed_id }).first()
 
         if (bed && bed.status === 'tersedia') {
           await trx.withSchema(tenantSchema)
@@ -179,6 +179,25 @@ export class RegistrationService {
               updated_at: new Date(),
             })
             .from('beds').where({ id: data.bed_id })
+
+          // Record initial bed assignment in bed_transfers
+          const room = await trx.withSchema(tenantSchema)
+            .select('id', 'nama', 'tarif_per_hari', 'kelas')
+            .from('rooms').where({ id: bed.room_id }).first()
+
+          await trx.withSchema(tenantSchema)
+            .insert({
+              visit_id: visit.id,
+              to_bed_id: data.bed_id,
+              to_room_id: bed.room_id,
+              to_room_nama: room?.nama || '',
+              to_room_tarif: room?.tarif_per_hari || 0,
+              to_room_kelas: room?.kelas || null,
+              transferred_at: new Date(),
+              transferred_by: userId,
+              catatan: 'Admisi awal',
+            })
+            .into('bed_transfers')
 
           visit.status = 'rawat_inap'
         }

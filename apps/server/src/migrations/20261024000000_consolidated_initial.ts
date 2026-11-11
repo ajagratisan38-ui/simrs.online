@@ -844,6 +844,35 @@ export async function up(knex: Knex): Promise<void> {
         )
       ', 'tenant_' || tenant_slug, 'tenant_' || tenant_slug, 'tenant_' || tenant_slug);
 
+      -- ============ BED TRANSFERS ============
+      EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.bed_transfers (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          visit_id UUID NOT NULL,
+          from_bed_id UUID,
+          from_room_id UUID,
+          to_bed_id UUID NOT NULL,
+          to_room_id UUID NOT NULL,
+          from_room_nama VARCHAR(200),
+          from_room_tarif NUMERIC(12,2) DEFAULT 0,
+          from_room_kelas INT,
+          to_room_nama VARCHAR(200),
+          to_room_tarif NUMERIC(12,2) DEFAULT 0,
+          to_room_kelas INT,
+          transferred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          transferred_by UUID,
+          catatan TEXT,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      ', 'tenant_' || tenant_slug);
+
+      EXECUTE format('
+        CREATE INDEX IF NOT EXISTS idx_bed_transfers_visit ON %I.bed_transfers (visit_id)
+      ', 'tenant_' || tenant_slug);
+      EXECUTE format('
+        CREATE INDEX IF NOT EXISTS idx_bed_transfers_date ON %I.bed_transfers (transferred_at)
+      ', 'tenant_' || tenant_slug);
+
       -- ============ INSURANCES ============
       EXECUTE format('
         CREATE TABLE IF NOT EXISTS %I.insurances (

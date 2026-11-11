@@ -246,13 +246,17 @@ export class InpatientService {
     }
 
     const visit = await this.db.withSchema(tenantSchema)
-      .select('id', 'patient_id', 'tipe', 'status')
+      .select('id', 'patient_id', 'tipe', 'status', 'tanggal')
       .from('visits').where({ id: visitId }).first()
 
     if (!visit) throw new NotFoundError('Visit')
     if (visit.patient_id !== patientId) {
       throw new ValidationError('Patient ID tidak sesuai dengan visit')
     }
+
+    const room = await this.db.withSchema(tenantSchema)
+      .select('id', 'nama', 'tarif_per_hari', 'kelas')
+      .from('rooms').where({ id: bed.room_id }).first()
 
     await this.db.transaction(async (trx) => {
       await trx.withSchema(tenantSchema)
@@ -262,6 +266,21 @@ export class InpatientService {
       await trx.withSchema(tenantSchema)
         .update({ bed_id: bedId, status: 'rawat_inap', updated_by: userId, updated_at: new Date() })
         .from('visits').where({ id: visitId })
+
+      // Record initial bed assignment in transfer history
+      await trx.withSchema(tenantSchema)
+        .insert({
+          visit_id: visitId,
+          to_bed_id: bedId,
+          to_room_id: bed.room_id,
+          to_room_nama: room?.nama || '',
+          to_room_tarif: room?.tarif_per_hari || 0,
+          to_room_kelas: room?.kelas || null,
+          transferred_at: visit.tanggal || new Date(),
+          transferred_by: userId,
+          catatan: 'Admisi awal',
+        })
+        .into('bed_transfers')
     })
 
     logger.info('Bed assigned', { bedId, patientId, visitId })
@@ -304,6 +323,7 @@ export class InpatientService {
     toBedId: string,
     tenantSchema: string,
     userId: string,
+    catatan?: string,
   ) {
     const fromBed = await this.db.withSchema(tenantSchema)
       .select('*').from('beds').where({ id: fromBedId }).first()
@@ -316,6 +336,21 @@ export class InpatientService {
     if (toBed.status !== 'tersedia') throw new ValidationError('Bed tujuan tidak tersedia')
 
     const patientId = fromBed.current_patient_id
+
+    // Get room info for both beds
+    const fromRoom = await this.db.withSchema(tenantSchema)
+      .select('id', 'nama', 'tarif_per_hari', 'kelas')
+      .from('rooms').where({ id: fromBed.room_id }).first()
+    const toRoom = await this.db.withSchema(tenantSchema)
+      .select('id', 'nama', 'tarif_per_hari', 'kelas')
+      .from('rooms').where({ id: toBed.room_id }).first()
+
+    // Find the active visit for this bed
+    const activeVisit = await this.db.withSchema(tenantSchema)
+      .select('id').from('visits')
+      .where({ bed_id: fromBedId, patient_id: patientId })
+      .whereIn('status', ['rawat_inap', 'diperiksa'])
+      .first()
 
     await this.db.transaction(async (trx) => {
       await trx.withSchema(tenantSchema)
@@ -331,9 +366,34 @@ export class InpatientService {
         .from('visits')
         .where({ bed_id: fromBedId, patient_id: patientId })
         .whereIn('status', ['rawat_inap', 'diperiksa'])
+
+      // Record transfer in bed_transfers history
+      if (activeVisit) {
+        await trx.withSchema(tenantSchema)
+          .insert({
+            visit_id: activeVisit.id,
+            from_bed_id: fromBedId,
+            from_room_id: fromBed.room_id,
+            from_room_nama: fromRoom?.nama || '',
+            from_room_tarif: fromRoom?.tarif_per_hari || 0,
+            from_room_kelas: fromRoom?.kelas || null,
+            to_bed_id: toBedId,
+            to_room_id: toBed.room_id,
+            to_room_nama: toRoom?.nama || '',
+            to_room_tarif: toRoom?.tarif_per_hari || 0,
+            to_room_kelas: toRoom?.kelas || null,
+            transferred_at: new Date(),
+            transferred_by: userId,
+            catatan: catatan || null,
+          })
+          .into('bed_transfers')
+      }
     })
 
-    logger.info('Bed transferred', { fromBedId, toBedId, patientId })
+    logger.info('Bed transferred', {
+      fromBedId, toBedId, patientId,
+      fromRoom: fromRoom?.nama, toRoom: toRoom?.nama,
+    })
     return { success: true }
   }
 
@@ -629,29 +689,69 @@ export class InpatientService {
       })
     }
 
-    // 4. Kamar rawat inap
+    // 4. Kamar rawat inap — hitung per segmen (per bed/room yang ditempati)
     if (visit.tipe === 'rawat_inap' && visit.bed_id) {
-      const bed = await trx.withSchema(tenantSchema)
-        .select('b.room_id', 'r.nama as room_nama', 'r.tarif_per_hari')
-        .from('beds as b')
-        .join('rooms as r', 'r.id', 'b.room_id')
-        .where('b.id', visit.bed_id as string)
-        .first()
+      const transfers = await trx.withSchema(tenantSchema)
+        .select('*')
+        .from('bed_transfers')
+        .where({ visit_id: visitId })
+        .orderBy('transferred_at', 'asc')
 
-      if (bed && Number(bed.tarif_per_hari) > 0) {
-        const checkIn = visit.tanggal ? new Date(visit.tanggal as string) : new Date()
-        const now = new Date()
-        const diffMs = now.getTime() - checkIn.getTime()
-        const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
-        const tarif = Number(bed.tarif_per_hari)
-        const total = tarif * days
-        items.push({
-          kategori: 'kamar',
-          deskripsi: `${bed.room_nama} (${days} hari)`,
-          qty: days,
-          harga_satuan: tarif,
-          total,
-        })
+      const now = new Date()
+      const admissionDate = visit.tanggal ? new Date(visit.tanggal as string) : new Date(visit.created_at as string)
+
+      if (transfers.length > 0) {
+        // Has transfer history — calculate per segment
+        for (let i = 0; i < transfers.length; i++) {
+          const transfer = transfers[i]
+          const segmentStart = i === 0
+            ? admissionDate
+            : new Date(transfer.transferred_at as string)
+          const segmentEnd = i < transfers.length - 1
+            ? new Date(transfers[i + 1].transferred_at as string)
+            : now
+
+          const roomNama = transfer.to_room_nama as string || 'Ruangan'
+          const tarif = Number(transfer.to_room_tarif) || 0
+          const kelas = transfer.to_room_kelas ? ` Kelas ${transfer.to_room_kelas}` : ''
+
+          if (tarif <= 0) continue
+
+          const diffMs = segmentEnd.getTime() - segmentStart.getTime()
+          const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+          const total = tarif * days
+
+          items.push({
+            kategori: 'kamar',
+            deskripsi: `${roomNama}${kelas} (${days} hari)`,
+            qty: days,
+            harga_satuan: tarif,
+            total,
+          })
+        }
+      } else {
+        // No transfer history (legacy) — fallback to single bed calculation
+        const bed = await trx.withSchema(tenantSchema)
+          .select('b.room_id', 'r.nama as room_nama', 'r.tarif_per_hari', 'r.kelas')
+          .from('beds as b')
+          .join('rooms as r', 'r.id', 'b.room_id')
+          .where('b.id', visit.bed_id as string)
+          .first()
+
+        if (bed && Number(bed.tarif_per_hari) > 0) {
+          const diffMs = now.getTime() - admissionDate.getTime()
+          const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+          const tarif = Number(bed.tarif_per_hari)
+          const kelas = bed.kelas ? ` Kelas ${bed.kelas}` : ''
+          const total = tarif * days
+          items.push({
+            kategori: 'kamar',
+            deskripsi: `${bed.room_nama}${kelas} (${days} hari)`,
+            qty: days,
+            harga_satuan: tarif,
+            total,
+          })
+        }
       }
     }
 
@@ -929,6 +1029,16 @@ export class InpatientService {
       },
       pesanWarning,
     }
+  }
+
+  // ==================== BED TRANSFER HISTORY ====================
+
+  async getBedTransferHistory(visitId: string, tenantSchema: string) {
+    return this.db.withSchema(tenantSchema)
+      .select('*')
+      .from('bed_transfers')
+      .where({ visit_id: visitId })
+      .orderBy('transferred_at', 'asc')
   }
 
   // ==================== HELPERS ====================

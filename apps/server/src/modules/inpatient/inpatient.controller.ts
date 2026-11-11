@@ -50,10 +50,20 @@ export class InpatientController {
 
   transferBed = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { fromBedId, toBedId } = req.body as { fromBedId: string; toBedId: string }
+      const { fromBedId, toBedId, catatan } = req.body as {
+        fromBedId: string; toBedId: string; catatan?: string
+      }
       const data = await this.service.transferBed(
-        fromBedId, toBedId, req.tenantSchema!, req.userId!,
+        fromBedId, toBedId, req.tenantSchema!, req.userId!, catatan,
       )
+      res.json({ success: true, data })
+    } catch (err) { next(err) }
+  }
+
+  bedTransferHistory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const visitId = req.params.visitId as string
+      const data = await this.service.getBedTransferHistory(visitId, req.tenantSchema!)
       res.json({ success: true, data })
     } catch (err) { next(err) }
   }

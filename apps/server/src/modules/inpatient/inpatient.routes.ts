@@ -27,6 +27,9 @@ router.post('/transfer', checkAnyPermission('registration:create'), controller.t
 router.patch('/beds/:bedId/release', checkAnyPermission('registration:update'), controller.releaseBed)
 router.patch('/beds/:bedId/maintenance', checkAnyPermission('registration:update'), controller.toggleMaintenance)
 
+// Bed transfer history
+router.get('/transfers/:visitId', checkAnyPermission('registration:read'), controller.bedTransferHistory)
+
 // Discharge — pulangkan pasien (status pulang, release bed, auto-bill)
 router.post('/discharge/:visitId', checkAnyPermission('registration:update', 'medical-record:create'), controller.discharge)
 
