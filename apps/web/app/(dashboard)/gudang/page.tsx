@@ -129,7 +129,7 @@ export default function GudangPage() {
     setENama(item.nama as string || '')
     setEKat(item.kategori as string || 'lain_lain')
     setESatuan(item.satuan as string || 'pcs')
-    setEHarga(String(item.harga_beli ?? ''))
+    setEHarga(String(Math.round(Number(item.harga_beli) || 0)))
     setEMinimum(String(item.stok_minimum ?? '5'))
     setELokasi(item.lokasi as string || '')
     setETambahStok('')
