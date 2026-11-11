@@ -17,6 +17,8 @@ import {
   ChevronUp,
   Search,
   Users,
+  UserCheck,
+  Info,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +40,7 @@ import { BpjsPesertaInfo } from '@/components/bpjs/bpjs-peserta-info'
 import { SepDetail } from '@/components/bpjs/sep-detail'
 import { useCreateVisit } from '@/hooks/use-queues'
 import { useRooms, useDoctors } from '@/hooks/use-queues'
+import { useActiveSubstitute } from '@/hooks/use-doctors'
 import { useBedsByRoom, useValidateKelas } from '@/hooks/use-inpatient'
 import { useBpjsPeserta, useBpjsRujukan, useCreateSep, useSepQuotaCheck } from '@/hooks/use-bpjs'
 import { useInsuranceDropdown, usePatientActiveInsurances } from '@/hooks/use-insurance'
@@ -117,6 +120,14 @@ export function RegistrationForm() {
 
   const rooms = roomsData?.data ?? []
   const doctors = doctorsData?.data ?? []
+
+  // Check if selected doctor has active substitution
+  const selectedDoctor = doctors.find((d) => d.id === doctorId)
+  const doctorUnavailable = selectedDoctor && !selectedDoctor.is_available
+  const { data: activeSubRes } = useActiveSubstitute(
+    doctorUnavailable ? doctorId : '',
+  )
+  const activeSub = activeSubRes?.data
 
   // Bed data (only for rawat_inap)
   const { data: bedsInRoom } = useBedsByRoom(
@@ -325,7 +336,7 @@ export function RegistrationForm() {
       }
 
       const selectedRoom = rooms.find((r) => r.id === roomId)
-      const selectedDoctor = doctors.find((d) => d.id === doctorId)
+      const submitDoctor = doctors.find((d) => d.id === doctorId)
 
       const res = await new Promise<{ success: boolean; data: unknown }>((resolve, reject) => {
         createVisit.mutate(data, {
@@ -349,7 +360,7 @@ export function RegistrationForm() {
         nomorAntrian: (queue?.nomor_antrian as number) ?? 0,
         patientNama: selectedPatient.nama,
         roomNama: selectedRoom?.nama ?? '',
-        doctorNama: selectedDoctor?.nama ?? '',
+        doctorNama: activeSub ? (activeSub.substitute_nama ?? submitDoctor?.nama ?? '') : (submitDoctor?.nama ?? ''),
         penjamin,
         noSep: finalNoSep || undefined,
         isLakaLantas,
@@ -703,9 +714,45 @@ export function RegistrationForm() {
                 <option key={d.id} value={d.id}>
                   {d.nama}
                   {d.spesialisasi ? ` (${d.spesialisasi})` : ''}
+                  {!d.is_available ? ' ⚠ Cuti' : ''}
                 </option>
               ))}
             </Select>
+
+            {/* Substitution info banner */}
+            {doctorUnavailable && activeSub && (
+              <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+                <UserCheck className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                <div className="text-xs">
+                  <p className="font-medium text-amber-700 dark:text-amber-400">
+                    {selectedDoctor?.nama} sedang berhalangan
+                  </p>
+                  <p className="text-amber-600 dark:text-amber-500 mt-0.5">
+                    Akan ditangani oleh{' '}
+                    <span className="font-semibold">{activeSub.substitute_nama}</span>
+                    {activeSub.substitute_spesialisasi && (
+                      <span> ({activeSub.substitute_spesialisasi})</span>
+                    )}
+                  </p>
+                  <p className="text-amber-500 dark:text-amber-600 mt-0.5">
+                    Periode: {new Date(activeSub.tanggal_mulai).toLocaleDateString('id-ID')} — {new Date(activeSub.tanggal_selesai).toLocaleDateString('id-ID')}
+                  </p>
+                </div>
+              </div>
+            )}
+            {doctorUnavailable && !activeSub && (
+              <div className="flex items-start gap-2 p-3 rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
+                <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+                <div className="text-xs">
+                  <p className="font-medium text-red-700 dark:text-red-400">
+                    {selectedDoctor?.nama} sedang tidak tersedia
+                  </p>
+                  <p className="text-red-600 dark:text-red-500 mt-0.5">
+                    Belum ada dokter pengganti yang ditunjuk. Silakan pilih dokter lain.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Keluhan utama */}
