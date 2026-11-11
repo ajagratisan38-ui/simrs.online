@@ -287,14 +287,18 @@ export default function AdminTarifPage() {
 
       {/* Create/Edit Dialog */}
       {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="px-6 pt-6 pb-2">
-              <h2 className="text-lg font-semibold">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowDialog(false) }}
+        >
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative z-10 w-full max-w-2xl mx-4 bg-background rounded-2xl shadow-2xl border overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-5 py-4 bg-muted/30">
+              <h2 className="text-base font-semibold">
                 {editItem ? 'Edit Komponen Tarif' : 'Tambah Komponen Tarif'}
               </h2>
             </div>
-            <div className="px-6 py-4 space-y-5">
+            <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1.5">Kode *</label>
@@ -304,7 +308,7 @@ export default function AdminTarifPage() {
                     onChange={(e) => setForm({ ...form, kode: e.target.value.toUpperCase() })}
                     disabled={!!editItem}
                     placeholder="VIS-UMUM"
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 disabled:opacity-50 font-mono focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background disabled:opacity-50 font-mono focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                   />
                 </div>
                 <div>
@@ -312,7 +316,7 @@ export default function AdminTarifPage() {
                   <select
                     value={form.kategori}
                     onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                   >
                     {KATEGORI_OPTIONS.map((k) => (
                       <option key={k.value} value={k.value}>{k.label}</option>
@@ -327,7 +331,7 @@ export default function AdminTarifPage() {
                   value={form.nama}
                   onChange={(e) => setForm({ ...form, nama: e.target.value })}
                   placeholder="Visite Dokter Umum"
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                 />
               </div>
 
@@ -349,7 +353,7 @@ export default function AdminTarifPage() {
                             ...form,
                             [col.key]: Number(e.target.value) || 0,
                           })}
-                          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm bg-white dark:bg-gray-800 font-mono text-right focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                          className="w-full border rounded-lg pl-9 pr-3 py-2 text-sm bg-background font-mono text-right focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                         />
                       </div>
                     </div>
@@ -368,10 +372,10 @@ export default function AdminTarifPage() {
                 </ul>
               </div>
             </div>
-            <div className="px-6 py-4 flex justify-end gap-3">
+            <div className="px-5 py-4 bg-muted/30 flex justify-end gap-3">
               <button
                 onClick={() => setShowDialog(false)}
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="px-4 py-2 text-sm border rounded-lg hover:bg-accent"
               >
                 Batal
               </button>
@@ -389,8 +393,9 @@ export default function AdminTarifPage() {
 
       {/* Delete Confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-sm shadow-2xl p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative z-10 bg-background rounded-2xl w-full max-w-sm mx-4 shadow-2xl border p-6">
             <h3 className="font-semibold text-lg mb-2">Hapus Komponen Tarif?</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Data tarif yang dihapus tidak bisa dikembalikan.
