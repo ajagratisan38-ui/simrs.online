@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "ts-node": {
+    "files": true,
+    "transpileOnly": true
+  },
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noUncheckedIndexedAccess": false,
+    "skipLibCheck": true,
+    "paths": {
+      "@simrs/shared-types": ["../../packages/shared-types/src/index.ts"],
+      "@simrs/validators": ["../../packages/validators/src/index.ts"],
+      "@simrs/constants": ["../../packages/constants/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

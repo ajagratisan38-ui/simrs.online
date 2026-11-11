@@ -1,0 +1,32 @@
+{
+  "name": "simrs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SIMRS SaaS - Sistem Informasi Manajemen Rumah Sakit",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev:web": "pnpm --filter @simrs/web dev",
+    "dev:server": "pnpm --filter @simrs/server dev",
+    "build:web": "pnpm --filter @simrs/web build",
+    "build:server": "pnpm --filter @simrs/server build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "db:migrate": "pnpm --filter @simrs/server db:migrate",
+    "db:rollback": "pnpm --filter @simrs/server db:rollback",
+    "db:seed": "pnpm --filter @simrs/server db:seed",
+    "db:reset": "pnpm --filter @simrs/server db:reset",
+    "setup": "docker-compose up -d && pnpm install && pnpm db:migrate && pnpm db:seed",
+    "clean": "turbo run clean && rimraf node_modules"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.3",
+    "turbo": "^2.11.7"
+  }
+}

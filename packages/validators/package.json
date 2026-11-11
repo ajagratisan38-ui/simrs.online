@@ -1,0 +1,18 @@
+{
+  "name": "@simrs/validators",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "lint": "echo 'no lint configured'"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

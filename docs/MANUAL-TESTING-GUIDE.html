@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SIMRS SaaS — Panduan Testing Manual v2.0</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 20mm 20mm 20mm;
+  }
+  @media print {
+    .page { page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-size: 11px;
+    line-height: 1.55;
+    color: #1e293b;
+    background: #e2e8f0;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 277mm;
+    max-height: 277mm;
+    overflow: hidden;
+    background: white;
+    margin: 10mm auto;
+    padding: 16mm 18mm 14mm 18mm;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    position: relative;
+  }
+  @media print {
+    body { background: white; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      width: auto;
+      min-height: auto;
+      max-height: none;
+      padding: 0;
+    }
+  }
+
+  /* Header bar on each page */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #0d9488;
+    margin-bottom: 12px;
+    font-size: 9px;
+    color: #64748b;
+  }
+  .page-header .title { font-weight: 600; color: #0d9488; font-size: 10px; }
+  .page-header .page-num { font-weight: 600; }
+
+  /* Typography */
+  h1 { font-size: 32px; color: #0d9488; line-height: 1.2; }
+  h2 {
+    font-size: 15px;
+    color: #0f766e;
+    margin: 14px 0 8px;
+    padding: 5px 10px;
+    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+    border-left: 4px solid #0d9488;
+    border-radius: 0 6px 6px 0;
+  }
+  h3 {
+    font-size: 11.5px;
+    color: #1e3a5f;
+    margin: 10px 0 5px;
+    font-weight: 700;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 10px;
+    font-size: 10px;
+  }
+  th {
+    background: #0d9488;
+    color: white;
+    text-align: left;
+    padding: 5px 7px;
+    font-weight: 600;
+    font-size: 9.5px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 4px 7px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:nth-child(odd) td { background: #ffffff; }
+
+  .test-table th:first-child { width: 22px; text-align: center; }
+  .test-table td:first-child { text-align: center; font-weight: 600; color: #64748b; }
+  .test-table th:last-child { width: 32px; text-align: center; }
+  .test-table td:last-child { text-align: center; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .b-red { background: #fee2e2; color: #991b1b; }
+  .b-blue { background: #dbeafe; color: #1e40af; }
+  .b-green { background: #d1fae5; color: #065f46; }
+  .b-amber { background: #fef3c7; color: #92400e; }
+  .b-purple { background: #ede9fe; color: #5b21b6; }
+
+  /* Misc */
+  .section-label {
+    font-size: 10px;
+    color: #64748b;
+    padding: 6px 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+  }
+  .note-box {
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 10px;
+    color: #854d0e;
+    margin: 8px 0;
+  }
+  .cred-table td:nth-child(3),
+  .cred-table td:nth-child(4) {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9.5px;
+  }
+  code {
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: 'Consolas', monospace;
+    font-size: 9.5px;
+  }
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .summary-table th { background: #0d9488; color: white; }
+  .summary-table td:last-child { font-weight: 700; text-align: center; }
+  .sign-line { border-bottom: 1px solid #94a3b8; margin-top: 35px; width: 85%; }
+  .sign-label { color: #94a3b8; font-size: 9px; margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE 1: COVER ========== -->
+<div class="page">
+  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
+    <div style="font-size: 64px; margin-bottom: 8px;">🏥</div>
+    <h1 style="font-size: 36px; margin-bottom: 4px;">SIMRS SaaS</h1>
+    <p style="font-size: 18px; color: #0d9488; font-weight: 600; margin-bottom: 2px;">Panduan Testing Manual</p>
+    <p style="font-size: 12px; color: #64748b; margin-bottom: 24px;">Langkah-langkah testing manual untuk seluruh fitur SIMRS SaaS</p>
+
+    <div style="background: #f0fdfa; border: 2px solid #99f6e4; border-radius: 12px; padding: 16px 32px; margin-bottom: 28px;">
+      <table style="margin: 0; font-size: 11px; border: none;">
+        <tr><td style="border: none; padding: 3px 12px; color: #64748b; text-align: right;">Versi</td><td style="border: none; padding: 3px 12px; font-weight: 700;">2.0</td></tr>
+        <tr><td style="border: none; padding: 3px 12px; color: #64748b; text-align: right;">Tanggal</td><td style="border: none; padding: 3px 12px; font-weight: 700;">10 November 2026</td></tr>
+        <tr><td style="border: none; padding: 3px 12px; color: #64748b; text-align: right;">Total Skenario</td><td style="border: none; padding: 3px 12px; font-weight: 700;">39 Skenario</td></tr>
+        <tr><td style="border: none; padding: 3px 12px; color: #64748b; text-align: right;">Akun Demo</td><td style="border: none; padding: 3px 12px; font-weight: 700;">13 Akun (12 Role)</td></tr>
+      </table>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 480px; margin-bottom: 28px;">
+      <div style="background: #dbeafe; border-radius: 8px; padding: 10px 6px;">
+        <div style="font-size: 18px; font-weight: 700; color: #1e40af;">8</div>
+        <div style="font-size: 8px; color: #3b82f6;">Bagian</div>
+      </div>
+      <div style="background: #d1fae5; border-radius: 8px; padding: 10px 6px;">
+        <div style="font-size: 18px; font-weight: 700; color: #065f46;">39</div>
+        <div style="font-size: 8px; color: #10b981;">Skenario</div>
+      </div>
+      <div style="background: #fef3c7; border-radius: 8px; padding: 10px 6px;">
+        <div style="font-size: 18px; font-weight: 700; color: #92400e;">60+</div>
+        <div style="font-size: 8px; color: #f59e0b;">Halaman</div>
+      </div>
+      <div style="background: #ede9fe; border-radius: 8px; padding: 10px 6px;">
+        <div style="font-size: 18px; font-weight: 700; color: #5b21b6;">13</div>
+        <div style="font-size: 8px; color: #8b5cf6;">Akun</div>
+      </div>
+    </div>
+
+    <div style="font-size: 10px; color: #94a3b8;">
+      SIMRS SaaS — Sistem Informasi Manajemen Rumah Sakit berbasis Software-as-a-Service
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: PRASYARAT & KREDENSIAL ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">2 / 14</span>
+  </div>
+
+  <h2>Prasyarat</h2>
+
+  <h3>Komponen yang Harus Running</h3>
+  <table>
+    <tr><th>Komponen</th><th>URL Production</th><th>URL Development</th></tr>
+    <tr><td>Frontend (Next.js)</td><td>https://simrs.online</td><td>http://localhost:3000</td></tr>
+    <tr><td>Backend (Express)</td><td>https://simrs.online/api</td><td>http://localhost:4001</td></tr>
+    <tr><td>PostgreSQL 16+</td><td>Docker: simrs-postgres</td><td>localhost:5432 / simrs_db</td></tr>
+    <tr><td>Redis 7+</td><td>Docker: simrs-redis</td><td>localhost:6379</td></tr>
+  </table>
+
+  <h3>Daftar Kredensial (13 Akun)</h3>
+  <table class="cred-table">
+    <tr><th>Akun</th><th>Role</th><th>Email</th><th>Password</th></tr>
+    <tr><td>Super Admin</td><td><span class="badge b-red">superadmin</span></td><td>admin@simrs.id</td><td>Admin123!</td></tr>
+    <tr><td>Admin RS</td><td><span class="badge b-blue">admin</span></td><td>admin@rs-demo.simrs.id</td><td>Demo123!</td></tr>
+    <tr><td>Dokter Sp.PD</td><td><span class="badge b-green">dokter</span></td><td>dr.budi@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Dokter Sp.A</td><td><span class="badge b-green">dokter</span></td><td>dr.siti@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Dokter Umum</td><td><span class="badge b-green">dokter</span></td><td>dr.andi@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Perawat</td><td><span class="badge b-green">perawat</span></td><td>perawat.dewi@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Apoteker</td><td><span class="badge b-amber">apoteker</span></td><td>apoteker.rina@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Kasir</td><td><span class="badge b-amber">kasir</span></td><td>kasir.maya@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Pendaftaran</td><td><span class="badge b-amber">pendaftaran</span></td><td>pendaftaran.ahmad@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Rekam Medis</td><td><span class="badge b-purple">rekam_medis</span></td><td>rekammedis@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Manajemen</td><td><span class="badge b-purple">manajemen</span></td><td>manajemen@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Petugas Lab</td><td><span class="badge b-green">lab</span></td><td>lab@rs-demo.simrs.id</td><td>User123!</td></tr>
+    <tr><td>Petugas Rad</td><td><span class="badge b-green">radiologi</span></td><td>radiologi@rs-demo.simrs.id</td><td>User123!</td></tr>
+  </table>
+
+  <div class="note-box">
+    <strong>Cara Login:</strong> Super Admin → <code>/sa/login</code> &nbsp;|&nbsp; Tenant → <code>/login</code> dengan Kode RS = <code>rs-demo</code>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: BAGIAN 1 — ALUR SaaS ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">3 / 14</span>
+  </div>
+
+  <h2>BAGIAN 1 — Alur SaaS</h2>
+  <div class="section-label">Landing Page → Registrasi RS → Pembayaran → Approval → Onboarding</div>
+
+  <h3>TEST 1.1 — Landing Page</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Buka https://simrs.online/</td><td>Hero section, fitur, pricing, CTA "Daftar Sekarang"</td><td></td></tr>
+    <tr><td>2</td><td>Klik "Daftar Sekarang"</td><td>Redirect ke /daftar</td><td></td></tr>
+    <tr><td>3</td><td>Scroll footer</td><td>Link: Daftar, Cek Status, Portal Pasien, Login</td><td></td></tr>
+  </table>
+
+  <h3>TEST 1.2 — Registrasi RS (Trial / Gratis)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Buka /daftar → Step 1: Pilih "Trial"</td><td>Card Trial selected, gratis 30 hari</td><td></td></tr>
+    <tr><td>2</td><td>Step 2-4: Isi data RS, admin, slug</td><td>Preview slug.simrs.online</td><td></td></tr>
+    <tr><td>3</td><td>Step 5-6: Review → "Daftar Sekarang"</td><td>Trial auto-approve → Active</td><td></td></tr>
+  </table>
+
+  <h3>TEST 1.3 — Registrasi RS (Berbayar) & Pembayaran</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Pilih "Basic" (Rp 1.5jt/bln) → isi → submit</td><td>Status = payment_pending</td><td></td></tr>
+    <tr><td>2</td><td>Buka /daftar/pembayaran/[id]</td><td>Info bank, total tagihan, copy no rek</td><td></td></tr>
+    <tr><td>3</td><td>Upload bukti (JPG/PNG, max 5MB)</td><td>Preview + upload berhasil</td><td></td></tr>
+    <tr><td>4</td><td>Buka /daftar/status → masukkan UUID</td><td>Timeline 5-step progress</td><td></td></tr>
+  </table>
+
+  <h3>TEST 1.4 — Verifikasi & Approval (SA Panel)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login SA → /sa/registrations</td><td>Daftar registrasi + filter status</td><td></td></tr>
+    <tr><td>2</td><td>"Verifikasi Pembayaran" → "Approve"</td><td>Auto-provision: tenant + schema + admin user</td><td></td></tr>
+    <tr><td>3</td><td>Test Reject + isi alasan</td><td>Status rejected, email terkirim</td><td></td></tr>
+  </table>
+
+  <h3>TEST 1.5 — Login RS Baru & Onboarding Wizard</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login Kode RS = slug baru</td><td>Redirect /onboarding 5-step</td><td></td></tr>
+    <tr><td>2</td><td>Profil RS → Poliklinik → Dokter → Selesai</td><td>Data tersimpan, redirect /dashboard</td><td></td></tr>
+    <tr><td>3</td><td>Login ulang</td><td>Langsung dashboard (no repeat onboarding)</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 4: BAGIAN 2 — ALUR OPERASIONAL (1) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">4 / 14</span>
+  </div>
+
+  <h2>BAGIAN 2 — Alur Operasional RS</h2>
+  <div class="section-label">Pasien → Pendaftaran → Antrian → Dokter (SOAP) → Farmasi → Kasir</div>
+
+  <h3>TEST 2.1 — Login & Dashboard</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login: rs-demo / admin@rs-demo.simrs.id / Demo123!</td><td>Redirect /dashboard</td><td></td></tr>
+    <tr><td>2</td><td>Cek dashboard</td><td>Stat cards, chart kunjungan, sidebar lengkap</td><td></td></tr>
+    <tr><td>3</td><td>Cek menu sidebar sesuai role</td><td>Menu tampil berdasarkan permission</td><td></td></tr>
+  </table>
+
+  <h3>TEST 2.2 — Manajemen Pasien</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/pasien → "Pasien Baru" → Form 3-step</td><td>NIK 16 digit, Nama, JK, Tgl Lahir, Alamat, HP</td><td></td></tr>
+    <tr><td>2</td><td>Simpan</td><td>No RM auto-generate (RM-DEMO-XXXXX)</td><td></td></tr>
+    <tr><td>3</td><td>Detail → Edit → Simpan</td><td>Data terupdate</td><td></td></tr>
+    <tr><td>4</td><td>Search nama / NIK</td><td>Ditemukan</td><td></td></tr>
+    <tr><td>5</td><td>General Consent: /pasien/[id]/general-consent</td><td>Form persetujuan + cetak A4</td><td></td></tr>
+  </table>
+
+  <h3>TEST 2.3 — Pendaftaran & Antrian</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/pendaftaran → cari pasien → Poli, Dokter, Penjamin</td><td>Dropdown terisi (umum / BPJS / asuransi)</td><td></td></tr>
+    <tr><td>2</td><td>Klik "Daftarkan"</td><td>Visit + antrian + tiket cetak</td><td></td></tr>
+    <tr><td>3</td><td>/pendaftaran/antrian → Panggil → Layani → Selesai</td><td>Status transisi benar</td><td></td></tr>
+    <tr><td>4</td><td>/display-antrian</td><td>Fullscreen 3 kolom, bell ding-dong, refresh 10s</td><td></td></tr>
+    <tr><td>5</td><td>/kiosk → cari → poli → dokter → tiket</td><td>8-step wizard, auto-reset 60s</td><td></td></tr>
+  </table>
+
+  <h3>TEST 2.4 — Pemeriksaan Dokter (SOAP)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login dr.budi → /rekam-medis → klik pasien</td><td>Form SOAP terbuka</td><td></td></tr>
+    <tr><td>2</td><td>S: "Demam 3 hari" &nbsp; O: TD 120/80, Suhu 38.5</td><td>Auto-save tersimpan</td><td></td></tr>
+    <tr><td>3</td><td>A: Cari ICD-10 "demam" → R50.9</td><td>Diagnosis ditambahkan</td><td></td></tr>
+    <tr><td>4</td><td>P: Resep Paracetamol + Amoxicillin 500mg</td><td>2 item resep tersimpan</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 5: BAGIAN 2 (lanjutan) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">5 / 14</span>
+  </div>
+
+  <h3>TEST 2.5 — CPPT, Pengkajian, Resume, Edukasi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>"CPPT" → tambah SOAP-IE → verifikasi</td><td>Timeline multi-profesi, filter per profesi</td><td></td></tr>
+    <tr><td>2</td><td>Login perawat → "Pengkajian" 7 tab</td><td>Skor auto-calc: Morse, Barthel, BMI. Save + finalize</td><td></td></tr>
+    <tr><td>3</td><td>/rekam-medis/[visitId]/resume → Download PDF</td><td>A4: KOP RS, SOAP, diagnosa, resep, TTD dokter</td><td></td></tr>
+    <tr><td>4</td><td>/rekam-medis/[visitId]/edukasi</td><td>Form edukasi pasien + cetak A4</td><td></td></tr>
+  </table>
+
+  <h3>TEST 2.6 — Dispensing Farmasi & Pembayaran Kasir</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login apoteker → /farmasi → resep menunggu</td><td>Detail dispensing muncul</td><td></td></tr>
+    <tr><td>2</td><td>Proses dispensing tiap obat</td><td>Stok berkurang, status "Dispensed"</td><td></td></tr>
+    <tr><td>3</td><td>Login kasir → /kasir → tagihan pasien</td><td>Billing: konsultasi + obat + total</td><td></td></tr>
+    <tr><td>4</td><td>"Proses Pembayaran" → Tunai → Bayar</td><td>Dialog scrollable, "Lunas", struk cetak</td><td></td></tr>
+  </table>
+
+  <h2>BAGIAN 3 — Modul Pendukung</h2>
+  <div class="section-label">Lab, Radiologi, Bedah, Gizi, Gudang, Rawat Inap, MCU, IGD</div>
+
+  <h3>TEST 3.1 — Laboratorium</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/laboratorium → dashboard antrian</td><td>Queue list, stat cards, filter status</td><td></td></tr>
+    <tr><td>2</td><td>Order → Terima → Proses → Hasil → Final</td><td>Transisi status, flag normal/abnormal, cetak</td><td></td></tr>
+  </table>
+
+  <h3>TEST 3.2 — Radiologi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/radiologi → order baru</td><td>Dashboard, filter modalitas (X-Ray/USG/CT/MRI)</td><td></td></tr>
+    <tr><td>2</td><td>Input bacaan + kesan → Final</td><td>Status completed, print hasil</td><td></td></tr>
+  </table>
+
+  <h3>TEST 3.3 — Bedah / Operasi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/bedah</td><td>Jadwal hari ini, sort: emergency > cito > elektif</td><td></td></tr>
+    <tr><td>2</td><td>Detail 5 tab: Info, Tim, Instrumen, Anestesi, Periop</td><td>Semua tab bisa diisi & disimpan</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 6: BAGIAN 3 (lanjutan) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">6 / 14</span>
+  </div>
+
+  <h3>TEST 3.4 — Gizi / Nutrisi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/gizi → 5 tab</td><td>ADIME, Kalkulator, Bahan Makanan, Meal Plans, Food Cost</td><td></td></tr>
+    <tr><td>2</td><td>Kalkulator: BB=70 TB=170 Umur=30 L</td><td>IMT, BMR, kebutuhan kalori, distribusi makro</td><td></td></tr>
+    <tr><td>3</td><td>Bahan Makanan: CRUD + filter kategori</td><td>Data tersimpan, search berfungsi</td><td></td></tr>
+    <tr><td>4</td><td>Meal Plans: buat + pilih bahan</td><td>Kalori auto-calculate per porsi</td><td></td></tr>
+  </table>
+
+  <h3>TEST 3.5 — Gudang & Stock Opname</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/gudang → CRUD barang, tambah stok</td><td>List barang non-obat, kategori filter, low stock alert</td><td></td></tr>
+    <tr><td>2</td><td>/farmasi/stock-opname → Buat Opname</td><td>Auto-populate items dari stok obat / gudang</td><td></td></tr>
+    <tr><td>3</td><td>Input count → Complete</td><td>Selisih highlighting, stok otomatis adjusted</td><td></td></tr>
+  </table>
+
+  <h3>TEST 3.6 — Rawat Inap & Monitoring Klinis</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/rawat-inap → lihat kamar & bed map</td><td>Summary cards (Ruangan/Bed/Terisi/Tersedia/Maint)</td><td></td></tr>
+    <tr><td>2</td><td>Admisi pasien ke bed → "Monitoring Klinis"</td><td>4 tab: Vital Signs, Instruksi, Keperawatan, Pulang</td><td></td></tr>
+    <tr><td>3</td><td>Catat vital signs (TD, Nadi, Suhu, SpO2, Nyeri)</td><td>Alert level: normal / warning / critical + trend</td><td></td></tr>
+    <tr><td>4</td><td>Buat instruksi medis → Eksekusi → Selesai</td><td>Status transisi, riwayat eksekusi tercatat</td><td></td></tr>
+    <tr><td>5</td><td>Catatan keperawatan SBAR per shift</td><td>Duplikat shift+tanggal ditolak, finalize lock</td><td></td></tr>
+    <tr><td>6</td><td>Perencanaan pulang: checklist 10 item</td><td>Auto: not_ready → partial → ready</td><td></td></tr>
+    <tr><td>7</td><td>Discharge pasien</td><td>Modal 2-step: cara keluar + detail</td><td></td></tr>
+  </table>
+
+  <h3>TEST 3.7 — MCU (Medical Check Up)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/mcu → 3 tab</td><td>Dashboard, Pendaftaran MCU, Paket MCU</td><td></td></tr>
+    <tr><td>2</td><td>Daftarkan pasien MCU (pilih paket)</td><td>Auto-generate examinations dari paket</td><td></td></tr>
+    <tr><td>3</td><td>Input hasil per pemeriksaan → Conclude</td><td>Surat Keterangan Sehat cetak A4</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 7: BAGIAN 4 — FARMASI LANJUTAN ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">7 / 14</span>
+  </div>
+
+  <h2>BAGIAN 4 — Farmasi Lanjutan</h2>
+  <div class="section-label">Purchase Order, Mutasi Barang, Penjualan Bebas, CDSS Alert</div>
+
+  <h3>TEST 4.1 — Purchase Order (PO)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/farmasi/purchase-order → Buat PO</td><td>Pilih supplier, search obat, tambah item, total</td><td></td></tr>
+    <tr><td>2</td><td>Approve → Order → Receive (batch + expiry)</td><td>5-step progress bar, stok otomatis bertambah</td><td></td></tr>
+    <tr><td>3</td><td>Complete PO</td><td>Status completed, semua item received</td><td></td></tr>
+  </table>
+
+  <h3>TEST 4.2 — Mutasi Barang & Penjualan Bebas</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/farmasi/mutasi → buat mutasi antar unit</td><td>Approve → Complete workflow</td><td></td></tr>
+    <tr><td>2</td><td>/farmasi/penjualan-bebas → jual obat OTC</td><td>Stok berkurang, daily summary</td><td></td></tr>
+  </table>
+
+  <h3>TEST 4.3 — CDSS Alert (Saat Dispensing)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Resep obat high-alert → buka dispensing</td><td>Banner alert merah / kuning / biru muncul</td><td></td></tr>
+    <tr><td>2</td><td>Alert critical → harus override + alasan</td><td>Dispensing di-block sampai override</td><td></td></tr>
+  </table>
+
+  <h3>TEST 4.4 — Farmasi Alerts (Stok & Kadaluarsa)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/farmasi/alerts</td><td>Dashboard: obat stok rendah + mendekati kadaluarsa</td><td></td></tr>
+    <tr><td>2</td><td>Cek list obat kadaluarsa (filter)</td><td>List obat expired / hampir expired + tanggal</td><td></td></tr>
+  </table>
+
+  <h2>BAGIAN 5 — Keuangan & Kepegawaian</h2>
+  <div class="section-label">Akuntansi (COA, Jurnal, Neraca, Laba Rugi) — HRIS (Pegawai, Jadwal, Absensi, Gaji)</div>
+
+  <h3>TEST 5.1 — Akuntansi / Keuangan</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/keuangan → 6 tab tersedia</td><td>Dashboard, Jurnal, Bagan Akun, Buku Besar, Neraca, Laba Rugi</td><td></td></tr>
+    <tr><td>2</td><td>Jurnal: buat (debit = kredit) → post → reverse</td><td>Validasi balance, transisi status benar</td><td></td></tr>
+    <tr><td>3</td><td>Bagan Akun: tree 55+ akun + tambah baru</td><td>Collapsible tree, header/detail</td><td></td></tr>
+    <tr><td>4</td><td>Buku Besar: pilih akun + filter tanggal</td><td>Running saldo per transaksi</td><td></td></tr>
+    <tr><td>5</td><td>Neraca: Aset | Kewajiban + Ekuitas</td><td>Balance check (A = K + E)</td><td></td></tr>
+    <tr><td>6</td><td>Laba Rugi: Pendapatan − Beban</td><td>Laba hijau / Rugi merah</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 8: BAGIAN 5 (lanjutan) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">8 / 14</span>
+  </div>
+
+  <h3>TEST 5.2 — Kepegawaian / HRIS</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/kepegawaian → 7 tab tersedia</td><td>Dashboard, Pegawai, Departemen, Jadwal, Absensi, Cuti, Gaji</td><td></td></tr>
+    <tr><td>2</td><td>Tambah pegawai baru</td><td>NIP auto-gen RS-YYYY-XXXXX, tersimpan</td><td></td></tr>
+    <tr><td>3</td><td>Departemen: CRUD (15 default)</td><td>List departemen RS standar</td><td></td></tr>
+    <tr><td>4</td><td>Jadwal Dinas: assign shift di calendar</td><td>Warna per shift (pagi / siang / malam)</td><td></td></tr>
+    <tr><td>5</td><td>Absensi: record hadir/izin/sakit/cuti/alpha</td><td>Badge warna, summary bulanan</td><td></td></tr>
+    <tr><td>6</td><td>Cuti: ajukan → approve / reject</td><td>Saldo berkurang (12 hari/tahun)</td><td></td></tr>
+    <tr><td>7</td><td>Gaji: buat periode → proses → finalize → slip</td><td>Auto-calc gaji + tunjangan + PPh21 + jasa medis</td><td></td></tr>
+  </table>
+
+  <h2>BAGIAN 6 — Pengaturan & Admin</h2>
+  <div class="section-label">Profil RS, Ruangan, Dokter, Asuransi, User, Terminologi, CDSS, TTE, Backup, Laporan, Aset, SIRS, SIRANAP</div>
+
+  <h3>TEST 6.1 — Profil RS, Ruangan, Dokter, Asuransi, User</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/rs → ubah profil → simpan</td><td>Tersimpan</td><td></td></tr>
+    <tr><td>2</td><td>/admin/ruangan → Tambah Ruangan</td><td>Tipe, kode, nama, lantai, kapasitas, kelas BPJS, tarif</td><td></td></tr>
+    <tr><td>3</td><td>/admin/dokter → 3 tab</td><td>Jadwal Praktik, Tarif Layanan, Jasa Medis</td><td></td></tr>
+    <tr><td>4</td><td>/admin/asuransi → CRUD + toggle</td><td>Tampil di dropdown pendaftaran</td><td></td></tr>
+    <tr><td>5</td><td>/admin/pengguna → tambah user → login</td><td>Menu sesuai role (12 role berfungsi)</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.2 — Terminologi, CDSS, TTE</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/terminologi → LOINC, KFA, Mapping</td><td>Search, filter, mapping lab→LOINC & drug→KFA</td><td></td></tr>
+    <tr><td>2</td><td>/admin/cdss → High-Alert, LASA, Interaksi, Riwayat</td><td>Alert muncul saat dispensing obat terkait</td><td></td></tr>
+    <tr><td>3</td><td>/admin/tte → config provider (Internal/BSrE/VIDA)</td><td>Dialog konfigurasi, stat cards per tipe</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 9: BAGIAN 6 (lanjutan) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">9 / 14</span>
+  </div>
+
+  <h3>TEST 6.3 — Backup, Laporan, Audit</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/backup → Buat → Download</td><td>3 tab: Overview, Riwayat, Jadwal & Storage</td><td></td></tr>
+    <tr><td>2</td><td>/laporan → pilih tipe + filter → Export</td><td>XLSX / PDF / CSV (7 tipe laporan)</td><td></td></tr>
+    <tr><td>3</td><td>/admin/audit</td><td>Log akses data pasien tampil</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.4 — Manajemen Aset</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/aset → 4 tab</td><td>Daftar Aset, Pemeliharaan, Mutasi, Penyusutan</td><td></td></tr>
+    <tr><td>2</td><td>Tambah aset (kategori, kondisi, harga, lokasi)</td><td>Kode auto-gen per kategori (MED/KAN/LAB/...)</td><td></td></tr>
+    <tr><td>3</td><td>Penyusutan: per tahun, metode GL / SM</td><td>Kalkulasi straight-line & double-declining benar</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.5 — SIRS Online & SIRANAP</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/sirs-online → Laporan RL</td><td>10 RL cards, preview data, indikator BOR/LOS/TOI</td><td></td></tr>
+    <tr><td>2</td><td>Tab Konfigurasi + Riwayat</td><td>Test koneksi, log pengiriman</td><td></td></tr>
+    <tr><td>3</td><td>/admin/siranap → Ketersediaan TT</td><td>Bed summary per kelas, auto/manual send</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.6 — Fitur Khusus</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Logbook: /profil/logbook</td><td>Stats tindakan per dokter + CSV export</td><td></td></tr>
+    <tr><td>2</td><td>MFA: /profil/mfa → aktifkan → login</td><td>QR Code, TOTP 6 digit</td><td></td></tr>
+    <tr><td>3</td><td>Import CSV: /admin/import → upload</td><td>Sukses / gagal / duplikat count</td><td></td></tr>
+    <tr><td>4</td><td>Migrasi Khanza: /admin/migrasi-khanza</td><td>4-step wizard: Connect → Analyze → Migrate → Verify</td><td></td></tr>
+    <tr><td>5</td><td>Dark Mode toggle (header kanan)</td><td>Terang / Gelap / Sistem</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.7 — Sinkronisasi Offline</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/sync → 3 tab</td><td>Status Sync, Antrian Sync, Pengaturan</td><td></td></tr>
+    <tr><td>2</td><td>Cek status online/offline + retry sync</td><td>Indikator status, jumlah pending, last sync</td><td></td></tr>
+  </table>
+
+  <h3>TEST 6.8 — Panduan Pengguna & Topik Edukasi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/panduan (semua role bisa akses)</td><td>Halaman panduan built-in per modul</td><td></td></tr>
+    <tr><td>2</td><td>/admin/edukasi → CRUD topik edukasi</td><td>Tambah / edit / hapus topik edukasi pasien</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 10: BAGIAN 7 — INTEGRASI ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">10 / 14</span>
+  </div>
+
+  <h2>BAGIAN 7 — Integrasi & Portal Pasien</h2>
+  <div class="section-label">BPJS (8 tab), SATUSEHAT (13 FHIR Resources), Portal Pasien</div>
+
+  <h3>TEST 7.1 — BPJS (Mock Mode)</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/bpjs → 8 tab</td><td>Peserta, SEP, Rujukan, PCare, e-Klaim, Aplicare, Monitoring, Antrol</td><td></td></tr>
+    <tr><td>2</td><td>Peserta: cari no kartu → SEP: buat</td><td>Mock data tampil, SEP generated</td><td></td></tr>
+    <tr><td>3</td><td>PCare / e-Klaim / Aplicare / Monitoring</td><td>Mock data, stats, charts</td><td></td></tr>
+    <tr><td>4</td><td>Antrol: task + tambah + jadwal + dashboard</td><td>CRUD, sync from BPJS, auto-refresh 30s</td><td></td></tr>
+  </table>
+
+  <h3>TEST 7.2 — SATUSEHAT</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/admin/satusehat</td><td>13 FHIR resource cards (5 core + 8 extended)</td><td></td></tr>
+    <tr><td>2</td><td>Badge auto/manual per resource</td><td>Tampil benar, detail dialog per resource</td><td></td></tr>
+  </table>
+
+  <h3>TEST 7.3 — Portal Pasien</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/portal/login → NIK 16 digit + Tgl Lahir + rs-demo</td><td>Login berhasil, dashboard portal</td><td></td></tr>
+    <tr><td>2</td><td>Dashboard: greeting, alergi warning, upcoming</td><td>Data pasien tampil, quick links</td><td></td></tr>
+    <tr><td>3</td><td>/portal/riwayat</td><td>Kunjungan paginated dengan status badge</td><td></td></tr>
+    <tr><td>4</td><td>/portal/tagihan</td><td>Outstanding amount + status (Lunas/Sebagian/Belum)</td><td></td></tr>
+    <tr><td>5</td><td>/portal/rekam-medis</td><td>SOAP sections, diagnosa ICD-10, resep obat</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 11: BAGIAN 8 — SUPER ADMIN (1) ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">11 / 14</span>
+  </div>
+
+  <h2>BAGIAN 8 — Super Admin Panel</h2>
+  <div class="section-label">Dashboard, Tenant, Paket, Monitoring, Settings, Pembayaran, Activity Log</div>
+
+  <h3>TEST 8.1 — Dashboard & Tenant Management</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>Login SA: /sa/login → admin@simrs.id / Admin123!</td><td>Dashboard: stats, plan distribution, alerts</td><td></td></tr>
+    <tr><td>2</td><td>/sa/tenants → list, search, toggle, delete</td><td>Tenant cards + create form + usage bars</td><td></td></tr>
+    <tr><td>3</td><td>/sa/tenants/[id] → detail tenant</td><td>Info card, 5 stat cards, user list, subscription</td><td></td></tr>
+  </table>
+
+  <h3>TEST 8.2 — Paket Langganan & Transaksi</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/sa/plans → Tab Paket</td><td>4 paket: Trial, Basic, Professional, Enterprise</td><td></td></tr>
+    <tr><td>2</td><td>Tambah → Edit → Toggle → Hapus</td><td>CRUD lengkap, proteksi jika paket dipakai tenant</td><td></td></tr>
+    <tr><td>3</td><td>Tab Transaksi</td><td>Riwayat pembayaran semua tenant</td><td></td></tr>
+  </table>
+
+  <h3>TEST 8.3 — Monitoring, Settings, SA, Pembayaran</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/sa/monitoring</td><td>System health, tenant growth chart, revenue trend</td><td></td></tr>
+    <tr><td>2</td><td>/sa/settings → 6 kategori</td><td>Edit inline, test email SMTP, cek billing kadaluarsa</td><td></td></tr>
+    <tr><td>3</td><td>/sa/super-admins → CRUD</td><td>Proteksi last-admin (tidak bisa hapus terakhir)</td><td></td></tr>
+    <tr><td>4</td><td>/sa/payments → 3 tab</td><td>Revenue 4 cards, proof viewer, verify inline</td><td></td></tr>
+    <tr><td>5</td><td>Sidebar collapse toggle</td><td>64px ↔ 250px, tooltip mode</td><td></td></tr>
+  </table>
+
+  <h3>TEST 8.4 — Activity Log</h3>
+  <table class="test-table">
+    <tr><th>#</th><th>Langkah</th><th>Expected Result</th><th>✅</th></tr>
+    <tr><td>1</td><td>/sa/activity</td><td>Log aktivitas SA: action badges berwarna, filter</td><td></td></tr>
+    <tr><td>2</td><td>Cek log: create tenant, approve, verify, dll</td><td>Detail aksi tercatat lengkap + timestamp</td><td></td></tr>
+  </table>
+</div>
+
+<!-- ========== PAGE 12: CHECKLIST RINGKASAN ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">12 / 14</span>
+  </div>
+
+  <h2>Checklist Ringkasan</h2>
+
+  <table class="summary-table" style="margin-top: 10px;">
+    <tr><th style="width: 30px;">#</th><th>Bagian</th><th style="width: 70px;">Jumlah</th><th style="width: 60px;">Selesai</th></tr>
+    <tr><td style="text-align:center; font-weight:600;">1</td><td>Alur SaaS — Landing → Registrasi → Approval → Onboarding</td><td style="text-align:center;">5 test</td><td>/ 5</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">2</td><td>Alur Operasional RS — Pasien → Pendaftaran → SOAP → Farmasi → Kasir</td><td style="text-align:center;">6 test</td><td>/ 6</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">3</td><td>Modul Pendukung — Lab, Rad, Bedah, Gizi, Gudang, Ranap, MCU</td><td style="text-align:center;">7 test</td><td>/ 7</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">4</td><td>Farmasi Lanjutan — Purchase Order, Mutasi, OTC, CDSS, Alerts</td><td style="text-align:center;">4 test</td><td>/ 4</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">5</td><td>Keuangan & Kepegawaian — Akuntansi 6-tab, HRIS 7-tab</td><td style="text-align:center;">2 test</td><td>/ 2</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">6</td><td>Pengaturan & Admin — RS, Ruangan, Dokter, Aset, SIRS, Sync, Panduan, dll</td><td style="text-align:center;">8 test</td><td>/ 8</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">7</td><td>Integrasi & Portal — BPJS 8-tab, SATUSEHAT 13-FHIR, Portal Pasien</td><td style="text-align:center;">3 test</td><td>/ 3</td></tr>
+    <tr><td style="text-align:center; font-weight:600;">8</td><td>Super Admin Panel — Dashboard, Tenant, Paket, Monitoring, Activity Log</td><td style="text-align:center;">4 test</td><td>/ 4</td></tr>
+    <tr style="background: #f0fdfa;"><td colspan="2" style="font-weight: 700; text-align: right; padding-right: 16px;">TOTAL</td><td style="text-align:center; font-weight: 700;">39 skenario</td><td style="font-weight: 700;">/ 39</td></tr>
+  </table>
+
+  <div style="margin-top: 28px;">
+    <div class="cols-2">
+      <div>
+        <p style="font-weight: 600; margin-bottom: 4px;">Tester:</p>
+        <div class="sign-line"></div>
+        <p class="sign-label">Nama & Tanda Tangan</p>
+      </div>
+      <div>
+        <p style="font-weight: 600; margin-bottom: 4px;">Tanggal Testing:</p>
+        <div class="sign-line"></div>
+        <p class="sign-label">Tanggal (dd/mm/yyyy)</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px;">
+    <h3>Catatan Testing</h3>
+    <div style="min-height: 100px; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 10px; margin-top: 6px; background: #fafafa;">
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 13: ROLE & PERMISSION MATRIX ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">13 / 14</span>
+  </div>
+
+  <h2>Lampiran A — Matriks Role & Akses Menu</h2>
+
+  <table style="font-size: 9px;">
+    <tr>
+      <th>Halaman / Fitur</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Admin</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Dokter</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Perawat</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Apotek</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Kasir</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Daftar</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">RM</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Mnjmn</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Lab</th>
+      <th style="text-align:center; width: 28px; font-size: 8px;">Rad</th>
+    </tr>
+    <tr><td>Dashboard</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+    <tr><td>Pendaftaran & Antrian</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+    <tr><td>Pasien</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+    <tr><td>Rekam Medis (SOAP)</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Rawat Inap & Monitoring</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+    <tr><td>Farmasi & Dispensing</td><td style="text-align:center">✅</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Kasir & Billing</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Laboratorium</td><td style="text-align:center">✅</td><td style="text-align:center">R</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">—</td></tr>
+    <tr><td>Radiologi</td><td style="text-align:center">✅</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td></tr>
+    <tr><td>Keuangan / Akuntansi</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Kepegawaian / HRIS</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">R</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Pengaturan (Admin/*)</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Laporan & Export</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">—</td><td style="text-align:center">✅</td><td style="text-align:center">—</td><td style="text-align:center">—</td></tr>
+    <tr><td>Panduan</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+  </table>
+  <p style="font-size: 9px; color: #64748b; margin-top: 4px;">✅ = Full Access &nbsp;&nbsp; R = Read Only &nbsp;&nbsp; — = Tidak Tersedia</p>
+
+  <h2 style="margin-top: 16px;">Lampiran B — URL Halaman Lengkap</h2>
+
+  <div class="cols-2">
+    <div>
+      <table style="font-size: 9px;">
+        <tr><th>Modul</th><th>Path</th></tr>
+        <tr><td>Dashboard</td><td><code>/dashboard</code></td></tr>
+        <tr><td>Pendaftaran</td><td><code>/pendaftaran</code></td></tr>
+        <tr><td>Antrian</td><td><code>/pendaftaran/antrian</code></td></tr>
+        <tr><td>Display Antrian</td><td><code>/display-antrian</code></td></tr>
+        <tr><td>Kiosk</td><td><code>/kiosk</code></td></tr>
+        <tr><td>Pasien</td><td><code>/pasien</code></td></tr>
+        <tr><td>Rekam Medis</td><td><code>/rekam-medis</code></td></tr>
+        <tr><td>Rawat Inap</td><td><code>/rawat-inap</code></td></tr>
+        <tr><td>IGD</td><td><code>/igd</code></td></tr>
+        <tr><td>Farmasi</td><td><code>/farmasi</code></td></tr>
+        <tr><td>Farmasi Alerts</td><td><code>/farmasi/alerts</code></td></tr>
+        <tr><td>Stok Obat</td><td><code>/farmasi/stok</code></td></tr>
+        <tr><td>Purchase Order</td><td><code>/farmasi/purchase-order</code></td></tr>
+        <tr><td>Stock Opname</td><td><code>/farmasi/stock-opname</code></td></tr>
+        <tr><td>Mutasi Barang</td><td><code>/farmasi/mutasi</code></td></tr>
+        <tr><td>Penjualan Bebas</td><td><code>/farmasi/penjualan-bebas</code></td></tr>
+        <tr><td>Kasir</td><td><code>/kasir</code></td></tr>
+      </table>
+    </div>
+    <div>
+      <table style="font-size: 9px;">
+        <tr><th>Modul</th><th>Path</th></tr>
+        <tr><td>Keuangan</td><td><code>/keuangan</code></td></tr>
+        <tr><td>Laboratorium</td><td><code>/laboratorium</code></td></tr>
+        <tr><td>Radiologi</td><td><code>/radiologi</code></td></tr>
+        <tr><td>Bedah</td><td><code>/bedah</code></td></tr>
+        <tr><td>MCU</td><td><code>/mcu</code></td></tr>
+        <tr><td>Gizi</td><td><code>/gizi</code></td></tr>
+        <tr><td>Gudang</td><td><code>/gudang</code></td></tr>
+        <tr><td>Kepegawaian</td><td><code>/kepegawaian</code></td></tr>
+        <tr><td>BPJS</td><td><code>/bpjs</code></td></tr>
+        <tr><td>Laporan</td><td><code>/laporan</code></td></tr>
+        <tr><td>Panduan</td><td><code>/panduan</code></td></tr>
+        <tr><td>Portal Pasien</td><td><code>/portal/login</code></td></tr>
+        <tr><td>Profil RS</td><td><code>/admin/rs</code></td></tr>
+        <tr><td>Ruangan</td><td><code>/admin/ruangan</code></td></tr>
+        <tr><td>Dokter</td><td><code>/admin/dokter</code></td></tr>
+        <tr><td>Manajemen Aset</td><td><code>/admin/aset</code></td></tr>
+        <tr><td>Sinkronisasi</td><td><code>/admin/sync</code></td></tr>
+        <tr><td>Topik Edukasi</td><td><code>/admin/edukasi</code></td></tr>
+        <tr><td>SIRS Online</td><td><code>/admin/sirs-online</code></td></tr>
+        <tr><td>SIRANAP</td><td><code>/admin/siranap</code></td></tr>
+        <tr><td>SA Dashboard</td><td><code>/sa</code></td></tr>
+        <tr><td>SA Tenants</td><td><code>/sa/tenants</code></td></tr>
+        <tr><td>SA Registrasi</td><td><code>/sa/registrations</code></td></tr>
+        <tr><td>SA Pembayaran</td><td><code>/sa/payments</code></td></tr>
+        <tr><td>SA Monitoring</td><td><code>/sa/monitoring</code></td></tr>
+        <tr><td>SA Activity Log</td><td><code>/sa/activity</code></td></tr>
+        <tr><td>SA Settings</td><td><code>/sa/settings</code></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 14: CHANGELOG ========== -->
+<div class="page">
+  <div class="page-header">
+    <span class="title">SIMRS SaaS — Panduan Testing Manual v2.0</span>
+    <span class="page-num">14 / 14</span>
+  </div>
+
+  <h2>Changelog</h2>
+
+  <h3>v2.0 — 10 November 2026</h3>
+  <table>
+    <tr><th style="width: 140px;">Perubahan</th><th>Detail</th></tr>
+    <tr><td><span class="badge b-red">Kredensial</span></td><td>Password diperbarui: SA = Admin123!, Admin Tenant = Demo123!, Semua user = User123!. Tambah 5 akun baru (dr.siti, dr.andi, rekammedis, manajemen, lab, radiologi)</td></tr>
+    <tr><td><span class="badge b-blue">URL Production</span></td><td>Tambah URL production (simrs.online) di samping localhost development</td></tr>
+    <tr><td><span class="badge b-green">Modul Baru</span></td><td>MCU, Stock Opname, Purchase Order, Mutasi Barang, Penjualan Bebas, Monitoring Klinis, Manajemen Aset, SIRS Online, SIRANAP, Formulir Edukasi, Farmasi Alerts, Sinkronisasi Offline, Panduan, Topik Edukasi, SA Activity Log</td></tr>
+    <tr><td><span class="badge b-amber">Bagian Baru</span></td><td>Bagian 4: Farmasi Lanjutan (PO, Mutasi, OTC, CDSS Alert)</td></tr>
+    <tr><td><span class="badge b-purple">Lampiran</span></td><td>Matriks Role & Akses Menu (10 role × 13 modul), Daftar URL Halaman Lengkap (32 path)</td></tr>
+    <tr><td><span class="badge b-green">Layout</span></td><td>Tiap halaman ada page header + nomor halaman, konten tidak terpotong</td></tr>
+  </table>
+
+  <h3>v1.0 — 27 Oktober 2026</h3>
+  <table>
+    <tr><th style="width: 140px;">Perubahan</th><th>Detail</th></tr>
+    <tr><td><span class="badge b-blue">Initial Release</span></td><td>30 skenario testing, 7 bagian, 7 akun demo</td></tr>
+  </table>
+
+  <div style="margin-top: 40px; text-align: center; color: #94a3b8; font-size: 10px;">
+    <div style="font-size: 28px; margin-bottom: 6px;">🏥</div>
+    <p style="font-weight: 600; color: #0d9488; font-size: 12px;">SIMRS SaaS</p>
+    <p>Sistem Informasi Manajemen Rumah Sakit berbasis Software-as-a-Service</p>
+    <p style="margin-top: 12px;">Panduan Testing Manual v2.0 — 10 November 2026</p>
+    <p>39 Skenario | 13 Akun Demo | 8 Bagian | 14 Halaman</p>
+  </div>
+</div>
+
+</body>
+</html>

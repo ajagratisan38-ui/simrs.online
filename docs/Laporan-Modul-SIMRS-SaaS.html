@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Modul SIMRS SaaS</title>
+<style>
+  @page { size: A4 portrait; margin: 12mm 12mm 14mm 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 8.5pt; line-height: 1.35; color: #1e293b; }
+  @media print {
+    body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .pb { page-break-before: always; }
+    tr { page-break-inside: avoid; }
+    .section { page-break-inside: avoid; }
+  }
+
+  .header { text-align: center; border-bottom: 2.5px solid #0f766e; padding-bottom: 8px; margin-bottom: 12px; }
+  .header h1 { font-size: 16pt; color: #0f766e; margin-bottom: 1px; }
+  .header .sub { font-size: 9.5pt; color: #475569; }
+  .header .meta { font-size: 7.5pt; color: #94a3b8; margin-top: 3px; }
+
+  .sum { display: flex; gap: 6px; margin-bottom: 12px; }
+  .sum-c { flex: 1; text-align: center; padding: 7px 4px; border-radius: 6px; border: 1px solid #e2e8f0; }
+  .sum-c .n { font-size: 18pt; font-weight: 800; line-height: 1; }
+  .sum-c .l { font-size: 6.5pt; text-transform: uppercase; letter-spacing: .4px; margin-top: 1px; }
+  .sg { background: #f0fdf4; } .sg .n { color: #16a34a; } .sg .l { color: #15803d; }
+  .sy { background: #fefce8; } .sy .n { color: #ca8a04; } .sy .l { color: #a16207; }
+  .sr { background: #fef2f2; } .sr .n { color: #dc2626; } .sr .l { color: #b91c1c; }
+  .sb { background: #eff6ff; } .sb .n { color: #2563eb; } .sb .l { color: #1d4ed8; }
+
+  .leg { display: flex; gap: 12px; margin-bottom: 10px; font-size: 7.5pt; color: #64748b; }
+  .leg span { display: flex; align-items: center; gap: 3px; }
+
+  .st { font-size: 10pt; font-weight: 700; color: #0f766e; border-left: 3px solid #0f766e; padding-left: 8px; margin: 10px 0 6px 0; }
+  .st-r { border-left-color: #dc2626; color: #dc2626; }
+  .st-y { border-left-color: #ca8a04; color: #ca8a04; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 8px; }
+  thead th { background: #0f766e; color: #fff; font-weight: 600; text-align: left; padding: 3.5px 5px; font-size: 7.5pt; }
+  thead th:first-child { border-radius: 3px 0 0 0; }
+  thead th:last-child { border-radius: 0 3px 0 0; }
+  tbody td { padding: 3px 5px; border-bottom: .5px solid #e2e8f0; vertical-align: top; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  .cn { width: 20px; text-align: center; }
+  .cs { width: 52px; text-align: center; }
+  .cm { width: 120px; }
+
+  .b { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 6.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .2px; }
+  .bd { background: #dcfce7; color: #166534; }
+  .bp { background: #fef9c3; color: #854d0e; }
+  .bn { background: #fee2e2; color: #991b1b; }
+
+  .notes { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 8px 10px; font-size: 7.5pt; color: #475569; margin-top: 10px; }
+  .notes h4 { font-size: 8pt; color: #0f766e; margin-bottom: 4px; }
+  .notes ul { padding-left: 14px; }
+  .notes li { margin-bottom: 2px; }
+
+  .foot { margin-top: 12px; padding-top: 6px; border-top: 1px solid #e2e8f0; font-size: 7pt; color: #94a3b8; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<!-- ══════ HALAMAN 1 ══════ -->
+<div class="header">
+  <h1>SIMRS SaaS</h1>
+  <div class="sub">Laporan Status Modul Sistem</div>
+  <div class="meta">Tanggal: 5 November 2026 &nbsp;|&nbsp; Versi: 1.0 &nbsp;|&nbsp; Daftar lengkap modul beserta status implementasi</div>
+</div>
+
+<div class="sum">
+  <div class="sum-c sb"><div class="n">56</div><div class="l">Total Modul</div></div>
+  <div class="sum-c sg"><div class="n">45</div><div class="l">Selesai 100%</div></div>
+  <div class="sum-c sy"><div class="n">4</div><div class="l">Sebagian</div></div>
+  <div class="sum-c sr"><div class="n">7</div><div class="l">Belum Ada</div></div>
+</div>
+
+<div class="leg">
+  <span><span class="b bd">Selesai</span> Lengkap &amp; fungsional</span>
+  <span><span class="b bp">Sebagian</span> Ada, perlu penambahan</span>
+  <span><span class="b bn">Belum</span> Belum diimplementasi</span>
+</div>
+
+<div class="st">A. Modul Inti</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">1</td><td><b>Autentikasi & Otorisasi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>JWT + Refresh Token, RBAC 9 role, MFA TOTP, multi-session, rate limiting login</td></tr>
+<tr><td class="cn">2</td><td><b>Manajemen User</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD user, assign role & permission, toggle aktif/nonaktif, profil</td></tr>
+<tr><td class="cn">3</td><td><b>Dashboard Utama</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>5 metrik, grafik kunjungan line/pie, top diagnosa, auto-refresh 60s</td></tr>
+<tr><td class="cn">4</td><td><b>Manajemen Ruangan</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD ruangan/poli, kode, tipe (poli/igd/ranap/ok), kapasitas TT</td></tr>
+<tr><td class="cn">5</td><td><b>Profil RS (Tenant)</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Identitas RS, statistik, info langganan</td></tr>
+<tr><td class="cn">6</td><td><b>Audit Trail & Security</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Logging aksi, AES-256-GCM enkripsi, Helmet CSP/HSTS, sanitization</td></tr>
+</tbody>
+</table>
+
+<div class="st">B. Modul Pelayanan Pasien</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">7</td><td><b>Manajemen Pasien</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD, auto No.RM, duplikat NIK, merge, soft delete, import CSV</td></tr>
+<tr><td class="cn">8</td><td><b>Pendaftaran Rawat Jalan</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Form 3-step, poli/dokter/penjamin, antrian otomatis, tiket cetak, business rules Khanza</td></tr>
+<tr><td class="cn">9</td><td><b>Antrian & Display TV</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Display fullscreen, suara bell, auto-refresh 10s, filter poli</td></tr>
+<tr><td class="cn">10</td><td><b>Kiosk / Anjungan Mandiri</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>8-step touch, cari RM/NIK, pilih poli/dokter, cetak tiket, auto-reset 60s</td></tr>
+<tr><td class="cn">11</td><td><b>Rawat Inap</b></td><td class="cs"><span class="b bp">Sebagian</span></td><td><b>Ada:</b> Admisi, discharge 5 cara keluar, blokir deceased, billing. <b>Belum:</b> Bed visual, transfer ruang, daily notes, billing/hari otomatis</td></tr>
+<tr><td class="cn">12</td><td><b>IGD / Triase</b></td><td class="cs"><span class="b bp">Sebagian</span></td><td><b>Ada:</b> Pendaftaran IGD, pemeriksaan, triase dasar. <b>Belum:</b> Dashboard ESI 5-level, timer response, statistik per shift</td></tr>
+<tr><td class="cn">13</td><td><b>General Consent</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Form persetujuan pasien, cetak A4, tanda tangan digital</td></tr>
+<tr><td class="cn">14</td><td><b>Portal Pasien</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Login NIK + tgl lahir, riwayat kunjungan, tagihan, ringkasan rekam medis</td></tr>
+<tr><td class="cn">15</td><td><b>Formulir Edukasi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Checklist edukasi per kunjungan, dokumentasi terstruktur, cetak lembar</td></tr>
+</tbody>
+</table>
+
+<div class="st">C. Modul Klinis & Rekam Medis</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">16</td><td><b>Rekam Medis Elektronik</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>SOAP, ICD-10, ICD-9-CM, resep, template, auto-save, finalisasi</td></tr>
+<tr><td class="cn">17</td><td><b>CPPT Multi-Profesi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>SOAP-IE timeline, filter profesi, verifikasi DPJP, 5 profesi</td></tr>
+<tr><td class="cn">18</td><td><b>Pengkajian Keperawatan</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>7 section: riwayat, vital, nyeri NRS, Morse Fall Scale, Barthel, nutrisi, psikososial</td></tr>
+<tr><td class="cn">19</td><td><b>Resume Medis</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>PDF A4 terstruktur: KOP RS, identitas, diagnosis, tindakan, resep, TTD + SIP</td></tr>
+<tr><td class="cn">20</td><td><b>Logbook Dokter</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Catatan tindakan per dokter, statistik, export CSV</td></tr>
+<tr><td class="cn">21</td><td><b>Jadwal Praktik Dokter</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Jadwal hari/jam/poli/kuota, toggle cuti, lifecycle (aktif/cuti/resign/pensiun)</td></tr>
+<tr><td class="cn">22</td><td><b>Jasa Medis Dokter</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Tarif layanan, % dokter vs RS, riwayat transaksi, laporan pendapatan</td></tr>
+</tbody>
+</table>
+
+<!-- ══════ HALAMAN 2 ══════ -->
+<div class="pb"></div>
+
+<div class="st">D. Modul Penunjang Medis</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">23</td><td><b>Laboratorium</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Order, 46 parameter 7 kategori, workflow 5-step, cetak hasil, riwayat pasien</td></tr>
+<tr><td class="cn">24</td><td><b>Radiologi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Order, 34 jenis 6 modalitas (X-Ray/USG/CT/MRI/Mammo/Pano), bacaan & kesan, cetak</td></tr>
+<tr><td class="cn">25</td><td><b>Bedah / Operasi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Jadwal OK, prioritas emergency/cito/elektif, tim 8 peran+SIP, instrumen, anestesi (ASA-PS/Mallampati), perioperatif 3 fase, laporan operasi</td></tr>
+<tr><td class="cn">26</td><td><b>Gizi / Nutrisi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>ADIME, kalkulator (Harris-Benedict/Mifflin, IMT/BBI/TDEE), 24 bahan makanan, meal plans, food cost</td></tr>
+<tr><td class="cn">27</td><td><b>MCU (Medical Check Up)</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>3 paket default, pendaftaran, input hasil, kesimpulan 4 level, surat sehat A4</td></tr>
+</tbody>
+</table>
+
+<div class="st">E. Modul Farmasi & Logistik</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">28</td><td><b>Farmasi / Apotek</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD obat, dispensing FIFO, manajemen stok, alert kadaluarsa & stok rendah</td></tr>
+<tr><td class="cn">29</td><td><b>CDSS</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>5 cek otomatis: high-alert, interaksi (65 pasang), LASA/NORUM, dosis max, duplikasi. Override + riwayat</td></tr>
+<tr><td class="cn">30</td><td><b>Penjualan Obat Bebas</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Penjualan tanpa resep, potong stok otomatis, ringkasan harian</td></tr>
+<tr><td class="cn">31</td><td><b>Purchase Order</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD supplier, PO 6-step lifecycle, penerimaan per item + batch/expiry, auto update stok</td></tr>
+<tr><td class="cn">32</td><td><b>Gudang Umum</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD barang 7 kategori, manajemen stok, alert stok rendah</td></tr>
+<tr><td class="cn">33</td><td><b>Stock Opname</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Opname farmasi/gudang, auto-populate, input fisik, selisih, penyesuaian stok otomatis</td></tr>
+<tr><td class="cn">34</td><td><b>Mutasi Barang</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Transfer antar unit, workflow approve/complete/reject</td></tr>
+<tr><td class="cn">35</td><td><b>Manajemen Aset</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>10 kategori, kode auto, pemeliharaan, mutasi, penyusutan (Garis Lurus & Saldo Menurun)</td></tr>
+</tbody>
+</table>
+
+<div class="st">F. Modul Keuangan</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">36</td><td><b>Kasir & Billing</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Generate tagihan, bayar (tunai/kartu/transfer), diskon, ringkasan harian, cetak kwitansi</td></tr>
+<tr><td class="cn">37</td><td><b>Asuransi & Penjamin</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>CRUD asuransi, link ke pasien multi-insurance, integrasi pendaftaran & billing</td></tr>
+<tr><td class="cn">38</td><td><b>Akuntansi RS</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Jurnal Umum, Bagan Akun 55 akun standar, Buku Besar, Neraca, Laba Rugi, auto-jurnal dari payment & PO</td></tr>
+</tbody>
+</table>
+
+<div class="st">G. Modul SDM & Kepegawaian</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">39</td><td><b>HRIS / Kepegawaian</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>7 tab: Dashboard SDM, Pegawai (NIP auto), 15 Departemen, Jadwal Dinas 5 shift, Absensi (terlambat/lembur), Cuti 12hr/thn, Penggajian (pokok+tunjangan+jasa medis+PPH21+slip cetak)</td></tr>
+</tbody>
+</table>
+
+<!-- ══════ HALAMAN 3 ══════ -->
+<div class="pb"></div>
+
+<div class="st">H. Modul Integrasi Pemerintah</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">40</td><td><b>BPJS Kesehatan</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>8 tab: Peserta, SEP, Rujukan, PCare (kunjungan/obat DPHO), e-Klaim/INACBG, Aplicare (TT per kelas), Monitoring bulanan, Antrol (Mobile JKN). Mock mode tersedia</td></tr>
+<tr><td class="cn">41</td><td><b>SATUSEHAT (FHIR R4)</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>OAuth2 + Redis cache, 13 resource FHIR: Patient, Encounter, Condition, Observation, MedicationRequest, Procedure, AllergyIntolerance, MedicationDispense, ServiceRequest, DiagnosticReport, Composition, Practitioner, Location. Auto-sync via BullMQ</td></tr>
+<tr><td class="cn">42</td><td><b>SIRS Online</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>10 jenis RL (RL1.3, RL3.2–RL3.12, RL4.1, RL5.1), indikator BOR/LOS/TOI/BTO/GDR/NDR, kirim Kemenkes, riwayat</td></tr>
+<tr><td class="cn">43</td><td><b>SIRANAP</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Ketersediaan TT real-time, kirim XML Kemenkes, auto-scheduler 15 menit, multi-waktu, riwayat & statistik</td></tr>
+<tr><td class="cn">44</td><td><b>Terminologi LOINC+KFA</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>90+ LOINC 10 kategori, 101 KFA 12 golongan, mapping lab→LOINC & obat→KFA, auto-match similarity</td></tr>
+</tbody>
+</table>
+
+<div class="st">I. Modul Laporan & Dokumen</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">45</td><td><b>Laporan & Export</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>7 jenis laporan, export Excel multi-sheet styled, PDF A4, CSV. Filter tanggal & groupBy</td></tr>
+<tr><td class="cn">46</td><td><b>TTE (Tanda Tangan Elektronik)</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>4 provider (Internal/BSrE/VIDA/Privy), Canvas signature, SHA-512 hash, tamper detection, UU ITE compliant</td></tr>
+</tbody>
+</table>
+
+<div class="st">J. Modul Platform SaaS & Infrastruktur</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Detail Fitur</th></tr></thead>
+<tbody>
+<tr><td class="cn">47</td><td><b>Multi-Tenancy</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Schema-per-tenant PostgreSQL, subdomain routing, tenant middleware, isolated data</td></tr>
+<tr><td class="cn">48</td><td><b>Super Admin Panel</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>9 menu: Dashboard, Pendaftaran RS, Kelola Tenant, Verifikasi Pembayaran, Paket & Transaksi, Monitoring, CRUD Super Admin, Pengaturan, Activity Log</td></tr>
+<tr><td class="cn">49</td><td><b>Landing Page & Registrasi</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Landing publik, self-register, pilih paket, cek slug, instruksi bayar, upload bukti, cek status</td></tr>
+<tr><td class="cn">50</td><td><b>Subscription & Billing</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>4 paket (Trial/Basic/Pro/Enterprise), auto-provision, 8 email template, cek expiry harian BullMQ</td></tr>
+<tr><td class="cn">51</td><td><b>Onboarding Wizard</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>5 step: Welcome → Profil RS → Poliklinik → Dokter → Selesai</td></tr>
+<tr><td class="cn">52</td><td><b>Offline Mode & Sync</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Dexie.js 7 tabel, Service Worker, online banner, sync indicator, auto-save, conflict resolution</td></tr>
+<tr><td class="cn">53</td><td><b>Backup & Recovery</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>pg_dump+gzip, jadwal otomatis BullMQ, download, retention, 3 storage (local/S3/GCS), restore command</td></tr>
+<tr><td class="cn">54</td><td><b>Migrasi Khanza</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Wizard 4-step (Connect→Analyze→Migrate→Verify), 20 mapper, CLI tools, verifier + CSV report</td></tr>
+<tr><td class="cn">55</td><td><b>Import Data CSV</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Import pasien & obat via CSV, deteksi duplikat, auto No.RM</td></tr>
+<tr><td class="cn">56</td><td><b>Dark Mode</b></td><td class="cs"><span class="b bd">Selesai</span></td><td>Toggle light/dark/system, next-themes, terintegrasi header</td></tr>
+</tbody>
+</table>
+
+<!-- ══════ HALAMAN 4 ══════ -->
+<div class="pb"></div>
+
+<div class="st st-r">K. Modul Belum Tersedia (Roadmap)</div>
+<table>
+<thead><tr><th class="cn">#</th><th class="cm">Modul</th><th class="cs">Status</th><th>Deskripsi & Prioritas</th></tr></thead>
+<tbody>
+<tr><td class="cn">1</td><td><b>Notifikasi WhatsApp</b></td><td class="cs"><span class="b bn">Belum</span></td><td>WA Gateway: notif jadwal, reminder kontrol & obat, broadcast pasien. <em>Prioritas: Tinggi</em></td></tr>
+<tr><td class="cn">2</td><td><b>Telemedisin</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Konsultasi video/chat, e-prescription jarak jauh, jadwal telekonsultasi. <em>Prioritas: Sedang</em></td></tr>
+<tr><td class="cn">3</td><td><b>Report Builder Kustom</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Drag-and-drop builder, custom query, chart builder, scheduled email report. <em>Prioritas: Sedang</em></td></tr>
+<tr><td class="cn">4</td><td><b>Analitik Prediktif (AI)</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Prediksi kunjungan, tren penyakit, forecasting obat, early warning epidemiologi. <em>Prioritas: Rendah</em></td></tr>
+<tr><td class="cn">5</td><td><b>Bank Darah / BDRS</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Stok darah, permintaan, cross-match, tracking kantong, integrasi PMI. <em>Prioritas: Rendah</em></td></tr>
+<tr><td class="cn">6</td><td><b>Hemodialisa</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Jadwal HD, catatan per sesi, monitoring mesin, statistik HD rutin. <em>Prioritas: Rendah</em></td></tr>
+<tr><td class="cn">7</td><td><b>Rehabilitasi Medik</b></td><td class="cs"><span class="b bn">Belum</span></td><td>Jadwal fisioterapi, catatan terapi, evaluasi kemajuan. <em>Prioritas: Rendah</em></td></tr>
+</tbody>
+</table>
+
+<!-- ═══ Detail Sebagian ═══ -->
+<div class="st st-y">Detail Modul Selesai Sebagian</div>
+<table>
+<thead><tr><th style="width:18%">Modul</th><th style="width:41%">Yang Sudah Ada</th><th style="width:41%">Yang Belum / Perlu Ditambah</th></tr></thead>
+<tbody>
+<tr>
+  <td><b>Rawat Inap</b></td>
+  <td>• Admisi rawat inap<br>• Discharge 5 cara keluar<br>• Auto-blokir pasien meninggal<br>• Integrasi billing</td>
+  <td>• Visual bed management (denah kamar)<br>• Transfer antar ruang<br>• Daily nursing notes<br>• Billing otomatis per hari<br>• Monitoring BOR per ruang</td>
+</tr>
+<tr>
+  <td><b>IGD / Triase</b></td>
+  <td>• Pendaftaran pasien IGD<br>• Pemeriksaan & rekam medis<br>• Triase kategori dasar</td>
+  <td>• Dashboard ESI 5-level visual<br>• Timer response time<br>• Statistik per shift/jam<br>• Alur disposisi cepat</td>
+</tr>
+<tr>
+  <td><b>Laboratorium</b><br><em>(enhancement)</em></td>
+  <td>• Order→proses→hasil→final<br>• 46 parameter, 7 kategori<br>• Cetak hasil, riwayat</td>
+  <td>• Interface LIS (koneksi instrumen)<br>• Auto-import dari analyzer<br>• QC Levy-Jennings chart</td>
+</tr>
+<tr>
+  <td><b>Radiologi</b><br><em>(enhancement)</em></td>
+  <td>• Order→proses→bacaan→kesan<br>• 34 jenis, 6 modalitas<br>• Cetak hasil</td>
+  <td>• Integrasi PACS<br>• DICOM viewer<br>• Upload & arsip gambar</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ═══ Tech Stack ═══ -->
+<div class="st">Teknologi</div>
+<table>
+<thead><tr><th style="width:22%">Lapisan</th><th style="width:30%">Teknologi</th><th>Keterangan</th></tr></thead>
+<tbody>
+<tr><td>Frontend</td><td>Next.js 14, React 18, TypeScript</td><td>SSR, PWA-ready, App Router</td></tr>
+<tr><td>UI</td><td>Tailwind CSS + shadcn/ui</td><td>Aksesibel, modern, customizable</td></tr>
+<tr><td>State</td><td>Zustand + TanStack Query</td><td>UI state + server state + caching</td></tr>
+<tr><td>Offline</td><td>Dexie.js (IndexedDB)</td><td>7 tabel, background sync</td></tr>
+<tr><td>Backend</td><td>Node.js 20, Express 4, TypeScript</td><td>RESTful API, modular domain-driven</td></tr>
+<tr><td>Database</td><td>PostgreSQL 16</td><td>ACID, JSONB, schema-per-tenant</td></tr>
+<tr><td>Cache/Queue</td><td>Redis 7 + BullMQ</td><td>Session, rate limit, background jobs</td></tr>
+<tr><td>Container</td><td>Docker + Docker Compose</td><td>4 container (web/server/pg/redis)</td></tr>
+<tr><td>Email</td><td>Nodemailer SMTP</td><td>8 template notifikasi</td></tr>
+<tr><td>Security</td><td>JWT + MFA + AES-256-GCM</td><td>Helmet, rate limiting, audit trail</td></tr>
+</tbody>
+</table>
+
+<div class="notes">
+  <h4>Catatan</h4>
+  <ul>
+    <li>Total <b>56 modul</b>: <b>45 selesai 100%</b>, <b>4 selesai sebagian</b>, <b>7 dalam roadmap</b>.</li>
+    <li>Sistem berjalan di <b>https://simrs.online</b> dengan arsitektur Docker containerized di VPS.</li>
+    <li>Semua integrasi pemerintah (BPJS, SATUSEHAT, SIRS Online, SIRANAP) mendukung <b>mock mode</b> untuk demo dan <b>ready production</b>.</li>
+    <li>Modul "Sebagian" sudah fungsional — fitur tambahan merupakan <b>enhancement</b> fase berikutnya.</li>
+    <li>Modul "Belum Tersedia" dapat dikembangkan sesuai kebutuhan dan prioritas RS.</li>
+  </ul>
+</div>
+
+<div class="foot">
+  <span>SIMRS SaaS — Laporan Status Modul</span>
+  <span>Dokumen: 5 November 2026</span>
+</div>
+
+</body>
+</html>

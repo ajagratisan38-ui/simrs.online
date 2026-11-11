@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+!.vscode/settings.json
+*.swp
+*.swo
+.idea/
+.cursor/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Temp
+tmp/
+temp/
+
+# Turbo
+.turbo/
+
+# Docker volumes
+pgdata/
+redisdata/
+
+# Development reference files (tidak perlu di repo)
+sik.sql
+sik_tables.txt
+sik_table_names.txt
+
+# Uploads (dibuat otomatis di server)
+uploads/
