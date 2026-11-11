@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { DoctorController } from './doctor.controller'
 import { DoctorService } from './doctor.service'
+import { SubstitutionController } from './substitution.controller'
+import { SubstitutionService } from './substitution.service'
 import { authenticate } from '../../middleware/authenticate'
 import { checkPermission, checkAnyPermission } from '../../middleware/check-permission'
 import { db } from '../../config/database'
@@ -8,13 +10,25 @@ import { db } from '../../config/database'
 const router = Router()
 const service = new DoctorService(db)
 const controller = new DoctorController(service)
+const subService = new SubstitutionService(db)
+const subController = new SubstitutionController(subService)
 
 router.use(authenticate)
 
-// Doctor list & detail
+// Doctor list & static routes (before /:id catch-all)
 router.get('/', checkAnyPermission('registration:read', 'patient:read'), controller.listDoctors)
 router.get('/today-schedule', checkAnyPermission('registration:read', 'queue:manage'), controller.getTodaySchedule)
 router.get('/earnings', checkPermission('dashboard:read'), controller.getAllEarnings)
+
+// Substitutions — static paths before /:id
+router.get('/substitutions', checkAnyPermission('settings:manage', 'registration:read'), subController.list)
+router.get('/substitutions/stats', checkPermission('settings:manage'), subController.getStats)
+router.post('/substitutions', checkPermission('settings:manage'), subController.create)
+router.post('/substitutions/complete-expired', checkPermission('settings:manage'), subController.completeExpired)
+router.get('/substitutions/:id', checkAnyPermission('settings:manage', 'registration:read'), subController.getById)
+router.post('/substitutions/:id/cancel', checkPermission('settings:manage'), subController.cancel)
+
+// Doctor by ID
 router.get('/:id', checkAnyPermission('registration:read', 'patient:read'), controller.getDoctor)
 router.put('/:id', checkPermission('settings:manage'), controller.updateDoctor)
 
@@ -37,5 +51,9 @@ router.get('/:doctorId/earnings', checkAnyPermission('dashboard:read', 'billing:
 // Deactivate / Reactivate
 router.post('/:id/deactivate', checkPermission('settings:manage'), controller.deactivateDoctor)
 router.post('/:id/reactivate', checkPermission('settings:manage'), controller.reactivateDoctor)
+
+// Doctor-specific substitution history
+router.get('/:doctorId/substitutions', checkAnyPermission('settings:manage', 'registration:read'), subController.getDoctorHistory)
+router.get('/:doctorId/active-substitute', checkAnyPermission('settings:manage', 'registration:read'), subController.getActiveForDoctor)
 
 export { router as doctorRouter }
