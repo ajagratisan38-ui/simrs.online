@@ -55,6 +55,7 @@ export default function GudangPage() {
   const [fSatuan, setFSatuan] = useState('pcs')
   const [fHarga, setFHarga] = useState('')
   const [fMinimum, setFMinimum] = useState('5')
+  const [fStokAwal, setFStokAwal] = useState('')
   const [fLokasi, setFLokasi] = useState('')
 
   // Edit form
@@ -65,6 +66,7 @@ export default function GudangPage() {
   const [eHarga, setEHarga] = useState('')
   const [eMinimum, setEMinimum] = useState('')
   const [eLokasi, setELokasi] = useState('')
+  const [eTambahStok, setETambahStok] = useState('')
 
   // Stock add form
   const [sJumlah, setSJumlah] = useState('')
@@ -87,14 +89,22 @@ export default function GudangPage() {
   const handleCreate = async () => {
     if (!fKode || !fNama) return toast.error('Kode dan Nama wajib diisi')
     try {
-      await createMut.mutateAsync({
+      const created = await createMut.mutateAsync({
         kode: fKode, nama: fNama, kategori: fKat, satuan: fSatuan,
         harga_beli: Number(fHarga) || 0, stok_minimum: Number(fMinimum) || 5,
         lokasi: fLokasi || undefined,
       })
-      toast.success('Barang berhasil ditambah')
+      const stokAwal = Number(fStokAwal) || 0
+      if (stokAwal > 0 && created?.data?.id) {
+        await addStockMut.mutateAsync({
+          item_id: created.data.id,
+          jumlah: stokAwal,
+        })
+      }
+      toast.success(`Barang berhasil ditambah${stokAwal > 0 ? ` dengan stok awal ${stokAwal}` : ''}`)
       setShowAdd(false)
-      setFKode(''); setFNama(''); setFHarga(''); setFLokasi('')
+      setFKode(''); setFNama(''); setFHarga(''); setFLokasi(''); setFStokAwal('')
+      setFMinimum('5')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Gagal')
     }
@@ -122,6 +132,7 @@ export default function GudangPage() {
     setEHarga(String(item.harga_beli ?? ''))
     setEMinimum(String(item.stok_minimum ?? '5'))
     setELokasi(item.lokasi as string || '')
+    setETambahStok('')
   }
 
   const handleUpdate = async () => {
@@ -138,7 +149,14 @@ export default function GudangPage() {
           lokasi: eLokasi || null,
         },
       })
-      toast.success('Barang berhasil diperbarui')
+      const tambahStok = Number(eTambahStok) || 0
+      if (tambahStok > 0) {
+        await addStockMut.mutateAsync({
+          item_id: editItem.id as string,
+          jumlah: tambahStok,
+        })
+      }
+      toast.success(`Barang berhasil diperbarui${tambahStok > 0 ? ` + stok ditambah ${tambahStok}` : ''}`)
       setEditItem(null)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Gagal memperbarui')
@@ -196,10 +214,19 @@ export default function GudangPage() {
               </Select>
               <Input placeholder="Satuan" value={fSatuan} onChange={(e) => setFSatuan(e.target.value)} />
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Input type="number" placeholder="Harga Beli" value={fHarga} onChange={(e) => setFHarga(e.target.value)} />
-              <Input type="number" placeholder="Stok Minimum" value={fMinimum} onChange={(e) => setFMinimum(e.target.value)} />
               <Input placeholder="Lokasi (opsional)" value={fLokasi} onChange={(e) => setFLokasi(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Awal</label>
+                <Input type="number" placeholder="0" value={fStokAwal} onChange={(e) => setFStokAwal(e.target.value)} min="0" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Minimum (alert)</label>
+                <Input type="number" placeholder="5" value={fMinimum} onChange={(e) => setFMinimum(e.target.value)} min="0" />
+              </div>
             </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={handleCreate} disabled={createMut.isPending}>Simpan</Button>
@@ -368,11 +395,18 @@ export default function GudangPage() {
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Lokasi</label>
                 <Input value={eLokasi} onChange={(e) => setELokasi(e.target.value)} placeholder="Opsional" />
               </div>
+              <div className="border-t pt-3 mt-1">
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  Tambah Stok <span className="text-muted-foreground">(opsional — stok saat ini: {(editItem as Record<string, unknown>)?.total_stok ?? 0})</span>
+                </label>
+                <Input type="number" placeholder="0" value={eTambahStok} onChange={(e) => setETambahStok(e.target.value)} min="0" />
+                <p className="text-[11px] text-muted-foreground mt-0.5">Isi angka untuk menambah stok bersamaan dengan edit</p>
+              </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
               <Button variant="outline" size="sm" onClick={() => setEditItem(null)}>Batal</Button>
-              <Button size="sm" onClick={handleUpdate} disabled={updateMut.isPending}>
-                {updateMut.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+              <Button size="sm" onClick={handleUpdate} disabled={updateMut.isPending || addStockMut.isPending}>
+                {updateMut.isPending || addStockMut.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
               </Button>
             </div>
           </div>
