@@ -662,16 +662,15 @@ export class InpatientService {
 
     const visitTipe = visit.tipe as string
 
-    // 1. Konsultasi/Visite dokter — class-based pricing
+    // 1. Konsultasi/Visite dokter — komponen_tarif only
     const doctor = await trx.withSchema(tenantSchema)
-      .select('d.tarif_konsultasi', 'd.spesialisasi', 'u.name as doctor_nama')
+      .select('d.spesialisasi', 'u.name as doctor_nama')
       .from('doctors as d')
       .join('users as u', 'u.id', 'd.user_id')
       .where('d.id', visit.doctor_id as string)
       .first()
 
     if (doctor) {
-      // Try class-based tariff from komponen_tarif
       const spesialisasi = (doctor.spesialisasi as string || '').toLowerCase()
       let visiteKode = 'VIS-UMUM'
       if (spesialisasi.includes('sub')) visiteKode = 'VIS-SUBSPESIALIS'
@@ -682,30 +681,23 @@ export class InpatientService {
         .select('*').from('komponen_tarif')
         .where({ kode: visiteKode, is_active: true }).first()
 
-      let tarif = 0
-      let deskripsi = `Visite ${doctor.doctor_nama}`
-
       if (kompVisite) {
-        tarif = this.resolveKompTarif(kompVisite, visitTipe, roomKelas)
+        const tarif = this.resolveKompTarif(kompVisite, visitTipe, roomKelas)
         const kelasLabel = roomKelas !== null
           ? (roomKelas === 0 ? 'VIP' : `Kelas ${roomKelas}`)
           : (visitTipe === 'igd' ? 'IGD' : 'Poli')
-        deskripsi = `Visite ${doctor.doctor_nama} (${kelasLabel})`
-      } else {
-        // Fallback to flat tarif_konsultasi
-        tarif = Number(doctor.tarif_konsultasi) || 0
-      }
 
-      if (tarif > 0) {
-        items.push({
-          kategori: 'konsultasi',
-          deskripsi,
-          qty: 1,
-          harga_satuan: tarif,
-          subtotal: tarif,
-          discount: 0,
-          total: tarif,
-        })
+        if (tarif > 0) {
+          items.push({
+            kategori: 'konsultasi',
+            deskripsi: `Visite ${doctor.doctor_nama} (${kelasLabel})`,
+            qty: 1,
+            harga_satuan: tarif,
+            subtotal: tarif,
+            discount: 0,
+            total: tarif,
+          })
+        }
       }
     }
 

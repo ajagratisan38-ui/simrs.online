@@ -234,6 +234,12 @@ export const MENU_ITEMS: readonly MenuItem[] = [
         roles: ['admin'],
       },
       {
+        label: 'Tarif Berjenjang',
+        href: '/admin/tarif',
+        icon: 'Calculator',
+        roles: ['admin'],
+      },
+      {
         label: 'Asuransi & Penjamin',
         href: '/admin/asuransi',
         icon: 'Shield',
