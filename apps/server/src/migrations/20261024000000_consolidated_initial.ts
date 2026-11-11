@@ -169,6 +169,11 @@ export async function up(knex: Knex): Promise<void> {
       'fit','fit_with_notes','temporarily_unfit','unfit'
     ); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
   `)
+  await knex.raw(`
+    DO $$ BEGIN CREATE TYPE substitution_status AS ENUM (
+      'active','completed','cancelled'
+    ); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+  `)
 
   // ============================================================
   // TRIGGER FUNCTION
@@ -866,6 +871,38 @@ export async function up(knex: Knex): Promise<void> {
       EXECUTE format('CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kategori ON %I.komponen_tarif(kategori)', 'tenant_' || tenant_slug);
       EXECUTE format('CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kode ON %I.komponen_tarif(kode)', 'tenant_' || tenant_slug);
 
+      -- ============ DOCTOR SUBSTITUTIONS ============
+      EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.doctor_substitutions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          doctor_id UUID NOT NULL,
+          substitute_doctor_id UUID NOT NULL,
+          tanggal_mulai DATE NOT NULL,
+          tanggal_selesai DATE NOT NULL,
+          alasan TEXT NOT NULL,
+          catatan TEXT,
+          status substitution_status NOT NULL DEFAULT ''active'',
+          cancelled_at TIMESTAMPTZ,
+          cancelled_by UUID,
+          created_by UUID NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          CONSTRAINT fk_dsub_doctor FOREIGN KEY (doctor_id) REFERENCES %I.doctors(id) ON DELETE CASCADE,
+          CONSTRAINT fk_dsub_substitute FOREIGN KEY (substitute_doctor_id) REFERENCES %I.doctors(id) ON DELETE CASCADE,
+          CONSTRAINT fk_dsub_created_by FOREIGN KEY (created_by) REFERENCES %I.users(id),
+          CONSTRAINT fk_dsub_cancelled_by FOREIGN KEY (cancelled_by) REFERENCES %I.users(id),
+          CONSTRAINT chk_dsub_dates CHECK (tanggal_mulai <= tanggal_selesai),
+          CONSTRAINT chk_dsub_not_self CHECK (doctor_id != substitute_doctor_id)
+        )
+      ', 'tenant_' || tenant_slug, 'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
+         'tenant_' || tenant_slug, 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_dsub_doctor ON %I.doctor_substitutions(doctor_id)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_dsub_substitute ON %I.doctor_substitutions(substitute_doctor_id)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_dsub_status ON %I.doctor_substitutions(status)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_dsub_dates ON %I.doctor_substitutions(tanggal_mulai, tanggal_selesai)', 'tenant_' || tenant_slug);
+      EXECUTE format('DROP TRIGGER IF EXISTS trg_dsub_updated ON %I.doctor_substitutions', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE TRIGGER trg_dsub_updated BEFORE UPDATE ON %I.doctor_substitutions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()', 'tenant_' || tenant_slug);
+
       -- ============ BED TRANSFERS ============
       EXECUTE format('
         CREATE TABLE IF NOT EXISTS %I.bed_transfers (
@@ -955,10 +992,15 @@ export async function up(knex: Knex): Promise<void> {
           CONSTRAINT fk_visits_patient FOREIGN KEY (patient_id) REFERENCES %I.patients(id),
           CONSTRAINT fk_visits_room FOREIGN KEY (room_id) REFERENCES %I.rooms(id),
           CONSTRAINT fk_visits_doctor FOREIGN KEY (doctor_id) REFERENCES %I.doctors(id),
+          original_doctor_id UUID,
+          substitution_id UUID,
           CONSTRAINT fk_visits_bed FOREIGN KEY (bed_id) REFERENCES %I.beds(id),
-          CONSTRAINT fk_visit_insurance FOREIGN KEY (insurance_id) REFERENCES %I.insurances(id) ON DELETE SET NULL
+          CONSTRAINT fk_visit_insurance FOREIGN KEY (insurance_id) REFERENCES %I.insurances(id) ON DELETE SET NULL,
+          CONSTRAINT fk_v_orig_doctor FOREIGN KEY (original_doctor_id) REFERENCES %I.doctors(id),
+          CONSTRAINT fk_v_substitution FOREIGN KEY (substitution_id) REFERENCES %I.doctor_substitutions(id)
         )
       ', 'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
+         'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
          'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
          'tenant_' || tenant_slug, 'tenant_' || tenant_slug);
 
@@ -2986,6 +3028,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP FUNCTION IF EXISTS update_updated_at_column()')
 
   // Drop ENUM types (new + existing)
+  await knex.raw('DROP TYPE IF EXISTS substitution_status CASCADE')
   await knex.raw('DROP TYPE IF EXISTS mcu_conclusion_type CASCADE')
   await knex.raw('DROP TYPE IF EXISTS mcu_status CASCADE')
   await knex.raw('DROP TYPE IF EXISTS mcu_exam_category CASCADE')
