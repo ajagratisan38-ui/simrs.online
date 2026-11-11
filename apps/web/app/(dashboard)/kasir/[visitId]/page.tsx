@@ -548,7 +548,7 @@ export default function BillingDetailPage({
                 applyDiscountMut.isPending
               }
             >
-              {applyDiscountMut.isPending ? 'Menyimpan...' : 'Simpan Diskon'}
+              {applyDiscountMut.isPending ? 'Menyimpan...' : 'Simpan'}
             </Button>
           </DialogFooter>
         </Dialog>
