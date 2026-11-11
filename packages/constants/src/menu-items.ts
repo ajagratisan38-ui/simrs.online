@@ -160,6 +160,12 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     roles: ['admin', 'dokter', 'perawat'],
   },
   {
+    label: 'Rehabilitasi',
+    href: '/rehabilitasi',
+    icon: 'Heart',
+    roles: ['admin', 'dokter', 'perawat'],
+  },
+  {
     label: 'Gizi',
     href: '/gizi',
     icon: 'Utensils',

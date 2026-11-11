@@ -37,6 +37,9 @@ import {
   Utensils,
   ShieldAlert,
   Calculator,
+  Heart,
+  Scissors,
+  ClipboardCheck,
   type LucideIcon,
 } from 'lucide-react'
 import type { MenuItem } from '@simrs/shared-types'
@@ -77,6 +80,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Utensils,
   ShieldAlert,
   Calculator,
+  Heart,
+  Scissors,
+  ClipboardCheck,
 }
 
 function SidebarItem({ item, depth = 0 }: { item: MenuItem; depth?: number }) {
