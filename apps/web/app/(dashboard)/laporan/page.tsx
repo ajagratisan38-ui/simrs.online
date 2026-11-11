@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import {
   useVisitStats,
@@ -527,7 +528,7 @@ function ReportContent({
                 <CardContent className="pt-4">
                   <p className="text-xs text-muted-foreground">Total Pendapatan</p>
                   <p className="text-2xl font-bold text-green-600">
-                    Rp {Math.round(revData.total).toLocaleString('id-ID')}
+                    {formatRupiah(revData.total)}
                   </p>
                 </CardContent>
               </Card>
@@ -541,9 +542,9 @@ function ReportContent({
                 <CardContent className="pt-4">
                   <p className="text-xs text-muted-foreground">Rata-rata/Hari</p>
                   <p className="text-2xl font-bold">
-                    Rp {revData.byDate.length > 0
-                      ? Math.round(revData.total / revData.byDate.length).toLocaleString('id-ID')
-                      : '0'}
+                    {formatRupiah(revData.byDate.length > 0
+                      ? revData.total / revData.byDate.length
+                      : 0)}
                   </p>
                 </CardContent>
               </Card>
@@ -557,7 +558,7 @@ function ReportContent({
                 new Date(d.date + 'T00:00:00').toLocaleDateString('id-ID', {
                   weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
                 }),
-                `Rp ${Math.round(d.amount).toLocaleString('id-ID')}`,
+                formatRupiah(d.amount),
               ])}
               loading={loading.revenue}
             />
@@ -566,7 +567,7 @@ function ReportContent({
               headers={['Kategori', 'Jumlah']}
               rows={(revData?.byCategory ?? []).map((d) => [
                 d.category,
-                `Rp ${Math.round(d.amount).toLocaleString('id-ID')}`,
+                formatRupiah(d.amount),
               ])}
               loading={loading.revenue}
             />
@@ -796,7 +797,7 @@ function PharmacyReportView({
       <Card>
         <CardHeader className="pb-2"><CardTitle className="text-sm">Total Nilai Stok</CardTitle></CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold">Rp {Math.round(data.totalStockValue).toLocaleString('id-ID')}</p>
+          <p className="text-3xl font-bold">{formatRupiah(data.totalStockValue)}</p>
         </CardContent>
       </Card>
 

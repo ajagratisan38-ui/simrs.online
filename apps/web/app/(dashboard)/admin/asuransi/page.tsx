@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import {
   Shield,
@@ -120,8 +121,7 @@ export default function AsuransiPage() {
     }
   }
 
-  const formatRupiah = (n: number) =>
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
+
 
   return (
     <div className="space-y-6">

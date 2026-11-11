@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePlatformDomain } from '@/hooks/use-platform-domain'
@@ -30,9 +31,6 @@ import {
 } from 'lucide-react'
 import { useTenantDetail, useToggleTenant } from '@/hooks/use-tenants-admin'
 
-function formatRupiah(n: number): string {
-  return `Rp ${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 function formatDate(d: string | null): string {
   if (!d) return '-'

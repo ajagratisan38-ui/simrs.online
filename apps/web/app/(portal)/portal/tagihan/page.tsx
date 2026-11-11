@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
@@ -48,9 +49,6 @@ function formatDate(d: string) {
   })
 }
 
-function formatRupiah(amount: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount)
-}
 
 export default function TagihanPage() {
   const [bills, setBills] = useState<Bill[]>([])

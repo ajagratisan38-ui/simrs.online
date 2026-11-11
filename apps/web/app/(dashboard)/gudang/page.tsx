@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import {
   Warehouse,
@@ -68,8 +69,7 @@ export default function GudangPage() {
   const deleteMut = useDeleteWarehouseItem()
   const addStockMut = useAddWarehouseStock()
 
-  const formatRupiah = (n: number) =>
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
+
 
   const handleCreate = async () => {
     if (!fKode || !fNama) return toast.error('Kode dan Nama wajib diisi')

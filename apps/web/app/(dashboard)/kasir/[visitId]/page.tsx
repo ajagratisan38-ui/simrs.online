@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -75,11 +76,6 @@ const STATUS_BADGE: Record<
   batal: { variant: 'destructive', label: 'Batal' },
 }
 
-function formatCurrency(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('id-ID', {
@@ -370,10 +366,10 @@ export default function BillingDetailPage({
                       <td className="p-3">{item.deskripsi}</td>
                       <td className="p-3 text-right">{item.qty}</td>
                       <td className="p-3 text-right text-muted-foreground">
-                        {formatCurrency(Number(item.harga_satuan))}
+                        {formatRupiah(Number(item.harga_satuan))}
                       </td>
                       <td className="p-3 text-right font-medium">
-                        {formatCurrency(Number(item.total))}
+                        {formatRupiah(Number(item.total))}
                       </td>
                     </tr>
                   ))}
@@ -399,7 +395,7 @@ export default function BillingDetailPage({
           <CardContent className="p-6 space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatCurrency(bill.total_amount)}</span>
+              <span>{formatRupiah(bill.total_amount)}</span>
             </div>
 
             <div className="flex items-center justify-between text-sm">
@@ -427,15 +423,15 @@ export default function BillingDetailPage({
                 )}
               >
                 {bill.discount_amount > 0
-                  ? `-${formatCurrency(bill.discount_amount)}`
-                  : formatCurrency(0)}
+                  ? `-${formatRupiah(bill.discount_amount)}`
+                  : formatRupiah(0)}
               </span>
             </div>
 
             <div className="border-t pt-3 flex items-center justify-between">
               <span className="text-lg font-semibold">Grand Total</span>
               <span className="text-2xl font-bold text-primary">
-                {formatCurrency(bill.final_amount)}
+                {formatRupiah(bill.final_amount)}
               </span>
             </div>
 
@@ -453,7 +449,7 @@ export default function BillingDetailPage({
                       {p.referensi_pembayaran && ` — ${p.referensi_pembayaran}`}
                     </span>
                     <span className="font-medium text-foreground">
-                      {formatCurrency(Number(p.jumlah))}
+                      {formatRupiah(Number(p.jumlah))}
                     </span>
                   </div>
                 ))}
@@ -466,7 +462,7 @@ export default function BillingDetailPage({
                         : 'text-red-600',
                     )}
                   >
-                    {formatCurrency(Math.max(0, bill.sisa_bayar))}
+                    {formatRupiah(Math.max(0, bill.sisa_bayar))}
                   </span>
                 </div>
               </div>
@@ -522,7 +518,7 @@ export default function BillingDetailPage({
                   onChange={(e) => setDiscountAmount(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Maksimal {formatCurrency(bill.total_amount)}
+                  Maksimal {formatRupiah(bill.total_amount)}
                 </p>
               </div>
               <div className="space-y-1.5">
@@ -574,7 +570,7 @@ export default function BillingDetailPage({
                 </p>
               </div>
               <p className="text-muted-foreground">
-                Grand total: <strong>{formatCurrency(bill.final_amount)}</strong>
+                Grand total: <strong>{formatRupiah(bill.final_amount)}</strong>
               </p>
               <p className="text-muted-foreground">Lanjutkan?</p>
             </div>

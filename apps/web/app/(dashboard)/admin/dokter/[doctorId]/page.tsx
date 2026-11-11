@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -564,12 +565,7 @@ export default function DoctorDetailPage() {
   )
   const earnings = earningsRes?.data
 
-  const formatRupiah = (n: number) =>
-    new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0,
-    }).format(n)
+
 
   // Handlers
   const handleSaveProfile = useCallback(

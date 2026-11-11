@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import {
   useNutritionOrders,
@@ -127,9 +128,6 @@ function formatDate(iso: string): string {
   })
 }
 
-function formatRupiah(n: number): string {
-  return 'Rp ' + n.toLocaleString('id-ID')
-}
 
 function AdimeSection({
   icon: Icon, title, color, children,

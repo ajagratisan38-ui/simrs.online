@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -744,8 +745,3 @@ function formatDate(dateStr?: string | null): string {
   })
 }
 
-function formatRupiah(n: number | string): string {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}

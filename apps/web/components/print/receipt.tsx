@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { forwardRef } from 'react'
 import type { BillData, PaymentData } from '@/lib/api/billing'
 
@@ -77,16 +78,16 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
               <div className="flex-1">
                 <p className="text-[8pt] font-medium">{item.deskripsi}</p>
                 <p className="text-[7pt] text-gray-600">
-                  {item.qty} x {formatCurrency(item.harga_satuan)}
+                  {item.qty} x {formatRupiah(item.harga_satuan)}
                   {item.discount > 0 && (
                     <span className="ml-1">
-                      (disc -{formatCurrency(item.discount)})
+                      (disc -{formatRupiah(item.discount)})
                     </span>
                   )}
                 </p>
               </div>
               <span className="text-right text-[8pt] font-medium ml-2">
-                {formatCurrency(item.total)}
+                {formatRupiah(item.total)}
               </span>
             </div>
           ))}
@@ -96,17 +97,17 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
         <div className="receipt-total border-t border-dashed border-black pt-1 space-y-0.5">
           <div className="flex justify-between text-[8pt]">
             <span>Subtotal</span>
-            <span>{formatCurrency(bill.total_amount)}</span>
+            <span>{formatRupiah(bill.total_amount)}</span>
           </div>
           {bill.discount_amount > 0 && (
             <div className="flex justify-between text-[8pt]">
               <span>Diskon</span>
-              <span>-{formatCurrency(bill.discount_amount)}</span>
+              <span>-{formatRupiah(bill.discount_amount)}</span>
             </div>
           )}
           <div className="flex justify-between text-[9pt] font-bold border-t border-dashed border-black pt-1 mt-1">
             <span>TOTAL</span>
-            <span>{formatCurrency(bill.final_amount)}</span>
+            <span>{formatRupiah(bill.final_amount)}</span>
           </div>
 
           {/* Payment info */}
@@ -115,12 +116,12 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
               <div className="border-t border-dashed border-black my-1" />
               <div className="flex justify-between text-[8pt]">
                 <span>Bayar ({payment.metode.toUpperCase()})</span>
-                <span>{formatCurrency(payment.jumlah)}</span>
+                <span>{formatRupiah(payment.jumlah)}</span>
               </div>
               {kembalian > 0 && (
                 <div className="flex justify-between text-[9pt] font-bold">
                   <span>Kembali</span>
-                  <span>{formatCurrency(kembalian)}</span>
+                  <span>{formatRupiah(kembalian)}</span>
                 </div>
               )}
             </>
@@ -142,8 +143,3 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(
   },
 )
 
-function formatCurrency(amount: number | string): string {
-  const num = Math.round(Number(amount) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}

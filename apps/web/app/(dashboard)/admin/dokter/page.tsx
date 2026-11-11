@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import Link from 'next/link'
 import {
@@ -72,8 +73,7 @@ export default function DokterAdminPage() {
   const days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu']
   const todayDay = HARI_LABELS[days[new Date().getDay()]] ?? ''
 
-  const formatRupiah = (n: number) =>
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
+
 
   return (
     <div className="space-y-6">

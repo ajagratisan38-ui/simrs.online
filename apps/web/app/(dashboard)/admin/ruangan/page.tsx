@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import {
   Building2, Plus, Search, Power, PowerOff,
@@ -58,10 +59,6 @@ const TIPE_COLORS: Record<RoomType, string> = {
   operasi: 'text-rose-600 bg-rose-100 dark:bg-rose-900/30',
 }
 
-function formatRupiah(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  return `Rp ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 // ==================== ROOM FORM MODAL ====================
 

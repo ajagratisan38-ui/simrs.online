@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiahAccounting as formatRupiah } from '@/lib/utils'
 import { useState, useMemo, useCallback } from 'react'
 import { DateInput } from '@/components/ui/date-input'
 import {
@@ -50,16 +51,6 @@ import type {
 
 // ─── Helpers ──────────────────────────────────────────────
 
-function formatRupiah(n: number): string {
-  const abs = Math.abs(n)
-  const formatted = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(abs)
-  return n < 0 ? `(${formatted})` : formatted
-}
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString('id-ID', {

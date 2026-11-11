@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 import {
   CreditCard,
@@ -42,11 +43,6 @@ const METODE_OPTIONS = [
   { value: 'transfer', label: 'Transfer', icon: ArrowRightLeft },
 ] as const
 
-function formatCurrency(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 export function PaymentModal({
   open,
@@ -95,7 +91,7 @@ export function PaymentModal({
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <p className="text-sm text-muted-foreground">Jumlah yang harus dibayar</p>
             <p className="text-3xl font-bold text-primary mt-1">
-              {formatCurrency(amount)}
+              {formatRupiah(amount)}
             </p>
           </div>
 
@@ -147,7 +143,7 @@ export function PaymentModal({
                     onClick={() => setJumlahBayar(String(v))}
                     className="text-xs"
                   >
-                    {formatCurrency(v)}
+                    {formatRupiah(v)}
                   </Button>
                 ))}
               </div>
@@ -157,13 +153,13 @@ export function PaymentModal({
                     Kembalian
                   </span>
                   <span className="text-lg font-bold text-green-700 dark:text-green-300">
-                    {formatCurrency(kembalian)}
+                    {formatRupiah(kembalian)}
                   </span>
                 </div>
               )}
               {bayar > 0 && bayar < amount && (
                 <p className="text-xs text-red-500">
-                  Jumlah kurang {formatCurrency(amount - bayar)}
+                  Jumlah kurang {formatRupiah(amount - bayar)}
                 </p>
               )}
             </div>
@@ -208,7 +204,7 @@ export function PaymentModal({
           ) : (
             <>
               <Check className="h-4 w-4 mr-1" />
-              Bayar {formatCurrency(metode === 'tunai' ? bayar : amount)}
+              Bayar {formatRupiah(metode === 'tunai' ? bayar : amount)}
             </>
           )}
         </Button>

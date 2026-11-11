@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -292,7 +293,7 @@ export default function RadiologyOrderDetailPage() {
             {order.tarif > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tarif</span>
-                <span>Rp {Math.round(Number(order.tarif)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</span>
+                <span>{formatRupiah(order.tarif)}</span>
               </div>
             )}
           </CardContent>

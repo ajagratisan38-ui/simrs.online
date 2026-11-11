@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
@@ -34,10 +35,6 @@ const BULAN_LABEL = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-function formatRupiah(n: number | undefined | null): string {
-  if (n === undefined || n === null) return 'Rp 0'
-  return 'Rp ' + Number(n).toLocaleString('id-ID')
-}
 
 function formatDate(d: string | null | undefined): string {
   if (!d) return '-'

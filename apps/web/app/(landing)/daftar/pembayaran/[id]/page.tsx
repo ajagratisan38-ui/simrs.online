@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -38,10 +39,6 @@ function getApiUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001/api/v1'
 }
 
-function formatRupiah(amount: number): string {
-  if (amount === 0) return 'Gratis'
-  return `Rp ${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 export default function PaymentPage() {
   const params = useParams()

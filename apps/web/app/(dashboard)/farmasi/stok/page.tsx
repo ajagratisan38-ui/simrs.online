@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
@@ -81,11 +82,6 @@ function formatDate(dateStr: string | null) {
   })
 }
 
-function formatCurrency(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 export default function StokPage() {
   const [search, setSearch] = useState('')
@@ -354,8 +350,8 @@ function DrugRow({
         </td>
         <td className="p-3 text-right font-medium">{drug.total_stok}</td>
         <td className="p-3 text-muted-foreground">{drug.satuan_kecil}</td>
-        <td className="p-3 text-right text-muted-foreground">{formatCurrency(drug.harga_beli)}</td>
-        <td className="p-3 text-right">{formatCurrency(drug.harga_jual)}</td>
+        <td className="p-3 text-right text-muted-foreground">{formatRupiah(drug.harga_beli)}</td>
+        <td className="p-3 text-right">{formatRupiah(drug.harga_jual)}</td>
         <td className="p-3 text-center">
           <Badge variant={variant}>{label}</Badge>
         </td>
@@ -462,7 +458,7 @@ function DrugBatchDetail({ drugId }: { drugId: string }) {
                       {s.stok_sisa}
                     </td>
                     <td className="py-1.5 text-right">
-                      {formatCurrency(s.harga_beli_per_unit)}
+                      {formatRupiah(s.harga_beli_per_unit)}
                     </td>
                     <td className="py-1.5">{formatDate(s.tanggal_masuk)}</td>
                     <td className="py-1.5">

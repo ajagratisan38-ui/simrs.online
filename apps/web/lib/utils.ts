@@ -5,11 +5,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(n: number | string): string {
+const rupiahFormatter = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
+
+export function formatRupiah(n: number | string | null | undefined): string {
+  if (n === null || n === undefined) return 'Rp 0'
   const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
+  return rupiahFormatter.format(num)
 }
+
+export function formatRupiahAccounting(n: number | string | null | undefined): string {
+  if (n === null || n === undefined) return 'Rp 0'
+  const num = Math.round(Number(n) || 0)
+  const formatted = rupiahFormatter.format(Math.abs(num))
+  return num < 0 ? `(${formatted})` : formatted
+}
+
+export const formatCurrency = formatRupiah
 
 /**
  * Format tanggal ke format Indonesia dd/mm/yyyy

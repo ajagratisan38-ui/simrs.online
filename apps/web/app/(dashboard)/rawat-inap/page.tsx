@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import {
   BedDouble, Building2, Users, Activity, Wrench,
@@ -31,11 +32,6 @@ import { usePermissions } from '@/hooks/use-permissions'
 import { listVisits, type VisitData } from '@/lib/api/registration'
 import type { InpatientBed, InpatientRoom, CaraKeluar } from '@/lib/api/inpatient'
 
-function formatRupiah(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 function formatDate(d: string | null) {
   if (!d) return '-'

@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -60,7 +61,7 @@ function apiPlanToDisplay(plan: PublicPlan, billingPeriod: 'monthly' | 'yearly' 
     code: plan.code,
     name: plan.name,
     price: displayPrice,
-    priceLabel: isTrial ? 'Gratis' : `Rp ${displayPrice.toLocaleString('id-ID')}`,
+    priceLabel: isTrial ? 'Gratis' : formatRupiah(displayPrice),
     period: isTrial ? `${plan.trial_days} hari` : isYearly ? '/tahun' : '/bulan',
     features: [
       `${formatNum(plan.max_users)} user`,
@@ -106,10 +107,6 @@ interface FormData {
   migrasi_notes: string
 }
 
-function formatRupiah(amount: number): string {
-  if (amount === 0) return 'Gratis'
-  return `Rp ${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 export default function DaftarPage() {
   return (

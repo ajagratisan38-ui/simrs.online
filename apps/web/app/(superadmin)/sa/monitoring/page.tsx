@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { usePlatformDomain } from '@/hooks/use-platform-domain'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -25,9 +26,6 @@ function formatDate(d: string | null): string {
   })
 }
 
-function formatRupiah(n: number): string {
-  return `Rp ${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 export default function MonitoringPage() {
   const domain = usePlatformDomain()

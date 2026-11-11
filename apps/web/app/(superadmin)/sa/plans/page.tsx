@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
@@ -35,10 +36,9 @@ import {
 import { toast } from 'sonner'
 import type { SubscriptionPlan } from '@/lib/api/super-admin'
 
-function formatRupiah(amount: number | string): string {
+function formatRupiahOrGratis(amount: number | string): string {
   const num = Math.round(Number(amount) || 0)
-  if (num === 0) return 'Gratis'
-  return `Rp ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+  return num === 0 ? 'Gratis' : formatRupiah(num)
 }
 
 type Tab = 'plans' | 'transactions'
@@ -290,12 +290,12 @@ function PlansTab() {
             <CardContent className="space-y-3">
               <div>
                 <p className="text-xl font-bold text-indigo-600">
-                  {formatRupiah(plan.price_monthly)}
+                  {formatRupiahOrGratis(plan.price_monthly)}
                 </p>
                 <p className="text-xs text-muted-foreground">/bulan</p>
                 {plan.price_yearly > 0 && (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {formatRupiah(plan.price_yearly)}/tahun
+                    {formatRupiahOrGratis(plan.price_yearly)}/tahun
                   </p>
                 )}
               </div>

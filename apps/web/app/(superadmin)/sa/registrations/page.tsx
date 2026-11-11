@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import { usePlatformDomain } from '@/hooks/use-platform-domain'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -76,10 +77,9 @@ function formatDate(d: string | null) {
   })
 }
 
-function formatRupiah(amount: number | string): string {
+function formatRupiahOrGratis(amount: number | string): string {
   const num = Math.round(Number(amount) || 0)
-  if (num === 0) return 'Gratis'
-  return `Rp ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+  return num === 0 ? 'Gratis' : formatRupiah(num)
 }
 
 function RegistrationCard({
@@ -206,7 +206,7 @@ function RegistrationCard({
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Jumlah Bayar</dt>
-                    <dd className="font-medium">{formatRupiah(reg.payment_amount)}</dd>
+                    <dd className="font-medium">{formatRupiahOrGratis(reg.payment_amount)}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Metode</dt>

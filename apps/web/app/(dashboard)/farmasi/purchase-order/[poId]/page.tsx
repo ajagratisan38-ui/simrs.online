@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -56,13 +57,6 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_STEP_ORDER = ['draft', 'approved', 'ordered', 'received', 'completed']
 
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(n)
-}
 
 function formatDate(d: string | null) {
   if (!d) return '-'

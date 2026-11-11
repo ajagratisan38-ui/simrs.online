@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -442,7 +443,7 @@ function PackagesTab() {
           )}
 
           <p className="text-lg font-bold text-teal-600 mb-3">
-            Rp {pkg.harga.toLocaleString('id-ID')}
+            {formatRupiah(pkg.harga)}
           </p>
 
           <div className="border-t border-gray-100 dark:border-gray-700 pt-3 space-y-1">
@@ -561,7 +562,7 @@ function RegisterDialog({ onClose }: { onClose: () => void }) {
                 .filter((p) => p.is_active)
                 .map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nama} — Rp {p.harga.toLocaleString('id-ID')}
+                    {p.nama} — {formatRupiah(p.harga)}
                   </option>
                 ))}
             </select>

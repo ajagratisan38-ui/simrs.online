@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { usePlatformDomain } from '@/hooks/use-platform-domain'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -26,10 +27,6 @@ import {
 } from '@/hooks/use-tenants-admin'
 import { useRegistrationStats, useRegistrations } from '@/hooks/use-registration'
 
-function formatRupiah(amount: number | string): string {
-  const num = Math.round(Number(amount) || 0)
-  return `Rp ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {

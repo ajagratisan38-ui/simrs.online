@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import {
   CreditCard,
   Building2,
@@ -128,7 +129,7 @@ export function BpjsPesertaInfo({
             <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
             <div className="text-xs">
               <p className="font-medium">Ada tunggakan</p>
-              <p>Tunggakan: Rp {Math.round(Number(peserta.tunggakan)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</p>
+              <p>Tunggakan: {formatRupiah(peserta.tunggakan)}</p>
             </div>
           </div>
         )}

@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
@@ -60,11 +61,6 @@ const METODE_LABELS: Record<string, string> = {
   asuransi: 'Asuransi',
 }
 
-function formatCurrency(n: number | string) {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('id-ID', {
@@ -213,7 +209,7 @@ export default function KasirPage() {
                             {formatDate(bill.tanggal)}
                           </td>
                           <td className="p-3 text-right font-medium">
-                            {formatCurrency(bill.final_amount)}
+                            {formatRupiah(bill.final_amount)}
                           </td>
                           <td className="p-3 text-center">
                             <Badge variant="outline" className="capitalize">
@@ -314,7 +310,7 @@ export default function KasirPage() {
                             Total Pendapatan
                           </p>
                           <p className="text-xl font-bold text-green-600">
-                            {formatCurrency(summary?.total_pendapatan ?? 0)}
+                            {formatRupiah(summary?.total_pendapatan ?? 0)}
                           </p>
                         </div>
                       </div>
@@ -393,7 +389,7 @@ export default function KasirPage() {
                               </Pie>
                               <Tooltip
                                 formatter={(value) =>
-                                  formatCurrency(Number(value))
+                                  formatRupiah(Number(value))
                                 }
                               />
                             </PieChart>
@@ -436,7 +432,7 @@ export default function KasirPage() {
                                     </span>
                                   </div>
                                   <span className="font-medium">
-                                    {formatCurrency(m.total)}
+                                    {formatRupiah(m.total)}
                                   </span>
                                 </div>
                                 <div className="h-2 bg-muted rounded-full overflow-hidden">

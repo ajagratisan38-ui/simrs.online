@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import {
   BarChart,
   Bar,
@@ -55,9 +56,7 @@ export function RevenueBarChart({
           </CardTitle>
           {data.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              Total: Rp{' '}
-              {Math.round(data.reduce((s, d) => s + Number(d.amount), 0))
-                .toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+              Total: {formatRupiah(data.reduce((s, d) => s + Number(d.amount), 0))}
             </p>
           )}
         </div>
@@ -84,7 +83,7 @@ export function RevenueBarChart({
               />
               <Tooltip
                 formatter={(value) => [
-                  `Rp ${Math.round(Number(value)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`,
+                  formatRupiah(value as number),
                   'Pendapatan',
                 ]}
                 contentStyle={{

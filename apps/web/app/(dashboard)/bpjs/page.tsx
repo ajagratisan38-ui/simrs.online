@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useCallback } from 'react'
 import {
   CreditCard,
@@ -355,7 +356,7 @@ function PesertaDetail({ peserta }: { peserta: BpjsPeserta }) {
             <div className="text-sm">
               <p className="font-medium">Ada Tunggakan</p>
               <p className="text-xs mt-0.5">
-                Rp {Math.round(Number(peserta.tunggakan)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+                {formatRupiah(peserta.tunggakan)}
               </p>
             </div>
           </div>
@@ -925,7 +926,7 @@ function EklaimTab() {
   const claimDetail = useEklaimClaim(claimNoSep || undefined)
   const deleteMut = useEklaimDeleteClaim()
 
-  const formatRupiah = (n: number) => 'Rp ' + n.toLocaleString('id-ID')
+
 
   return (
     <div className="space-y-6">

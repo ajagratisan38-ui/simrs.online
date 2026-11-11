@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { usePlatformDomain } from '@/hooks/use-platform-domain'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -24,9 +25,6 @@ import {
 import { useVerifyPayment } from '@/hooks/use-registration'
 import { SERVER_BASE_URL } from '@/lib/api/client'
 
-function formatRupiah(n: number): string {
-  return `Rp ${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleDateString('id-ID', {

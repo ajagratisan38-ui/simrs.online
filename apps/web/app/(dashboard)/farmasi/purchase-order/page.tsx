@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import {
@@ -68,9 +69,6 @@ const STATUS_COLORS: Record<string, 'default' | 'secondary' | 'destructive' | 'o
   cancelled: 'destructive',
 }
 
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
-}
 
 interface POItemDraft {
   drug_id: string

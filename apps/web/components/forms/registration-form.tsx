@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
@@ -504,7 +505,7 @@ export function RegistrationForm() {
                 <option key={r.id} value={r.id}>
                   {r.kode} — {r.nama}
                   {tipe === 'rawat_inap' && r.tarif_per_hari
-                    ? ` (Rp ${Math.round(Number(r.tarif_per_hari)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}/hari${r.kelas ? ` · Kelas ${r.kelas}` : ''})`
+                    ? ` (${formatRupiah(r.tarif_per_hari)}/hari${r.kelas ? ` · Kelas ${r.kelas}` : ''})`
                     : ''}
                 </option>
               ))}

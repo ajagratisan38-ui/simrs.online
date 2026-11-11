@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import { useOtcSales, useOtcDailySummary } from '@/hooks/use-otc-sales'
 import { Badge } from '@/components/ui/badge'
@@ -17,11 +18,6 @@ import {
 import { ShoppingCart, Loader2, DollarSign, Receipt, CreditCard } from 'lucide-react'
 import { DateInput } from '@/components/ui/date-input'
 
-const formatRupiah = (n: number | string) => {
-  const num = Math.round(Number(n) || 0)
-  const formatted = num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `Rp ${formatted}`
-}
 
 const METODE_LABEL: Record<string, string> = {
   tunai: 'Tunai',

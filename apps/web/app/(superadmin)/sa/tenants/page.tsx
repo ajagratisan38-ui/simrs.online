@@ -1,5 +1,6 @@
 'use client'
 
+import { formatRupiah } from '@/lib/utils'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/auth-store'
@@ -32,10 +33,6 @@ import {
 import { toast } from 'sonner'
 import type { TenantListItem } from '@/lib/api/super-admin'
 
-function formatRupiah(amount: number | string): string {
-  const num = Math.round(Number(amount) || 0)
-  return `Rp ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
 
 function TenantCard({ tenant, isOwner, domain }: { tenant: TenantListItem; isOwner: boolean; domain: string }) {
   const [expanded, setExpanded] = useState(false)
