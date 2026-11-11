@@ -111,8 +111,15 @@ export class WarehouseService {
   }
 
   async deleteItem(id: string, tenantSchema: string) {
-    const cnt = await this.db.withSchema(tenantSchema).table('warehouse_items').where({ id }).del()
-    if (cnt === 0) throw new NotFoundError('Barang gudang')
+    const item = await this.db.withSchema(tenantSchema)
+      .select('id').from('warehouse_items').where({ id }).first()
+    if (!item) throw new NotFoundError('Barang gudang')
+
+    await this.db.transaction(async (trx) => {
+      await trx.withSchema(tenantSchema).table('warehouse_transactions').where({ item_id: id }).del()
+      await trx.withSchema(tenantSchema).table('warehouse_stocks').where({ item_id: id }).del()
+      await trx.withSchema(tenantSchema).table('warehouse_items').where({ id }).del()
+    })
   }
 
   async addStock(
