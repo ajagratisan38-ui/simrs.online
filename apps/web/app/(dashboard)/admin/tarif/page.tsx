@@ -288,13 +288,13 @@ export default function AdminTarifPage() {
       {/* Create/Edit Dialog */}
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="px-6 pt-6 pb-2">
               <h2 className="text-lg font-semibold">
                 {editItem ? 'Edit Komponen Tarif' : 'Tambah Komponen Tarif'}
               </h2>
             </div>
-            <div className="px-6 py-5 space-y-5">
+            <div className="px-6 py-4 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1.5">Kode *</label>
@@ -368,7 +368,7 @@ export default function AdminTarifPage() {
                 </ul>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+            <div className="px-6 py-4 flex justify-end gap-3">
               <button
                 onClick={() => setShowDialog(false)}
                 className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -390,7 +390,7 @@ export default function AdminTarifPage() {
       {/* Delete Confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-sm shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-sm shadow-2xl p-6">
             <h3 className="font-semibold text-lg mb-2">Hapus Komponen Tarif?</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Data tarif yang dihapus tidak bisa dikembalikan.
