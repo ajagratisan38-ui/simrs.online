@@ -51,29 +51,77 @@ export class BillingService {
     return this.db.transaction(async (trx) => {
       const items: BillItem[] = []
 
-      // 1. Konsultasi dokter
+      // Determine room kelas for class-based pricing
+      let roomKelas: number | null = null
+      if (visit.bed_id) {
+        const roomInfo = await trx.withSchema(tenantSchema)
+          .select('r.kelas')
+          .from('beds as b').join('rooms as r', 'r.id', 'b.room_id')
+          .where('b.id', visit.bed_id).first()
+        roomKelas = roomInfo?.kelas ? Number(roomInfo.kelas) : null
+      }
+      const visitTipe = visit.tipe as string
+
+      // Helper to resolve class-based tariff
+      const resolveKompTarif = (komp: Record<string, unknown>): number => {
+        if (visitTipe === 'igd') return Number(komp.tarif_igd) || 0
+        if (visitTipe !== 'rawat_inap') return Number(komp.tarif_poli) || 0
+        switch (roomKelas) {
+          case 3: return Number(komp.tarif_kelas_3) || 0
+          case 2: return Number(komp.tarif_kelas_2) || 0
+          case 1: return Number(komp.tarif_kelas_1) || 0
+          case 0: return Number(komp.tarif_vip) || 0
+          default: return Number(komp.tarif_kelas_3) || 0
+        }
+      }
+
+      // 1. Konsultasi/Visite dokter — class-based
       const doctor = await trx
         .withSchema(tenantSchema)
-        .select('d.tarif_konsultasi', 'u.name as doctor_nama')
+        .select('d.tarif_konsultasi', 'd.spesialisasi', 'u.name as doctor_nama')
         .from('doctors as d')
         .join('users as u', 'u.id', 'd.user_id')
         .where('d.id', visit.doctor_id)
         .first()
 
-      if (doctor && Number(doctor.tarif_konsultasi) > 0) {
-        const tarif = Number(doctor.tarif_konsultasi)
-        items.push({
-          kategori: 'konsultasi',
-          deskripsi: `Konsultasi ${doctor.doctor_nama}`,
-          qty: 1,
-          harga_satuan: tarif,
-          subtotal: tarif,
-          discount: 0,
-          total: tarif,
-        })
+      if (doctor) {
+        const spesialisasi = (doctor.spesialisasi as string || '').toLowerCase()
+        let visiteKode = 'VIS-UMUM'
+        if (spesialisasi.includes('sub')) visiteKode = 'VIS-SUBSPESIALIS'
+        else if (spesialisasi.includes('gigi')) visiteKode = 'VIS-GIGI'
+        else if (spesialisasi && spesialisasi !== 'umum') visiteKode = 'VIS-SPESIALIS'
+
+        const kompVisite = await trx.withSchema(tenantSchema)
+          .select('*').from('komponen_tarif')
+          .where({ kode: visiteKode, is_active: true }).first()
+
+        let tarif = 0
+        let deskripsi = `Konsultasi ${doctor.doctor_nama}`
+
+        if (kompVisite) {
+          tarif = resolveKompTarif(kompVisite)
+          const kelasLabel = roomKelas !== null
+            ? (roomKelas === 0 ? 'VIP' : `Kelas ${roomKelas}`)
+            : (visitTipe === 'igd' ? 'IGD' : 'Poli')
+          deskripsi = `Visite ${doctor.doctor_nama} (${kelasLabel})`
+        } else {
+          tarif = Number(doctor.tarif_konsultasi) || 0
+        }
+
+        if (tarif > 0) {
+          items.push({
+            kategori: 'konsultasi',
+            deskripsi,
+            qty: 1,
+            harga_satuan: tarif,
+            subtotal: tarif,
+            discount: 0,
+            total: tarif,
+          })
+        }
       }
 
-      // 2. Tindakan (procedures from medical_record)
+      // 2. Tindakan — class-based with fallback
       const procedures = await trx
         .withSchema(tenantSchema)
         .select('pr.*')
@@ -82,12 +130,25 @@ export class BillingService {
         .where('mr.visit_id', visitId)
 
       for (const proc of procedures) {
-        const total = Number(proc.tarif) * Number(proc.qty)
+        let tarif = Number(proc.tarif)
+
+        if (proc.kode_tindakan) {
+          const kompTindakan = await trx.withSchema(tenantSchema)
+            .select('*').from('komponen_tarif')
+            .where({ kode: proc.kode_tindakan, is_active: true }).first()
+          if (kompTindakan) {
+            const resolved = resolveKompTarif(kompTindakan)
+            if (resolved > 0) tarif = resolved
+          }
+        }
+
+        const qty = Number(proc.qty)
+        const total = tarif * qty
         items.push({
           kategori: 'tindakan',
           deskripsi: proc.nama_tindakan,
-          qty: Number(proc.qty),
-          harga_satuan: Number(proc.tarif),
+          qty,
+          harga_satuan: tarif,
           subtotal: total,
           discount: 0,
           total,
@@ -129,34 +190,109 @@ export class BillingService {
         })
       }
 
-      // 4. Kamar (rawat inap: tarif × hari)
+      // 4. Kamar — per-segment billing using bed_transfers
       if (visit.tipe === 'rawat_inap' && visit.bed_id) {
-        const bed = await trx
-          .withSchema(tenantSchema)
-          .select('b.room_id', 'r.nama as room_nama', 'r.tarif_per_hari')
-          .from('beds as b')
-          .join('rooms as r', 'r.id', 'b.room_id')
-          .where('b.id', visit.bed_id)
-          .first()
+        const transfers = await trx.withSchema(tenantSchema)
+          .select('*').from('bed_transfers')
+          .where({ visit_id: visitId }).orderBy('transferred_at', 'asc')
 
-        if (bed && Number(bed.tarif_per_hari) > 0) {
-          const checkIn = new Date(visit.tanggal)
-          const now = new Date()
-          const diffMs = now.getTime() - checkIn.getTime()
-          const days = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
-          const tarif = Number(bed.tarif_per_hari)
-          const total = tarif * days
+        const now = new Date()
+        const admissionDate = visit.tanggal ? new Date(visit.tanggal) : new Date(visit.created_at)
 
+        if (transfers.length > 0) {
+          for (let i = 0; i < transfers.length; i++) {
+            const transfer = transfers[i]
+            const segStart = i === 0 ? admissionDate : new Date(transfer.transferred_at as string)
+            const segEnd = i < transfers.length - 1
+              ? new Date(transfers[i + 1].transferred_at as string)
+              : now
+
+            const roomNama = transfer.to_room_nama as string || 'Ruangan'
+            const tarif = Number(transfer.to_room_tarif) || 0
+            const kelas = transfer.to_room_kelas ? ` Kelas ${transfer.to_room_kelas}` : ''
+            if (tarif <= 0) continue
+
+            const diffMs = segEnd.getTime() - segStart.getTime()
+            const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+            const total = tarif * days
+
+            items.push({
+              kategori: 'kamar',
+              deskripsi: `${roomNama}${kelas} (${days} hari)`,
+              qty: days,
+              harga_satuan: tarif,
+              subtotal: total,
+              discount: 0,
+              total,
+            })
+          }
+        } else {
+          // Legacy fallback
+          const bed = await trx.withSchema(tenantSchema)
+            .select('b.room_id', 'r.nama as room_nama', 'r.tarif_per_hari', 'r.kelas')
+            .from('beds as b').join('rooms as r', 'r.id', 'b.room_id')
+            .where('b.id', visit.bed_id).first()
+
+          if (bed && Number(bed.tarif_per_hari) > 0) {
+            const diffMs = now.getTime() - admissionDate.getTime()
+            const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+            const tarif = Number(bed.tarif_per_hari)
+            const kelas = bed.kelas ? ` Kelas ${bed.kelas}` : ''
+            const total = tarif * days
+            items.push({
+              kategori: 'kamar',
+              deskripsi: `${bed.room_nama}${kelas} (${days} hari)`,
+              qty: days,
+              harga_satuan: tarif,
+              subtotal: total,
+              discount: 0,
+              total,
+            })
+          }
+        }
+      }
+
+      // 5. Jasa Perawatan Harian (rawat inap, class-based)
+      if (visitTipe === 'rawat_inap') {
+        const kompPerawatan = await trx.withSchema(tenantSchema)
+          .select('*').from('komponen_tarif')
+          .where({ kode: 'PRW-HARIAN', is_active: true }).first()
+
+        if (kompPerawatan) {
+          const tarifPrw = resolveKompTarif(kompPerawatan)
+          if (tarifPrw > 0) {
+            const admDate = visit.tanggal ? new Date(visit.tanggal) : new Date(visit.created_at)
+            const diffMs = new Date().getTime() - admDate.getTime()
+            const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+            items.push({
+              kategori: 'keperawatan',
+              deskripsi: `Jasa Perawatan Harian (${days} hari)`,
+              qty: days,
+              harga_satuan: tarifPrw,
+              subtotal: tarifPrw * days,
+              discount: 0,
+              total: tarifPrw * days,
+            })
+          }
+        }
+      }
+
+      // 6. Biaya Administrasi (class-based)
+      const kompAdmin = await trx.withSchema(tenantSchema)
+        .select('*').from('komponen_tarif')
+        .where({ kode: 'ADM-MASUK', is_active: true }).first()
+
+      if (kompAdmin) {
+        const tarifAdm = resolveKompTarif(kompAdmin)
+        if (tarifAdm > 0) {
           items.push({
-            kategori: 'kamar',
-            deskripsi: `Kamar ${bed.room_nama} (${days} hari)`,
-            qty: days,
-            harga_satuan: tarif,
-            subtotal: total,
+            kategori: 'administrasi',
+            deskripsi: 'Biaya Administrasi',
+            qty: 1,
+            harga_satuan: tarifAdm,
+            subtotal: tarifAdm,
             discount: 0,
-            total,
-            referensi_id: visit.bed_id,
-            referensi_tipe: 'bed',
+            total: tarifAdm,
           })
         }
       }

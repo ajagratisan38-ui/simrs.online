@@ -844,6 +844,28 @@ export async function up(knex: Knex): Promise<void> {
         )
       ', 'tenant_' || tenant_slug, 'tenant_' || tenant_slug, 'tenant_' || tenant_slug);
 
+      -- ============ KOMPONEN TARIF ============
+      EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.komponen_tarif (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          kode VARCHAR(30) NOT NULL,
+          nama VARCHAR(200) NOT NULL,
+          kategori VARCHAR(30) NOT NULL DEFAULT ''visite'',
+          tarif_kelas_3 NUMERIC(12,2) NOT NULL DEFAULT 0,
+          tarif_kelas_2 NUMERIC(12,2) NOT NULL DEFAULT 0,
+          tarif_kelas_1 NUMERIC(12,2) NOT NULL DEFAULT 0,
+          tarif_vip NUMERIC(12,2) NOT NULL DEFAULT 0,
+          tarif_igd NUMERIC(12,2) NOT NULL DEFAULT 0,
+          tarif_poli NUMERIC(12,2) NOT NULL DEFAULT 0,
+          is_active BOOLEAN NOT NULL DEFAULT true,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          CONSTRAINT uq_komponen_tarif_kode UNIQUE (kode)
+        )
+      ', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kategori ON %I.komponen_tarif(kategori)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_komponen_tarif_kode ON %I.komponen_tarif(kode)', 'tenant_' || tenant_slug);
+
       -- ============ BED TRANSFERS ============
       EXECUTE format('
         CREATE TABLE IF NOT EXISTS %I.bed_transfers (

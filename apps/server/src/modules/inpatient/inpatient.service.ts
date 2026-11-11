@@ -615,6 +615,29 @@ export class InpatientService {
     })
   }
 
+  /**
+   * Resolve tarif based on room class.
+   * For rawat_inap: use the patient's room kelas (3, 2, 1, or VIP=0)
+   * For IGD: use tarif_igd
+   * For rawat_jalan: use tarif_poli
+   */
+  private resolveKompTarif(
+    komponen: Record<string, unknown>,
+    visitTipe: string,
+    roomKelas: number | null,
+  ): number {
+    if (visitTipe === 'igd') return Number(komponen.tarif_igd) || 0
+    if (visitTipe !== 'rawat_inap') return Number(komponen.tarif_poli) || 0
+
+    switch (roomKelas) {
+      case 3: return Number(komponen.tarif_kelas_3) || 0
+      case 2: return Number(komponen.tarif_kelas_2) || 0
+      case 1: return Number(komponen.tarif_kelas_1) || 0
+      case 0: return Number(komponen.tarif_vip) || 0
+      default: return Number(komponen.tarif_kelas_3) || 0
+    }
+  }
+
   private async collectBillItems(
     trx: Knex.Transaction,
     visitId: string,
@@ -623,26 +646,66 @@ export class InpatientService {
   ) {
     const items: BillItem[] = []
 
-    // 1. Konsultasi dokter
+    // Determine room kelas for class-based pricing
+    let roomKelas: number | null = null
+    if (visit.bed_id) {
+      const roomInfo = await trx.withSchema(tenantSchema)
+        .select('r.kelas')
+        .from('beds as b')
+        .join('rooms as r', 'r.id', 'b.room_id')
+        .where('b.id', visit.bed_id as string)
+        .first()
+      roomKelas = roomInfo?.kelas ? Number(roomInfo.kelas) : null
+    }
+
+    const visitTipe = visit.tipe as string
+
+    // 1. Konsultasi/Visite dokter — class-based pricing
     const doctor = await trx.withSchema(tenantSchema)
-      .select('d.tarif_konsultasi', 'u.name as doctor_nama')
+      .select('d.tarif_konsultasi', 'd.spesialisasi', 'u.name as doctor_nama')
       .from('doctors as d')
       .join('users as u', 'u.id', 'd.user_id')
       .where('d.id', visit.doctor_id as string)
       .first()
 
-    if (doctor && Number(doctor.tarif_konsultasi) > 0) {
-      const tarif = Number(doctor.tarif_konsultasi)
-      items.push({
-        kategori: 'konsultasi',
-        deskripsi: `Konsultasi ${doctor.doctor_nama}`,
-        qty: 1,
-        harga_satuan: tarif,
-        total: tarif,
-      })
+    if (doctor) {
+      // Try class-based tariff from komponen_tarif
+      const spesialisasi = (doctor.spesialisasi as string || '').toLowerCase()
+      let visiteKode = 'VIS-UMUM'
+      if (spesialisasi.includes('sub')) visiteKode = 'VIS-SUBSPESIALIS'
+      else if (spesialisasi.includes('gigi')) visiteKode = 'VIS-GIGI'
+      else if (spesialisasi && spesialisasi !== 'umum') visiteKode = 'VIS-SPESIALIS'
+
+      const kompVisite = await trx.withSchema(tenantSchema)
+        .select('*').from('komponen_tarif')
+        .where({ kode: visiteKode, is_active: true }).first()
+
+      let tarif = 0
+      let deskripsi = `Visite ${doctor.doctor_nama}`
+
+      if (kompVisite) {
+        tarif = this.resolveKompTarif(kompVisite, visitTipe, roomKelas)
+        const kelasLabel = roomKelas !== null
+          ? (roomKelas === 0 ? 'VIP' : `Kelas ${roomKelas}`)
+          : (visitTipe === 'igd' ? 'IGD' : 'Poli')
+        deskripsi = `Visite ${doctor.doctor_nama} (${kelasLabel})`
+      } else {
+        // Fallback to flat tarif_konsultasi
+        tarif = Number(doctor.tarif_konsultasi) || 0
+      }
+
+      if (tarif > 0) {
+        items.push({
+          kategori: 'konsultasi',
+          deskripsi,
+          qty: 1,
+          harga_satuan: tarif,
+          total: tarif,
+        })
+      }
     }
 
-    // 2. Tindakan
+    // 2. Tindakan — class-based pricing with fallback
     const procedures = await trx.withSchema(tenantSchema)
       .select('pr.*')
       .from('procedures as pr')
@@ -650,12 +713,27 @@ export class InpatientService {
       .where('mr.visit_id', visitId)
 
     for (const proc of procedures) {
-      const total = Number(proc.tarif) * Number(proc.qty)
+      let tarif = Number(proc.tarif)
+
+      // Try class-based tariff lookup by kode_tindakan
+      if (proc.kode_tindakan) {
+        const kompTindakan = await trx.withSchema(tenantSchema)
+          .select('*').from('komponen_tarif')
+          .where({ kode: proc.kode_tindakan, is_active: true }).first()
+
+        if (kompTindakan) {
+          const resolvedTarif = this.resolveKompTarif(kompTindakan, visitTipe, roomKelas)
+          if (resolvedTarif > 0) tarif = resolvedTarif
+        }
+      }
+
+      const qty = Number(proc.qty)
+      const total = tarif * qty
       items.push({
         kategori: 'tindakan',
         deskripsi: proc.nama_tindakan,
-        qty: Number(proc.qty),
-        harga_satuan: Number(proc.tarif),
+        qty,
+        harga_satuan: tarif,
         total,
         referensi_id: proc.id,
         referensi_tipe: 'procedure',
@@ -752,6 +830,53 @@ export class InpatientService {
             total,
           })
         }
+      }
+    }
+
+    // 5. Jasa Perawatan Harian (rawat inap only, class-based)
+    if (visitTipe === 'rawat_inap') {
+      const kompPerawatan = await trx.withSchema(tenantSchema)
+        .select('*').from('komponen_tarif')
+        .where({ kode: 'PRW-HARIAN', is_active: true }).first()
+
+      if (kompPerawatan) {
+        const tarifPerawatan = this.resolveKompTarif(kompPerawatan, visitTipe, roomKelas)
+        if (tarifPerawatan > 0) {
+          const admDate = visit.tanggal
+            ? new Date(visit.tanggal as string)
+            : new Date(visit.created_at as string)
+          const diffMs = new Date().getTime() - admDate.getTime()
+          const days = Math.max(1, isNaN(diffMs) ? 1 : Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+          const totalPerawatan = tarifPerawatan * days
+          const kelasLabel = roomKelas !== null
+            ? (roomKelas === 0 ? 'VIP' : `Kelas ${roomKelas}`)
+            : ''
+          items.push({
+            kategori: 'keperawatan',
+            deskripsi: `Jasa Perawatan Harian${kelasLabel ? ` (${kelasLabel})` : ''} (${days} hari)`,
+            qty: days,
+            harga_satuan: tarifPerawatan,
+            total: totalPerawatan,
+          })
+        }
+      }
+    }
+
+    // 6. Biaya Administrasi (class-based)
+    const kompAdmin = await trx.withSchema(tenantSchema)
+      .select('*').from('komponen_tarif')
+      .where({ kode: 'ADM-MASUK', is_active: true }).first()
+
+    if (kompAdmin) {
+      const tarifAdmin = this.resolveKompTarif(kompAdmin, visitTipe, roomKelas)
+      if (tarifAdmin > 0) {
+        items.push({
+          kategori: 'administrasi',
+          deskripsi: 'Biaya Administrasi',
+          qty: 1,
+          harga_satuan: tarifAdmin,
+          total: tarifAdmin,
+        })
       }
     }
 
