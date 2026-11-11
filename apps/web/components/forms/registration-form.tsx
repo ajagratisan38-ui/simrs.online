@@ -15,6 +15,8 @@ import {
   Car,
   ChevronDown,
   ChevronUp,
+  Search,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +33,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog'
-import { PatientSearch } from '@/components/forms/patient-search'
+import { usePatients } from '@/hooks/use-patients'
 import { BpjsPesertaInfo } from '@/components/bpjs/bpjs-peserta-info'
 import { SepDetail } from '@/components/bpjs/sep-detail'
 import { useCreateVisit } from '@/hooks/use-queues'
@@ -89,6 +91,20 @@ export function RegistrationForm() {
   const [lakaPropinsi, setLakaPropinsi] = useState('')
   const [lakaKabupaten, setLakaKabupaten] = useState('')
   const [lakaKecamatan, setLakaKecamatan] = useState('')
+
+  // Patient search for step 0
+  const [patientSearch, setPatientSearch] = useState('')
+  const [debouncedPatientSearch, setDebouncedPatientSearch] = useState('')
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedPatientSearch(patientSearch), 400)
+    return () => clearTimeout(t)
+  }, [patientSearch])
+  const { data: patientsData, isLoading: patientsLoading } = usePatients({
+    search: debouncedPatientSearch,
+    limit: 20,
+    page: 1,
+  })
+  const patientsList = patientsData?.data ?? []
 
   const createVisit = useCreateVisit()
   const createSep = useCreateSep()
@@ -405,45 +421,109 @@ export function RegistrationForm() {
 
       {/* Step 1: Pilih Pasien */}
       {step === 0 && (
-        <div className="space-y-4">
-          <PatientSearch
-            onSelect={handlePatientSelect}
-            navigateOnSelect={false}
-            placeholder="Cari pasien (nama, NIK, No RM)..."
-          />
+        <div className="space-y-3">
+          {/* Search bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={patientSearch}
+              onChange={(e) => setPatientSearch(e.target.value)}
+              placeholder="Cari nama, NIK, atau No RM..."
+              className="pl-10"
+            />
+          </div>
 
+          {/* Selected patient banner */}
           {selectedPatient && (
-            <Card>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{selectedPatient.nama}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedPatient.no_rekam_medis} · NIK: {selectedPatient.nik}
-                    </p>
-                    {selectedPatient.no_bpjs && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <CreditCard className="h-3 w-3" />
-                        BPJS: {selectedPatient.no_bpjs}
-                      </p>
-                    )}
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={clearPatient}>
-                    Ganti
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 border-primary bg-primary/5">
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Check className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-primary truncate">{selectedPatient.nama}</p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedPatient.no_rekam_medis} · NIK: {selectedPatient.nik}
+                  {selectedPatient.no_bpjs && ` · BPJS: ${selectedPatient.no_bpjs}`}
+                </p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={clearPatient} className="shrink-0 text-xs">
+                Ganti
+              </Button>
+            </div>
           )}
 
-          <div className="text-center pt-2">
-            <p className="text-sm text-muted-foreground mb-2">Pasien belum terdaftar?</p>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/pasien/baru">
-                <UserPlus className="h-4 w-4 mr-2" />
-                Tambah Pasien Baru
-              </Link>
-            </Button>
+          {/* Patient list */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Users className="h-3.5 w-3.5" />
+                <span>
+                  {patientsLoading ? 'Memuat...' : `${patientsData?.meta?.total ?? patientsList.length} pasien`}
+                  {debouncedPatientSearch && ` · Hasil pencarian "${debouncedPatientSearch}"`}
+                </span>
+              </div>
+              <Button variant="outline" size="sm" className="h-7 text-xs" asChild>
+                <Link href="/pasien/baru">
+                  <UserPlus className="h-3 w-3 mr-1" />
+                  Pasien Baru
+                </Link>
+              </Button>
+            </div>
+
+            <div className="max-h-[340px] overflow-y-auto divide-y">
+              {patientsLoading ? (
+                <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Memuat data pasien...
+                </div>
+              ) : patientsList.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">
+                    {debouncedPatientSearch ? 'Pasien tidak ditemukan' : 'Belum ada data pasien'}
+                  </p>
+                </div>
+              ) : (
+                patientsList.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handlePatientSelect(p)}
+                    className={cn(
+                      'w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-muted/50',
+                      selectedPatient?.id === p.id && 'bg-primary/5 border-l-2 border-l-primary',
+                    )}
+                  >
+                    <div className={cn(
+                      'h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
+                      selectedPatient?.id === p.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground',
+                    )}>
+                      {p.nama.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        'text-sm font-medium truncate',
+                        selectedPatient?.id === p.id && 'text-primary',
+                      )}>
+                        {p.nama}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {p.no_rekam_medis} · NIK: {p.nik}
+                        {p.no_bpjs && (
+                          <span className="ml-1">
+                            · <CreditCard className="h-2.5 w-2.5 inline" /> {p.no_bpjs}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    {selectedPatient?.id === p.id && (
+                      <Check className="h-4 w-4 text-primary shrink-0" />
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}
