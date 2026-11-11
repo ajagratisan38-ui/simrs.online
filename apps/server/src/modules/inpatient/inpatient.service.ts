@@ -495,13 +495,10 @@ export class InpatientService {
 
         if (billItems.length > 0) {
           const totalAmount = billItems.reduce((s, i) => s + i.total, 0)
-          const billNumber = `INV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`
-
           const [bill] = await trx.withSchema(tenantSchema)
             .insert({
               visit_id: visitId,
               patient_id: visit.patient_id,
-              bill_number: billNumber,
               total_amount: totalAmount,
               discount_amount: 0,
               final_amount: totalAmount,
