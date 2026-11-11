@@ -1007,6 +1007,29 @@ export async function up(knex: Knex): Promise<void> {
       EXECUTE format('DROP TRIGGER IF EXISTS trg_rs_updated ON %I.rehabilitation_sessions', 'tenant_' || tenant_slug);
       EXECUTE format('CREATE TRIGGER trg_rs_updated BEFORE UPDATE ON %I.rehabilitation_sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()', 'tenant_' || tenant_slug);
 
+      -- ============ PRACTITIONER FEE TRANSACTIONS ============
+      EXECUTE format('
+        CREATE TABLE IF NOT EXISTS %I.practitioner_fee_transactions (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          practitioner_id UUID NOT NULL REFERENCES %I.external_practitioners(id),
+          order_id UUID NOT NULL REFERENCES %I.rehabilitation_orders(id),
+          session_id UUID REFERENCES %I.rehabilitation_sessions(id) ON DELETE SET NULL,
+          visit_id UUID REFERENCES %I.visits(id),
+          deskripsi VARCHAR(500) NOT NULL,
+          tarif_sesi NUMERIC(12,2) NOT NULL DEFAULT 0,
+          jumlah_practitioner NUMERIC(12,2) NOT NULL DEFAULT 0,
+          jumlah_rs NUMERIC(12,2) NOT NULL DEFAULT 0,
+          fee_share_persen NUMERIC(5,2) NOT NULL DEFAULT 70,
+          fee_share_rs_persen NUMERIC(5,2) NOT NULL DEFAULT 30,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      ', 'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
+         'tenant_' || tenant_slug, 'tenant_' || tenant_slug,
+         'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_pft_practitioner ON %I.practitioner_fee_transactions(practitioner_id)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_pft_order ON %I.practitioner_fee_transactions(order_id)', 'tenant_' || tenant_slug);
+      EXECUTE format('CREATE INDEX IF NOT EXISTS idx_pft_created ON %I.practitioner_fee_transactions(created_at)', 'tenant_' || tenant_slug);
+
       -- ============ BED TRANSFERS ============
       EXECUTE format('
         CREATE TABLE IF NOT EXISTS %I.bed_transfers (
@@ -2878,6 +2901,7 @@ export async function up(knex: Knex): Promise<void> {
           (''4-1007'', ''Pendapatan Bedah/Operasi'', ''pendapatan'', ''pendapatan_operasional'', 3, false, ''kredit''),
           (''4-1008'', ''Pendapatan Tindakan Medis'', ''pendapatan'', ''pendapatan_operasional'', 3, false, ''kredit''),
           (''4-1009'', ''Pendapatan Konsultasi'', ''pendapatan'', ''pendapatan_operasional'', 3, false, ''kredit''),
+          (''4-1010'', ''Pendapatan Rehabilitasi'', ''pendapatan'', ''pendapatan_operasional'', 3, false, ''kredit''),
           (''4-2000'', ''Pendapatan Lain-lain'', ''pendapatan'', ''pendapatan_lain'', 2, true, ''kredit''),
           (''4-2001'', ''Pendapatan Bunga Bank'', ''pendapatan'', ''pendapatan_lain'', 3, false, ''kredit''),
           (''4-2002'', ''Pendapatan Sewa'', ''pendapatan'', ''pendapatan_lain'', 3, false, ''kredit''),
@@ -2921,7 +2945,7 @@ export async function up(knex: Knex): Promise<void> {
           (''4-1000'', ''4-0000''), (''4-1001'', ''4-1000''), (''4-1002'', ''4-1000''),
           (''4-1003'', ''4-1000''), (''4-1004'', ''4-1000''), (''4-1005'', ''4-1000''),
           (''4-1006'', ''4-1000''), (''4-1007'', ''4-1000''), (''4-1008'', ''4-1000''),
-          (''4-1009'', ''4-1000''), (''4-2000'', ''4-0000''), (''4-2001'', ''4-2000''),
+          (''4-1009'', ''4-1000''), (''4-1010'', ''4-1000''), (''4-2000'', ''4-0000''), (''4-2001'', ''4-2000''),
           (''4-2002'', ''4-2000''), (''4-2003'', ''4-2000''),
           (''5-1000'', ''5-0000''), (''5-1001'', ''5-1000''), (''5-1002'', ''5-1000''),
           (''5-1003'', ''5-1000''), (''5-1004'', ''5-1000''), (''5-1005'', ''5-1000''),

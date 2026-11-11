@@ -1,6 +1,7 @@
 import { Knex } from 'knex'
 import { logger } from '../../shared/logger'
 import { NotFoundError, ValidationError } from '../../shared/errors'
+import { PractitionerFeeService } from './practitioner-fee.service'
 
 const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   dikirim: ['dijadwalkan', 'batal'],
@@ -37,7 +38,11 @@ interface SessionInput {
 }
 
 export class RehabilitationService {
-  constructor(private db: Knex) {}
+  private feeService: PractitionerFeeService
+
+  constructor(private db: Knex) {
+    this.feeService = new PractitionerFeeService(db)
+  }
 
   // ── ORDERS ──
 
@@ -311,6 +316,16 @@ export class RehabilitationService {
           completed_at: new Date().toISOString(),
         })
       logger.info(`Rehab order ${orderId} auto-completed (all sessions done)`, { tenantSchema })
+    }
+
+    // Auto-record practitioner fee split for this session
+    const sessionPractId = data.practitioner_id || order.practitioner_id
+    if (sessionPractId && Number(order.tarif_per_sesi) > 0) {
+      try {
+        await this.feeService.recordSessionFee(session.id, tenantSchema)
+      } catch (err) {
+        logger.warn(`Failed to auto-record fee for session ${session.id}`, { error: err })
+      }
     }
 
     return session

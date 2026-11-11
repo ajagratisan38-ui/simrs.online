@@ -3,6 +3,7 @@ import { RehabilitationController } from './rehabilitation.controller'
 import { RehabilitationService } from './rehabilitation.service'
 import { PractitionerController } from './practitioner.controller'
 import { PractitionerService } from './practitioner.service'
+import { PractitionerFeeService } from './practitioner-fee.service'
 import { authenticate } from '../../middleware/authenticate'
 import { checkPermission, checkAnyPermission } from '../../middleware/check-permission'
 import { db } from '../../config/database'
@@ -11,22 +12,31 @@ import { db } from '../../config/database'
 
 const rehabRouter = Router()
 const rehabService = new RehabilitationService(db)
-const rehabController = new RehabilitationController(rehabService)
+const feeService = new PractitionerFeeService(db)
+const rehabController = new RehabilitationController(rehabService, feeService)
 
 rehabRouter.use(authenticate)
 
+// Stats & fee summary (static paths first)
 rehabRouter.get('/stats', checkAnyPermission('patient:read', 'dashboard:read'), rehabController.stats)
+rehabRouter.get('/fee-summary', checkAnyPermission('settings:manage', 'dashboard:read'), rehabController.feeSummary)
+
+// Orders CRUD
 rehabRouter.get('/', checkAnyPermission('patient:read', 'registration:read'), rehabController.listOrders)
 rehabRouter.post('/', checkAnyPermission('medical_record:write', 'patient:write'), rehabController.createOrder)
 rehabRouter.get('/patient/:patientId', checkPermission('patient:read'), rehabController.patientHistory)
+rehabRouter.get('/practitioner/:practitionerId/earnings', checkAnyPermission('settings:manage', 'dashboard:read'), rehabController.practitionerEarnings)
+
+// Sessions (non-param paths)
+rehabRouter.put('/sessions/:sessionId', checkAnyPermission('medical_record:write', 'patient:write'), rehabController.updateSession)
+rehabRouter.delete('/sessions/:sessionId', checkAnyPermission('medical_record:write', 'settings:manage'), rehabController.deleteSession)
+
+// Order-specific routes (param :id / :orderId)
 rehabRouter.get('/:id', checkAnyPermission('patient:read', 'registration:read'), rehabController.getOrder)
 rehabRouter.patch('/:id/status', checkAnyPermission('medical_record:write', 'patient:write'), rehabController.updateStatus)
 rehabRouter.patch('/:id/assign', checkAnyPermission('medical_record:write', 'settings:manage'), rehabController.assignPractitioner)
-
-// Sessions
 rehabRouter.post('/:orderId/sessions', checkAnyPermission('medical_record:write', 'patient:write'), rehabController.addSession)
-rehabRouter.put('/sessions/:sessionId', checkAnyPermission('medical_record:write', 'patient:write'), rehabController.updateSession)
-rehabRouter.delete('/sessions/:sessionId', checkAnyPermission('medical_record:write', 'settings:manage'), rehabController.deleteSession)
+rehabRouter.get('/:orderId/fees', checkAnyPermission('settings:manage', 'dashboard:read'), rehabController.orderFees)
 
 // ── External Practitioners Router ──
 

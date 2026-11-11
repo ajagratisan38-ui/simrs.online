@@ -95,6 +95,7 @@ const KATEGORI_REVENUE_ACCOUNT: Record<string, string> = {
   kamar: '4-1002',
   bedah: '4-1007',
   bahan: '4-1006',
+  rehabilitasi: '4-1010',
   lain: '4-2003',
 }
 

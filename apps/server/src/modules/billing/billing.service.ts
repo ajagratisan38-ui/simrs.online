@@ -271,7 +271,53 @@ export class BillingService {
         }
       }
 
-      // 6. Biaya Administrasi (class-based)
+      // 6. Rehabilitasi (sesi terapi dari rehabilitation_orders)
+      const rehabSessions = await trx
+        .withSchema(tenantSchema)
+        .select(
+          'rs.id as session_id',
+          'rs.sesi_ke',
+          'ro.tarif_per_sesi',
+          'ro.therapy_type',
+          'ep.nama as practitioner_nama',
+          'ep.profesi as practitioner_profesi',
+        )
+        .from('rehabilitation_sessions as rs')
+        .join('rehabilitation_orders as ro', 'ro.id', 'rs.order_id')
+        .leftJoin('external_practitioners as ep', 'ep.id', 'rs.practitioner_id')
+        .where('ro.visit_id', visitId)
+        .andWhere('rs.status', 'selesai')
+
+      const therapyLabels: Record<string, string> = {
+        fisioterapi: 'Fisioterapi',
+        terapi_wicara: 'Terapi Wicara',
+        terapi_okupasi: 'Terapi Okupasi',
+        terapi_psikologi: 'Terapi Psikologi',
+        terapi_respirasi: 'Terapi Respirasi',
+        rehabilitasi_jantung: 'Rehab Jantung',
+        rehabilitasi_neurologi: 'Rehab Neurologi',
+        lainnya: 'Rehabilitasi',
+      }
+
+      for (const rs of rehabSessions) {
+        const tarif = Number(rs.tarif_per_sesi)
+        if (tarif <= 0) continue
+        const label = therapyLabels[rs.therapy_type as string] || 'Rehabilitasi'
+        const practName = rs.practitioner_nama ? ` — ${rs.practitioner_nama}` : ''
+        items.push({
+          kategori: 'rehabilitasi',
+          deskripsi: `${label} Sesi #${rs.sesi_ke}${practName}`,
+          qty: 1,
+          harga_satuan: tarif,
+          subtotal: tarif,
+          discount: 0,
+          total: tarif,
+          referensi_id: rs.session_id,
+          referensi_tipe: 'rehab_session',
+        })
+      }
+
+      // 7. Biaya Administrasi (class-based)
       const kompAdmin = await trx.withSchema(tenantSchema)
         .select('*').from('komponen_tarif')
         .where({ kode: 'ADM-MASUK', is_active: true }).first()

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { RehabilitationService } from './rehabilitation.service'
+import { PractitionerFeeService } from './practitioner-fee.service'
 import { z } from 'zod'
 
 const THERAPY_TYPES = [
@@ -43,7 +44,10 @@ const sessionSchema = z.object({
 })
 
 export class RehabilitationController {
-  constructor(private service: RehabilitationService) {}
+  constructor(
+    private service: RehabilitationService,
+    private feeService: PractitionerFeeService,
+  ) {}
 
   // ── Orders ──
 
@@ -163,6 +167,39 @@ export class RehabilitationController {
   stats = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.getStats(req.tenantSchema!)
+      res.json({ success: true, data })
+    } catch (error) { next(error) }
+  }
+
+  // ── Fee Transactions ──
+
+  orderFees = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.feeService.getOrderFees(req.params.orderId, req.tenantSchema!)
+      res.json({ success: true, data })
+    } catch (error) { next(error) }
+  }
+
+  practitionerEarnings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.feeService.getPractitionerEarnings(
+        req.params.practitionerId,
+        req.tenantSchema!,
+        {
+          start: req.query.start as string | undefined,
+          end: req.query.end as string | undefined,
+        },
+      )
+      res.json({ success: true, data })
+    } catch (error) { next(error) }
+  }
+
+  feeSummary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.feeService.getFeeSummary(req.tenantSchema!, {
+        start: req.query.start as string | undefined,
+        end: req.query.end as string | undefined,
+      })
       res.json({ success: true, data })
     } catch (error) { next(error) }
   }

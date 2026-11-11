@@ -785,3 +785,21 @@ export interface RehabilitationSession extends BaseEntity {
   status: string
   performed_by: string | null
 }
+
+export interface PractitionerFeeTransaction {
+  id: string
+  practitioner_id: string
+  order_id: string
+  session_id: string | null
+  visit_id: string | null
+  deskripsi: string
+  tarif_sesi: number
+  jumlah_practitioner: number
+  jumlah_rs: number
+  fee_share_persen: number
+  fee_share_rs_persen: number
+  created_at: string
+  // joined
+  practitioner_nama?: string
+  therapy_type?: string
+}
