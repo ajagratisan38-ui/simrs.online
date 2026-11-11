@@ -834,7 +834,7 @@ export async function up(knex: Knex): Promise<void> {
         CREATE TABLE IF NOT EXISTS %I.beds (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           room_id UUID NOT NULL,
-          nomor VARCHAR(10) NOT NULL,
+          nomor VARCHAR(50) NOT NULL,
           status bed_status NOT NULL DEFAULT ''tersedia'',
           current_patient_id UUID,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
