@@ -634,7 +634,7 @@ function PackageDialog({ onClose, editData }: { onClose: () => void; editData?: 
   const [nama, setNama] = useState(editData?.nama as string || '')
   const [kode, setKode] = useState(editData?.kode as string || '')
   const [deskripsi, setDeskripsi] = useState(editData?.deskripsi as string || '')
-  const [harga, setHarga] = useState(editData?.harga != null ? String(editData.harga) : '')
+  const [harga, setHarga] = useState(editData?.harga != null ? String(Math.round(Number(editData.harga) || 0)) : '')
   const existingItems = (editData?.items as { kategori: string; nama: string }[] | undefined) || []
   const [items, setItems] = useState<{ kategori: string; nama: string }[]>(
     existingItems.map((i) => ({ kategori: i.kategori, nama: i.nama }))
