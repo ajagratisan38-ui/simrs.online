@@ -197,43 +197,73 @@ export default function GudangPage() {
         </Card>
       )}
 
-      {/* Add form */}
+      {/* Add Dialog */}
       {showAdd && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Tambah Barang Baru</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Input placeholder="Kode" value={fKode} onChange={(e) => setFKode(e.target.value)} />
-              <Input placeholder="Nama Barang" value={fNama} onChange={(e) => setFNama(e.target.value)} />
-              <Select value={fKat} onChange={(e) => setFKat(e.target.value)}>
-                {KATEGORI_OPTIONS.filter((k) => k.value).map((k) => (
-                  <option key={k.value} value={k.value}>{k.label}</option>
-                ))}
-              </Select>
-              <Input placeholder="Satuan" value={fSatuan} onChange={(e) => setFSatuan(e.target.value)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Tambah Barang Baru</h2>
+              <button onClick={() => setShowAdd(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input type="number" placeholder="Harga Beli" value={fHarga} onChange={(e) => setFHarga(e.target.value)} />
-              <Input placeholder="Lokasi (opsional)" value={fLokasi} onChange={(e) => setFLokasi(e.target.value)} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Awal</label>
-                <Input type="number" placeholder="0" value={fStokAwal} onChange={(e) => setFStokAwal(e.target.value)} min="0" />
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kode *</label>
+                  <Input value={fKode} onChange={(e) => setFKode(e.target.value)} placeholder="GDG-001" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Barang *</label>
+                  <Input value={fNama} onChange={(e) => setFNama(e.target.value)} />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Minimum (alert)</label>
-                <Input type="number" placeholder="5" value={fMinimum} onChange={(e) => setFMinimum(e.target.value)} min="0" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Kategori</label>
+                  <Select value={fKat} onChange={(e) => setFKat(e.target.value)}>
+                    {KATEGORI_OPTIONS.filter((k) => k.value).map((k) => (
+                      <option key={k.value} value={k.value}>{k.label}</option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Satuan</label>
+                  <Input value={fSatuan} onChange={(e) => setFSatuan(e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Harga Beli</label>
+                  <Input type="number" value={fHarga} onChange={(e) => setFHarga(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Lokasi</label>
+                  <Input value={fLokasi} onChange={(e) => setFLokasi(e.target.value)} placeholder="Opsional" />
+                </div>
+              </div>
+              <div className="border-t pt-3 mt-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Awal</label>
+                    <Input type="number" placeholder="0" value={fStokAwal} onChange={(e) => setFStokAwal(e.target.value)} min="0" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Stok Minimum (alert)</label>
+                    <Input type="number" placeholder="5" value={fMinimum} onChange={(e) => setFMinimum(e.target.value)} min="0" />
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1">Stok awal otomatis ditambahkan setelah barang dibuat</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleCreate} disabled={createMut.isPending}>Simpan</Button>
-              <Button size="sm" variant="outline" onClick={() => setShowAdd(false)}>Batal</Button>
+            <div className="flex justify-end gap-2 mt-5">
+              <Button variant="outline" size="sm" onClick={() => setShowAdd(false)}>Batal</Button>
+              <Button size="sm" onClick={handleCreate} disabled={createMut.isPending || addStockMut.isPending}>
+                {createMut.isPending || addStockMut.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Filters */}
