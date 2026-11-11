@@ -275,3 +275,106 @@ export async function getAllDoctorEarnings(
     `/doctors/earnings${qs ? `?${qs}` : ''}`,
   )
 }
+
+// ── Substitutions (Pengganti Dokter) ──
+
+export interface Substitution {
+  id: string
+  doctor_id: string
+  substitute_doctor_id: string
+  tanggal_mulai: string
+  tanggal_selesai: string
+  alasan: string
+  catatan: string | null
+  status: 'active' | 'completed' | 'cancelled'
+  cancelled_at: string | null
+  cancelled_by: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+  doctor_nama?: string
+  doctor_spesialisasi?: string
+  substitute_nama?: string
+  substitute_spesialisasi?: string
+  created_by_nama?: string
+  cancelled_by_nama?: string
+  visits?: Array<{
+    id: string
+    visit_number: string
+    tanggal: string
+    status: string
+    patient_nama: string
+    no_rekam_medis: string
+  }>
+}
+
+export interface SubstitutionStats {
+  active: number
+  completed: number
+  cancelled: number
+  total: number
+  activeToday: number
+}
+
+export async function listSubstitutions(filters?: {
+  doctor_id?: string
+  substitute_doctor_id?: string
+  status?: string
+  page?: number
+  limit?: number
+}): Promise<ApiResponse<Substitution[]> & { meta?: { page: number; limit: number; total: number; totalPages: number } }> {
+  const params = new URLSearchParams()
+  if (filters?.doctor_id) params.set('doctor_id', filters.doctor_id)
+  if (filters?.substitute_doctor_id) params.set('substitute_doctor_id', filters.substitute_doctor_id)
+  if (filters?.status) params.set('status', filters.status)
+  if (filters?.page) params.set('page', String(filters.page))
+  if (filters?.limit) params.set('limit', String(filters.limit))
+  const qs = params.toString()
+  return apiClient(`/doctors/substitutions${qs ? `?${qs}` : ''}`)
+}
+
+export async function getSubstitutionStats(): Promise<ApiResponse<SubstitutionStats>> {
+  return apiClient('/doctors/substitutions/stats')
+}
+
+export async function createSubstitution(data: {
+  doctor_id: string
+  substitute_doctor_id: string
+  tanggal_mulai: string
+  tanggal_selesai: string
+  alasan: string
+  catatan?: string
+}): Promise<ApiResponse<Substitution>> {
+  return apiClient('/doctors/substitutions', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getSubstitutionById(id: string): Promise<ApiResponse<Substitution>> {
+  return apiClient(`/doctors/substitutions/${id}`)
+}
+
+export async function cancelSubstitution(id: string): Promise<ApiResponse<Substitution>> {
+  return apiClient(`/doctors/substitutions/${id}/cancel`, { method: 'POST' })
+}
+
+export async function getDoctorSubstitutionHistory(
+  doctorId: string,
+  role?: 'as_doctor' | 'as_substitute' | 'both',
+): Promise<ApiResponse<Substitution[]>> {
+  const params = new URLSearchParams()
+  if (role) params.set('role', role)
+  const qs = params.toString()
+  return apiClient(`/doctors/${doctorId}/substitutions${qs ? `?${qs}` : ''}`)
+}
+
+export async function getActiveSubstitute(
+  doctorId: string,
+  date?: string,
+): Promise<ApiResponse<Substitution | null>> {
+  const params = new URLSearchParams()
+  if (date) params.set('date', date)
+  const qs = params.toString()
+  return apiClient(`/doctors/${doctorId}/active-substitute${qs ? `?${qs}` : ''}`)
+}

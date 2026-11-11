@@ -25,6 +25,11 @@ import {
   RefreshCw,
   Stethoscope,
   Shield,
+  UserCheck,
+  Users,
+  XCircle,
+  Clock,
+  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,6 +56,10 @@ import {
   useUpdateFee,
   useDeleteFee,
   useDoctorEarnings,
+  useDoctorSubstitutionHistory,
+  useCreateSubstitution,
+  useCancelSubstitution,
+  useDoctorList,
 } from '@/hooks/use-doctors'
 import { useRooms } from '@/hooks/use-queues'
 
@@ -554,7 +563,7 @@ export default function DoctorDetailPage() {
   const [feePersen, setFeePersen] = useState('80')
 
   // Tab + earnings
-  const [activeTab, setActiveTab] = useState<'jadwal' | 'tarif' | 'jasa'>('jadwal')
+  const [activeTab, setActiveTab] = useState<'jadwal' | 'tarif' | 'jasa' | 'pengganti'>('jadwal')
   const [earningsStart, setEarningsStart] = useState('')
   const [earningsEnd, setEarningsEnd] = useState('')
   const { data: earningsRes } = useDoctorEarnings(
@@ -564,6 +573,23 @@ export default function DoctorDetailPage() {
       : undefined,
   )
   const earnings = earningsRes?.data
+
+  // Substitution state
+  const [showSubForm, setShowSubForm] = useState(false)
+  const [subDoctorId, setSubDoctorId] = useState('')
+  const [subMulai, setSubMulai] = useState('')
+  const [subSelesai, setSubSelesai] = useState('')
+  const [subAlasan, setSubAlasan] = useState('')
+  const [subCatatan, setSubCatatan] = useState('')
+  const { data: subHistoryRes, refetch: refetchSubHistory } = useDoctorSubstitutionHistory(
+    doctorId,
+    'both',
+  )
+  const subHistory = subHistoryRes?.data || []
+  const createSub = useCreateSubstitution()
+  const cancelSub = useCancelSubstitution()
+  const { data: doctorListRes } = useDoctorList({ includeInactive: false })
+  const allDoctors = (doctorListRes?.data || []).filter((d) => d.id !== doctor?.id)
 
 
 
@@ -948,6 +974,7 @@ export default function DoctorDetailPage() {
           { key: 'jadwal' as const, label: 'Jadwal Praktik', icon: Calendar },
           { key: 'tarif' as const, label: 'Tarif Layanan', icon: DollarSign },
           { key: 'jasa' as const, label: 'Jasa Medis', icon: BarChart3 },
+          { key: 'pengganti' as const, label: 'Pengganti', icon: Users },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -1380,6 +1407,268 @@ export default function DoctorDetailPage() {
             <div className="text-center py-8 text-muted-foreground">
               Belum ada data jasa medis
               {(earningsStart || earningsEnd) && ' untuk periode ini'}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── PENGGANTI TAB ────────────────────────────────────────────── */}
+      {activeTab === 'pengganti' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              Kelola dokter pengganti saat berhalangan / cuti
+            </p>
+            <Button size="sm" onClick={() => setShowSubForm(!showSubForm)}>
+              <Plus className="h-4 w-4 mr-1" />
+              Tambah Pengganti
+            </Button>
+          </div>
+
+          {/* Form Tambah Pengganti */}
+          <DialogOverlay
+            open={showSubForm}
+            onClose={() => setShowSubForm(false)}
+            title="Tambah Dokter Pengganti"
+            maxWidth="max-w-lg"
+          >
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  Dokter Pengganti *
+                </label>
+                <select
+                  value={subDoctorId}
+                  onChange={(e) => setSubDoctorId(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                >
+                  <option value="">Pilih dokter pengganti...</option>
+                  {allDoctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.nama} {d.spesialisasi ? `(${d.spesialisasi})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Tanggal Mulai *
+                  </label>
+                  <input
+                    type="date"
+                    value={subMulai}
+                    onChange={(e) => setSubMulai(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Tanggal Selesai *
+                  </label>
+                  <input
+                    type="date"
+                    value={subSelesai}
+                    onChange={(e) => setSubSelesai(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  Alasan *
+                </label>
+                <select
+                  value={subAlasan}
+                  onChange={(e) => setSubAlasan(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                >
+                  <option value="">Pilih alasan...</option>
+                  <option value="Cuti tahunan">Cuti tahunan</option>
+                  <option value="Cuti sakit">Cuti sakit</option>
+                  <option value="Dinas luar">Dinas luar</option>
+                  <option value="Pelatihan / seminar">Pelatihan / seminar</option>
+                  <option value="Cuti melahirkan">Cuti melahirkan</option>
+                  <option value="Izin pribadi">Izin pribadi</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  Catatan
+                </label>
+                <textarea
+                  value={subCatatan}
+                  onChange={(e) => setSubCatatan(e.target.value)}
+                  rows={2}
+                  placeholder="Catatan tambahan (opsional)"
+                  className="w-full px-3 py-2 border rounded-lg text-sm bg-background resize-none"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSubForm(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={!subDoctorId || !subMulai || !subSelesai || !subAlasan || createSub.isPending}
+                  onClick={() => {
+                    createSub.mutate({
+                      doctor_id: doctorId,
+                      substitute_doctor_id: subDoctorId,
+                      tanggal_mulai: subMulai,
+                      tanggal_selesai: subSelesai,
+                      alasan: subAlasan,
+                      catatan: subCatatan || undefined,
+                    }, {
+                      onSuccess: () => {
+                        toast.success('Dokter pengganti berhasil ditambahkan')
+                        setShowSubForm(false)
+                        setSubDoctorId('')
+                        setSubMulai('')
+                        setSubSelesai('')
+                        setSubAlasan('')
+                        setSubCatatan('')
+                        refetchSubHistory()
+                      },
+                      onError: (err: Error) => {
+                        toast.error(err.message || 'Gagal menambahkan pengganti')
+                      },
+                    })
+                  }}
+                >
+                  {createSub.isPending ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Menyimpan...</>
+                  ) : (
+                    <><Save className="h-4 w-4 mr-1" />Simpan</>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogOverlay>
+
+          {/* Active Substitution Banner */}
+          {subHistory.filter((s) => s.status === 'active').length > 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4">
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-medium text-sm mb-2">
+                <UserCheck className="h-4 w-4" />
+                Pengganti Aktif
+              </div>
+              {subHistory
+                .filter((s) => s.status === 'active')
+                .map((s) => (
+                  <div key={s.id} className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <span className="font-medium">{s.substitute_nama}</span>
+                      {s.substitute_spesialisasi && (
+                        <span className="text-muted-foreground ml-1">({s.substitute_spesialisasi})</span>
+                      )}
+                      <span className="text-muted-foreground ml-2">
+                        {new Date(s.tanggal_mulai).toLocaleDateString('id-ID')} — {new Date(s.tanggal_selesai).toLocaleDateString('id-ID')}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      disabled={cancelSub.isPending}
+                      onClick={() => {
+                        if (confirm('Batalkan substitusi ini?')) {
+                          cancelSub.mutate(s.id, {
+                            onSuccess: () => {
+                              toast.success('Substitusi dibatalkan')
+                              refetchSubHistory()
+                            },
+                            onError: (err: Error) => toast.error(err.message),
+                          })
+                        }
+                      }}
+                    >
+                      <XCircle className="h-3.5 w-3.5 mr-1" />
+                      Batalkan
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* History Table */}
+          {subHistory.length > 0 ? (
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 text-left">
+                    <th className="px-4 py-2.5 font-medium">Periode</th>
+                    <th className="px-4 py-2.5 font-medium">Peran</th>
+                    <th className="px-4 py-2.5 font-medium">Dokter</th>
+                    <th className="px-4 py-2.5 font-medium">Alasan</th>
+                    <th className="px-4 py-2.5 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {subHistory.map((s) => {
+                    const isAsDoctor = s.doctor_id === doctorId
+                    return (
+                      <tr key={s.id} className="hover:bg-muted/30">
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            {new Date(s.tanggal_mulai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                            {new Date(s.tanggal_selesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {isAsDoctor ? (
+                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800">
+                              Digantikan
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800">
+                              Menggantikan
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="font-medium text-xs">
+                            {isAsDoctor ? s.substitute_nama : s.doctor_nama}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {isAsDoctor ? s.substitute_spesialisasi : s.doctor_spesialisasi}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 text-xs text-muted-foreground">
+                          {s.alasan}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <Badge
+                            variant="outline"
+                            className={cn('text-xs', {
+                              'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800':
+                                s.status === 'active',
+                              'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-950/20 dark:text-gray-400 dark:border-gray-700':
+                                s.status === 'completed',
+                              'bg-red-50 text-red-600 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800':
+                                s.status === 'cancelled',
+                            })}
+                          >
+                            {s.status === 'active' ? 'Aktif' : s.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
+                          </Badge>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-10 w-10 mx-auto mb-2 opacity-30" />
+              Belum ada riwayat substitusi untuk dokter ini
             </div>
           )}
         </div>
