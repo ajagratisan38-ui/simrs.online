@@ -46,7 +46,7 @@ export default function GudangPage() {
   const [search, setSearch] = useState('')
   const [kategori, setKategori] = useState('')
   const [showAdd, setShowAdd] = useState(false)
-  const [showStockAdd, setShowStockAdd] = useState<string | null>(null)
+  const [showStockAdd, setShowStockAdd] = useState<{ id: string; nama: string; stok: number } | null>(null)
 
   // Create form
   const [fKode, setFKode] = useState('')
@@ -338,7 +338,10 @@ export default function GudangPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setShowStockAdd(showStockAdd === item.id ? null : item.id)}
+                        onClick={() => {
+                          setShowStockAdd({ id: item.id, nama: item.nama, stok: item.total_stok })
+                          setSJumlah(''); setSBatch(''); setSSupplier('')
+                        }}
                         title="Tambah Stok"
                       >
                         <PlusCircle className="h-4 w-4 text-teal-600" />
@@ -357,19 +360,7 @@ export default function GudangPage() {
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
                     </div>
-                    {showStockAdd === item.id && (
-                      <div className="mt-2 p-3 bg-muted rounded-lg text-left space-y-2">
-                        <div className="text-xs font-medium">Tambah Stok: {item.nama}</div>
-                        <div className="grid grid-cols-3 gap-2">
-                          <Input type="number" placeholder="Jumlah" value={sJumlah} onChange={(e) => setSJumlah(e.target.value)} className="text-xs" />
-                          <Input placeholder="Batch" value={sBatch} onChange={(e) => setSBatch(e.target.value)} className="text-xs" />
-                          <Input placeholder="Supplier" value={sSupplier} onChange={(e) => setSSupplier(e.target.value)} className="text-xs" />
-                        </div>
-                        <Button size="sm" onClick={() => handleAddStock(item.id)} disabled={addStockMut.isPending} className="text-xs">
-                          Simpan Stok
-                        </Button>
-                      </div>
-                    )}
+                    
                   </td>
                 </tr>
               ))}
@@ -437,6 +428,46 @@ export default function GudangPage() {
               <Button variant="outline" size="sm" onClick={() => setEditItem(null)}>Batal</Button>
               <Button size="sm" onClick={handleUpdate} disabled={updateMut.isPending || addStockMut.isPending}>
                 {updateMut.isPending || addStockMut.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stock Add Dialog */}
+      {showStockAdd && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Tambah Stok</h2>
+              <button onClick={() => setShowStockAdd(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="mb-4 p-3 bg-muted rounded-lg">
+              <div className="text-sm font-medium">{showStockAdd.nama}</div>
+              <div className="text-xs text-muted-foreground">Stok saat ini: {showStockAdd.stok}</div>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Jumlah *</label>
+                <Input type="number" placeholder="0" value={sJumlah} onChange={(e) => setSJumlah(e.target.value)} min="1" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Batch</label>
+                  <Input value={sBatch} onChange={(e) => setSBatch(e.target.value)} placeholder="Opsional" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Supplier</label>
+                  <Input value={sSupplier} onChange={(e) => setSSupplier(e.target.value)} placeholder="Opsional" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-5">
+              <Button variant="outline" size="sm" onClick={() => setShowStockAdd(null)}>Batal</Button>
+              <Button size="sm" onClick={() => handleAddStock(showStockAdd.id)} disabled={addStockMut.isPending}>
+                {addStockMut.isPending ? 'Menyimpan...' : 'Simpan Stok'}
               </Button>
             </div>
           </div>
