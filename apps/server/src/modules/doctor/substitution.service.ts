@@ -1,6 +1,7 @@
 import { Knex } from 'knex'
 import { logger } from '../../shared/logger'
 import { NotFoundError, ValidationError, ConflictError } from '../../shared/errors'
+import { getTodayWIB } from '../../shared/timezone'
 
 interface CreateSubstitutionInput {
   doctor_id: string
@@ -180,11 +181,7 @@ export class SubstitutionService {
     tenantSchema: string,
     date?: string,
   ) {
-    // Use WIB (UTC+7) for date comparison since RS operates in Indonesian time
-    const now = new Date()
-    const wibOffset = 7 * 60
-    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
-    const targetDate = date || wibTime.toISOString().split('T')[0]
+    const targetDate = date || getTodayWIB()
 
     const substitution = await this.db
       .withSchema(tenantSchema)
@@ -311,10 +308,7 @@ export class SubstitutionService {
   // Called by a cron job or on-demand to mark expired substitutions as completed
 
   async completeExpiredSubstitutions(tenantSchema: string) {
-    const now = new Date()
-    const wibOffset = 7 * 60
-    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
-    const today = wibTime.toISOString().split('T')[0]
+    const today = getTodayWIB()
 
     // Get doctor IDs of expiring substitutions before updating
     const expiring = await this.db
@@ -401,10 +395,7 @@ export class SubstitutionService {
   // ── GET STATS ──
 
   async getSubstitutionStats(tenantSchema: string) {
-    const now = new Date()
-    const wibOffset = 7 * 60
-    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
-    const today = wibTime.toISOString().split('T')[0]
+    const today = getTodayWIB()
 
     const stats = await this.db
       .withSchema(tenantSchema)

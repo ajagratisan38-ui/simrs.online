@@ -6,6 +6,7 @@ import {
   listVisitsSchema,
   cancelVisitSchema,
 } from './registration.validator'
+import { getTodayWIB } from '../../shared/timezone'
 
 export class RegistrationController {
   constructor(private registrationService: RegistrationService) {}
@@ -90,7 +91,7 @@ export class RegistrationController {
 
   getQueue = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const date = (req.query.date as string) || new Date().toISOString().split('T')[0]
+      const date = (req.query.date as string) || getTodayWIB()
       const queues = await this.registrationService.getQueue(
         req.params.roomId,
         date,
@@ -105,7 +106,7 @@ export class RegistrationController {
 
   getAllQueues = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const date = (req.query.date as string) || new Date().toISOString().split('T')[0]
+      const date = (req.query.date as string) || getTodayWIB()
       const queues = await this.registrationService.getAllQueues(
         date,
         req.tenantSchema!,
@@ -140,7 +141,7 @@ export class RegistrationController {
 
   getDailyStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const date = (req.query.date as string) || new Date().toISOString().split('T')[0]
+      const date = (req.query.date as string) || getTodayWIB()
       const stats = await this.registrationService.getDailyStats(
         date,
         req.tenantSchema!,

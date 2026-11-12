@@ -55,3 +55,14 @@ export async function formatTime(date: Date | string): Promise<string> {
   const d = typeof date === 'string' ? new Date(date) : date
   return d.toLocaleTimeString(DEFAULT_LOCALE, { timeZone: tz })
 }
+
+/**
+ * Returns today's date as YYYY-MM-DD string in the platform timezone (default: Asia/Jakarta / WIB).
+ * Use this instead of `new Date().toISOString().split('T')[0]` which returns UTC date.
+ */
+export function getTodayWIB(): string {
+  const now = new Date()
+  const wibOffset = 7 * 60
+  const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
+  return wibTime.toISOString().split('T')[0]
+}

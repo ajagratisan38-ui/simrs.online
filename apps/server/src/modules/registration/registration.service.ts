@@ -6,6 +6,7 @@ import {
   ValidationError,
 } from '../../shared/errors'
 import { SubstitutionService } from '../doctor/substitution.service'
+import { getTodayWIB } from '../../shared/timezone'
 import type { CreateVisitInput, ListVisitsInput } from './registration.validator'
 
 const MAX_RETRY = 3
@@ -61,11 +62,7 @@ export class RegistrationService {
       )
     }
 
-    // Use WIB (UTC+7) for date — RS operates in Indonesian time
-    const now = new Date()
-    const wibOffset = 7 * 60
-    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
-    const today = wibTime.toISOString().split('T')[0]
+    const today = getTodayWIB()
 
     // 4. Cek dokter available & status aktif — dengan auto-substitusi
     const doctor = await this.db
@@ -534,7 +531,10 @@ export class RegistrationService {
   }
 
   async callNext(roomId: string, tenantSchema: string) {
-    const today = new Date().toISOString().split('T')[0]
+    const now = new Date()
+    const wibOffset = 7 * 60
+    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
+    const today = wibTime.toISOString().split('T')[0]
 
     // Cari antrian 'menunggu' dengan nomor terkecil hari ini
     const nextQueue = await this.db
