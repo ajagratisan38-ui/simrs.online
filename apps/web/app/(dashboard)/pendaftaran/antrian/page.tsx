@@ -52,11 +52,18 @@ export default function AntrianPage() {
   const activeRoom = rooms.find((r) => r.id === filterRoomId)
 
   function handleCallNext() {
-    if (!filterRoomId) {
-      toast.error('Pilih poli terlebih dahulu untuk memanggil antrian')
-      return
+    // If a specific poli is selected, use it. Otherwise auto-detect from first waiting patient.
+    let targetRoomId = filterRoomId
+    if (!targetRoomId) {
+      const firstWaiting = allItems.find((q) => q.status === 'menunggu')
+      if (firstWaiting) {
+        targetRoomId = firstWaiting.room_id
+      } else {
+        toast.info('Tidak ada antrian yang menunggu')
+        return
+      }
     }
-    callNextMutation.mutate(filterRoomId, {
+    callNextMutation.mutate(targetRoomId, {
       onSuccess: (res) => {
         if (res.data) {
           toast.success(
@@ -107,8 +114,8 @@ export default function AntrianPage() {
             <Button
               size="sm"
               onClick={handleCallNext}
-              disabled={callNextMutation.isPending || waiting.length === 0 || !filterRoomId}
-              title={!filterRoomId ? 'Pilih poli untuk memanggil antrian' : ''}
+              disabled={callNextMutation.isPending || waiting.length === 0}
+              title={waiting.length === 0 ? 'Tidak ada antrian menunggu' : ''}
             >
               <Bell className="h-4 w-4 mr-1" />
               Panggil Berikutnya
