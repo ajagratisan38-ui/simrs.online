@@ -1,7 +1,7 @@
 'use client'
 
 import { formatRupiah } from '@/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Shield,
   Search,
@@ -12,13 +12,13 @@ import {
   Users,
   Building2,
   BarChart3,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import {
   useInsurances,
@@ -50,6 +50,138 @@ const TIPE_COLORS: Record<string, string> = {
   perusahaan: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   yayasan: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
   kerjasama: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+}
+
+function InsuranceFormDialog({
+  open,
+  onClose,
+  editId,
+  fKode, setFKode,
+  fNama, setFNama,
+  fTipe, setFTipe,
+  fAlamat, setFAlamat,
+  fTelepon, setFTelepon,
+  fEmail, setFEmail,
+  fPicNama, setFPicNama,
+  fPicTelepon, setFPicTelepon,
+  fTarif, setFTarif,
+  fCatatan, setFCatatan,
+  onSave,
+  isPending,
+}: {
+  open: boolean
+  onClose: () => void
+  editId: string | null
+  fKode: string; setFKode: (v: string) => void
+  fNama: string; setFNama: (v: string) => void
+  fTipe: string; setFTipe: (v: string) => void
+  fAlamat: string; setFAlamat: (v: string) => void
+  fTelepon: string; setFTelepon: (v: string) => void
+  fEmail: string; setFEmail: (v: string) => void
+  fPicNama: string; setFPicNama: (v: string) => void
+  fPicTelepon: string; setFPicTelepon: (v: string) => void
+  fTarif: string; setFTarif: (v: string) => void
+  fCatatan: string; setFCatatan: (v: string) => void
+  onSave: () => void
+  isPending: boolean
+}) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-background rounded-2xl shadow-2xl border w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-muted/30 rounded-t-2xl">
+          <h2 className="text-lg font-semibold">
+            {editId ? 'Edit Asuransi' : 'Tambah Asuransi Baru'}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md p-1.5 hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto px-6 py-5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Kode *</label>
+              <Input placeholder="ASR-001" value={fKode} onChange={(e) => setFKode(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Nama *</label>
+              <Input placeholder="Nama Asuransi" value={fNama} onChange={(e) => setFNama(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Tipe</label>
+              <Select value={fTipe} onChange={(e) => setFTipe(e.target.value)}>
+                {TIPE_OPTIONS.filter((t) => t.value).map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Tarif (%)</label>
+              <Input type="number" min={0} max={100} value={fTarif} onChange={(e) => setFTarif(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Telepon</label>
+              <Input placeholder="021-xxxx" value={fTelepon} onChange={(e) => setFTelepon(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Email</label>
+              <Input placeholder="email@asuransi.co.id" value={fEmail} onChange={(e) => setFEmail(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Alamat</label>
+              <Input placeholder="Alamat kantor" value={fAlamat} onChange={(e) => setFAlamat(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">PIC Nama</label>
+              <Input placeholder="Contact person" value={fPicNama} onChange={(e) => setFPicNama(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">PIC Telepon</label>
+              <Input placeholder="08xxxx" value={fPicTelepon} onChange={(e) => setFPicTelepon(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Catatan</label>
+              <Input placeholder="Catatan internal" value={fCatatan} onChange={(e) => setFCatatan(e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t bg-muted/30 rounded-b-2xl">
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
+            Batal
+          </Button>
+          <Button onClick={onSave} disabled={isPending}>
+            {editId ? 'Update' : 'Simpan'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AsuransiPage() {
@@ -179,74 +311,25 @@ export default function AsuransiPage() {
         </div>
       )}
 
-      {/* Form */}
+      {/* Dialog Form */}
       {showForm && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              {editId ? 'Edit Asuransi' : 'Tambah Asuransi Baru'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Kode *</Label>
-                <Input placeholder="ASR-001" value={fKode} onChange={(e) => setFKode(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Nama *</Label>
-                <Input placeholder="Nama Asuransi" value={fNama} onChange={(e) => setFNama(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Tipe</Label>
-                <Select value={fTipe} onChange={(e) => setFTipe(e.target.value)}>
-                  {TIPE_OPTIONS.filter((t) => t.value).map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Tarif (%)</Label>
-                <Input type="number" min={0} max={100} value={fTarif} onChange={(e) => setFTarif(e.target.value)} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Telepon</Label>
-                <Input placeholder="021-xxxx" value={fTelepon} onChange={(e) => setFTelepon(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Email</Label>
-                <Input placeholder="email@asuransi.co.id" value={fEmail} onChange={(e) => setFEmail(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Alamat</Label>
-                <Input placeholder="Alamat kantor" value={fAlamat} onChange={(e) => setFAlamat(e.target.value)} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">PIC Nama</Label>
-                <Input placeholder="Contact person" value={fPicNama} onChange={(e) => setFPicNama(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">PIC Telepon</Label>
-                <Input placeholder="08xxxx" value={fPicTelepon} onChange={(e) => setFPicTelepon(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Catatan</Label>
-                <Input placeholder="Catatan internal" value={fCatatan} onChange={(e) => setFCatatan(e.target.value)} />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave}
-                disabled={createMut.isPending || updateMut.isPending}>
-                {editId ? 'Update' : 'Simpan'}
-              </Button>
-              <Button size="sm" variant="outline" onClick={resetForm}>Batal</Button>
-            </div>
-          </CardContent>
-        </Card>
+        <InsuranceFormDialog
+          open={showForm}
+          onClose={resetForm}
+          editId={editId}
+          fKode={fKode} setFKode={setFKode}
+          fNama={fNama} setFNama={setFNama}
+          fTipe={fTipe} setFTipe={setFTipe}
+          fAlamat={fAlamat} setFAlamat={setFAlamat}
+          fTelepon={fTelepon} setFTelepon={setFTelepon}
+          fEmail={fEmail} setFEmail={setFEmail}
+          fPicNama={fPicNama} setFPicNama={setFPicNama}
+          fPicTelepon={fPicTelepon} setFPicTelepon={setFPicTelepon}
+          fTarif={fTarif} setFTarif={setFTarif}
+          fCatatan={fCatatan} setFCatatan={setFCatatan}
+          onSave={handleSave}
+          isPending={createMut.isPending || updateMut.isPending}
+        />
       )}
 
       {/* Filters */}

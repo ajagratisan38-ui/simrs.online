@@ -1455,22 +1455,18 @@ export default function DoctorDetailPage() {
                   <label className="block text-xs font-medium text-muted-foreground mb-1">
                     Tanggal Mulai *
                   </label>
-                  <input
-                    type="date"
+                  <DateInput
                     value={subMulai}
-                    onChange={(e) => setSubMulai(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                    onChange={(val) => setSubMulai(val)}
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1">
                     Tanggal Selesai *
                   </label>
-                  <input
-                    type="date"
+                  <DateInput
                     value={subSelesai}
-                    onChange={(e) => setSubSelesai(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg text-sm bg-background"
+                    onChange={(val) => setSubSelesai(val)}
                   />
                 </div>
               </div>
