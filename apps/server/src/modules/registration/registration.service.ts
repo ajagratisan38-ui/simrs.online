@@ -531,10 +531,7 @@ export class RegistrationService {
   }
 
   async callNext(roomId: string, tenantSchema: string) {
-    const now = new Date()
-    const wibOffset = 7 * 60
-    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
-    const today = wibTime.toISOString().split('T')[0]
+    const today = getTodayWIB()
 
     // Cari antrian 'menunggu' dengan nomor terkecil hari ini
     const nextQueue = await this.db
