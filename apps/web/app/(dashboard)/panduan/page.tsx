@@ -901,6 +901,24 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Item dengan stok di bawah minimum ditandai peringatan',
             ],
           },
+          {
+            title: 'CDSS — Peringatan Obat',
+            icon: Shield,
+            steps: [
+              'Saat dispensing, CDSS otomatis cek 5 hal:',
+              '1. High-Alert Drug — obat berbahaya (ditandai badge merah HA)',
+              '2. Interaksi Obat — major/moderate/minor antar obat dalam resep',
+              '3. LASA — Look-Alike Sound-Alike, obat mirip nama (badge LASA)',
+              '4. Dosis Maksimum — cek apakah dosis melebihi batas harian',
+              '5. Duplikasi — obat sama diresepkan dua kali',
+              'Alert critical (merah) MEMBLOKIR dispensing sampai di-override dengan alasan',
+              'Alert warning (kuning) dan info (biru) hanya peringatan, bisa lanjut',
+            ],
+            tips: [
+              'Selalu baca alasan interaksi dan rekomendasi sebelum override',
+              'Override dicatat di audit trail untuk keamanan pasien',
+            ],
+          },
         ],
       }
 
@@ -945,6 +963,23 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Follow up dengan bagian terkait untuk penyelesaian',
             ],
           },
+          {
+            title: 'Keuangan / Akuntansi',
+            icon: Calculator,
+            steps: [
+              'Buka menu Keuangan — 6 tab tersedia',
+              'Jurnal Umum: catat transaksi keuangan debit/kredit',
+              'Jurnal otomatis dibuat saat pembayaran pasien (posting otomatis)',
+              'Bagan Akun: lihat struktur Chart of Accounts standar RS',
+              'Buku Besar: lihat saldo per akun dengan running balance',
+              'Neraca: laporan posisi keuangan (Aset = Kewajiban + Ekuitas)',
+              'Laba Rugi: laporan pendapatan vs beban per periode',
+            ],
+            tips: [
+              'Jurnal dari pembayaran pasien di-posting otomatis — tidak perlu input manual',
+              'Jurnal manual bisa dibuat untuk transaksi non-billing (pembelian ATK, dll)',
+            ],
+          },
         ],
       }
 
@@ -978,6 +1013,7 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Hasil yang sudah difinalisasi tidak bisa diubah',
               'Dokter bisa melihat hasil langsung dari halaman rekam medis',
               'Cetak hasil lab dari halaman detail order',
+              'Parameter lab sudah di-mapping ke kode LOINC standar internasional',
             ],
           },
         ],
@@ -1087,7 +1123,7 @@ function buildGuide(role: string | undefined): RoleGuide {
         roleName: 'Petugas Rekam Medis',
         description:
           'Sebagai Petugas Rekam Medis, Anda mengelola berkas rekam medis, ' +
-          'memastikan kelengkapan data, dan menangani permintaan data medis.',
+          'memastikan kelengkapan data, coding ICD-10/ICD-9-CM, dan menangani permintaan data medis.',
         sections: [
           {
             title: 'Kelola Rekam Medis',
@@ -1096,6 +1132,7 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Buka menu Rekam Medis untuk melihat daftar kunjungan',
               'Periksa kelengkapan: SOAP, diagnosa, tindakan harus terisi',
               'Rekam medis yang sudah difinalisasi bersifat read-only',
+              'Klik kunjungan → lihat resume medis lengkap',
             ],
           },
           {
@@ -1105,6 +1142,25 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Buka menu Pasien → pilih pasien → tab Riwayat',
               'Lihat seluruh kunjungan historis beserta diagnosa',
               'Gunakan data ini untuk kebutuhan resume medis',
+            ],
+          },
+          {
+            title: 'Coding ICD-10 & ICD-9-CM',
+            icon: Database,
+            steps: [
+              'Dokter input diagnosa ICD-10 dan prosedur ICD-9-CM saat pemeriksaan',
+              'Verifikasi kode: pastikan kode ICD-10 sesuai diagnosa di SOAP',
+              'Verifikasi prosedur: pastikan ICD-9-CM sesuai tindakan yang dilakukan',
+              'Data coding digunakan untuk SIRS Online, e-Klaim BPJS, dan statistik RS',
+            ],
+          },
+          {
+            title: 'Resume Medis & Cetak',
+            icon: FileText,
+            steps: [
+              'Resume medis otomatis terisi dari data kunjungan',
+              'Download PDF format A4 dengan KOP surat RS',
+              'Berisi: identitas, vital, SOAP, diagnosa, tindakan, resep, TTD dokter',
             ],
           },
         ],
@@ -1133,15 +1189,50 @@ function buildGuide(role: string | undefined): RoleGuide {
             icon: BarChart3,
             steps: [
               'Buka menu Laporan untuk analisis mendalam',
-              'Pilih jenis laporan: Kunjungan, Pendapatan, Farmasi, Diagnosa',
+              'Pilih jenis laporan: Kunjungan, Pendapatan, Farmasi, Diagnosa, Pasien, Billing',
               'Atur rentang tanggal dan pengelompokan (harian/mingguan/bulanan)',
-              'Export ke Excel (XLSX), PDF, atau CSV',
+              'Export ke Excel (XLSX multi-sheet), PDF (format A4), atau CSV',
             ],
             tips: [
-              'Laporan Kunjungan — tren naik/turun per poli, per dokter',
+              'Laporan Kunjungan — tren naik/turun per poli, per dokter, per penjamin',
               'Laporan Pendapatan — perbandingan per kategori dan penjamin',
               'Laporan Farmasi — obat terlaris, stok rendah, nilai inventori',
               'Top Diagnosa — 10 besar diagnosa (ICD-10) untuk perencanaan SDM',
+            ],
+          },
+          {
+            title: 'Keuangan RS',
+            icon: Calculator,
+            steps: [
+              'Buka menu Keuangan untuk melihat posisi keuangan RS',
+              'Dashboard: 5 stat card (total aset, kewajiban, ekuitas, pendapatan, beban)',
+              'Neraca: posisi keuangan aktual, cek keseimbangan Aset = Kewajiban + Ekuitas',
+              'Laba Rugi: pendapatan dikurangi beban, per sub-kategori',
+              'Arus Kas: aliran kas operasi, investasi, pendanaan',
+            ],
+          },
+          {
+            title: 'Kepegawaian (HRIS)',
+            icon: Users,
+            steps: [
+              'Buka menu Kepegawaian — Dashboard SDM',
+              'Lihat jumlah pegawai aktif, per status (tetap, kontrak, magang)',
+              'Distribusi per departemen dan kehadiran hari ini',
+              'Penggajian: pantau periode gaji draft/processing/finalized',
+              'Jadwal Dinas: lihat jadwal shift pegawai per tanggal',
+            ],
+          },
+          {
+            title: 'Indikator Kinerja RS',
+            icon: BarChart3,
+            steps: [
+              'Pantau indikator wajib SIRS Online:',
+              'BOR (Bed Occupancy Rate) — target ideal 60-85%',
+              'ALOS (Average Length of Stay) — lama rawat rata-rata',
+              'TOI (Turn Over Interval) — waktu kosong tempat tidur',
+              'BTO (Bed Turn Over) — frekuensi pemakaian TT',
+              'GDR (Gross Death Rate) & NDR (Net Death Rate)',
+              'Data otomatis dihitung dari data kunjungan dan rawat inap',
             ],
           },
         ],
