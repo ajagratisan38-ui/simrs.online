@@ -3,18 +3,18 @@
 import { useState } from 'react'
 import {
   Briefcase, Search, Plus, Pencil, Trash2, Users, Building2,
-  DollarSign, TrendingUp, Phone, Mail, MapPin, FileText, Power,
+  DollarSign, TrendingUp, Phone, Mail, FileText, Power,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
+import { DateInput, formatTanggal } from '@/components/ui/date-input'
 import { toast } from 'sonner'
 import {
   usePractitionerList, usePractitionerStats,
@@ -278,112 +278,193 @@ export default function TenagaLuarPage() {
         })}
       </div>
 
-      {/* Create/Edit Form */}
+      {/* Create/Edit Dialog */}
       {showForm && (
-        <Card className="border-teal-200">
-          <CardHeader>
-            <CardTitle className="text-base">
-              {editId ? 'Edit Tenaga Luar' : 'Tambah Tenaga Luar Baru'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <Label>Nama *</Label>
-                <Input value={fNama} onChange={(e) => setFNama(e.target.value)} placeholder="Nama lengkap" />
-              </div>
-              <div>
-                <Label>Profesi *</Label>
-                <Select className="w-full" value={fProfesi} onChange={(e) => setFProfesi(e.target.value)}>
-                  {PROFESI_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-                </Select>
-              </div>
-              <div>
-                <Label>Spesialisasi</Label>
-                <Input value={fSpesialisasi} onChange={(e) => setFSpesialisasi(e.target.value)} placeholder="Sub-spesialisasi" />
-              </div>
-              <div>
-                <Label>No. SIP</Label>
-                <Input value={fNoSip} onChange={(e) => setFNoSip(e.target.value)} placeholder="Nomor SIP" />
-              </div>
-              <div>
-                <Label>No. STR</Label>
-                <Input value={fNoStr} onChange={(e) => setFNoStr(e.target.value)} placeholder="Nomor STR" />
-              </div>
-              <div>
-                <Label>Instansi Asal</Label>
-                <Input value={fInstansi} onChange={(e) => setFInstansi(e.target.value)} placeholder="RS / Klinik asal" />
-              </div>
-              <div>
-                <Label>Telepon</Label>
-                <Input value={fTelepon} onChange={(e) => setFTelepon(e.target.value)} placeholder="08..." />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input type="email" value={fEmail} onChange={(e) => setFEmail(e.target.value)} placeholder="email@..." />
-              </div>
-              <div>
-                <Label>Alamat</Label>
-                <Input value={fAlamat} onChange={(e) => setFAlamat(e.target.value)} placeholder="Alamat" />
-              </div>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowForm(false); resetForm() } }}
+        >
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative z-10 w-full max-w-2xl mx-4 bg-background rounded-2xl shadow-2xl border overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-5 py-4 bg-muted/30">
+              <h2 className="text-base font-semibold">
+                {editId ? 'Edit Tenaga Luar' : 'Tambah Tenaga Luar Baru'}
+              </h2>
             </div>
-
-            {/* Fee Split */}
-            <div className="border rounded-lg p-4 bg-muted/30">
-              <p className="text-sm font-medium mb-3">Pembagian Jasa (Fee Split)</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="px-5 py-4 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Identitas */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>% Tenaga Luar</Label>
-                  <Input
-                    type="number" min={0} max={100}
-                    value={fFeePersen}
-                    onChange={(e) => {
-                      setFFeePersen(e.target.value)
-                      setFFeeRsPersen(String(100 - Number(e.target.value)))
-                    }}
+                  <label className="block text-sm font-medium mb-1.5">Nama *</label>
+                  <input
+                    type="text"
+                    value={fNama}
+                    onChange={(e) => setFNama(e.target.value)}
+                    placeholder="Nama lengkap"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                   />
                 </div>
                 <div>
-                  <Label>% RS</Label>
-                  <Input
-                    type="number" min={0} max={100}
-                    value={fFeeRsPersen}
-                    onChange={(e) => {
-                      setFFeeRsPersen(e.target.value)
-                      setFFeePersen(String(100 - Number(e.target.value)))
-                    }}
+                  <label className="block text-sm font-medium mb-1.5">Profesi *</label>
+                  <select
+                    value={fProfesi}
+                    onChange={(e) => setFProfesi(e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  >
+                    {PROFESI_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Spesialisasi</label>
+                <input
+                  type="text"
+                  value={fSpesialisasi}
+                  onChange={(e) => setFSpesialisasi(e.target.value)}
+                  placeholder="Sub-spesialisasi (opsional)"
+                  className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                />
+              </div>
+
+              {/* Surat & Instansi */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">No. SIP</label>
+                  <input
+                    type="text"
+                    value={fNoSip}
+                    onChange={(e) => setFNoSip(e.target.value)}
+                    placeholder="Nomor SIP"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
                   />
                 </div>
                 <div>
-                  <Label>Kontrak Mulai</Label>
-                  <Input type="date" value={fKontrakMulai} onChange={(e) => setFKontrakMulai(e.target.value)} />
+                  <label className="block text-sm font-medium mb-1.5">No. STR</label>
+                  <input
+                    type="text"
+                    value={fNoStr}
+                    onChange={(e) => setFNoStr(e.target.value)}
+                    placeholder="Nomor STR"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  />
                 </div>
                 <div>
-                  <Label>Kontrak Selesai</Label>
-                  <Input type="date" value={fKontrakSelesai} onChange={(e) => setFKontrakSelesai(e.target.value)} />
+                  <label className="block text-sm font-medium mb-1.5">Instansi Asal</label>
+                  <input
+                    type="text"
+                    value={fInstansi}
+                    onChange={(e) => setFInstansi(e.target.value)}
+                    placeholder="RS / Klinik asal"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  />
                 </div>
               </div>
-              {Number(fFeePersen) + Number(fFeeRsPersen) !== 100 && (
-                <p className="text-red-500 text-xs mt-2">Total harus 100%</p>
-              )}
-            </div>
 
-            <div>
-              <Label>Catatan</Label>
-              <Input value={fCatatan} onChange={(e) => setFCatatan(e.target.value)} placeholder="Catatan tambahan" />
-            </div>
+              {/* Kontak */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Telepon</label>
+                  <input
+                    type="text"
+                    value={fTelepon}
+                    onChange={(e) => setFTelepon(e.target.value)}
+                    placeholder="08..."
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Email</label>
+                  <input
+                    type="email"
+                    value={fEmail}
+                    onChange={(e) => setFEmail(e.target.value)}
+                    placeholder="email@..."
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">Alamat</label>
+                  <input
+                    type="text"
+                    value={fAlamat}
+                    onChange={(e) => setFAlamat(e.target.value)}
+                    placeholder="Alamat"
+                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                  />
+                </div>
+              </div>
 
-            <div className="flex gap-2 pt-2">
-              <Button
+              {/* Fee Split & Kontrak */}
+              <div>
+                <p className="text-sm font-medium mb-3">Pembagian Jasa (Fee Split) & Kontrak</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">% Tenaga Luar</label>
+                    <input
+                      type="number" min={0} max={100}
+                      value={fFeePersen}
+                      onChange={(e) => {
+                        setFFeePersen(e.target.value)
+                        setFFeeRsPersen(String(100 - Number(e.target.value)))
+                      }}
+                      className="w-full border rounded-lg px-3 py-2 text-sm bg-background font-mono text-right focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">% RS</label>
+                    <input
+                      type="number" min={0} max={100}
+                      value={fFeeRsPersen}
+                      onChange={(e) => {
+                        setFFeeRsPersen(e.target.value)
+                        setFFeePersen(String(100 - Number(e.target.value)))
+                      }}
+                      className="w-full border rounded-lg px-3 py-2 text-sm bg-background font-mono text-right focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Kontrak Mulai</label>
+                    <DateInput value={fKontrakMulai} onChange={setFKontrakMulai} />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Kontrak Selesai</label>
+                    <DateInput value={fKontrakSelesai} onChange={setFKontrakSelesai} />
+                  </div>
+                </div>
+                {Number(fFeePersen) + Number(fFeeRsPersen) !== 100 && (
+                  <p className="text-red-500 text-xs mt-2">⚠ Total persentase harus 100%</p>
+                )}
+              </div>
+
+              {/* Catatan */}
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Catatan</label>
+                <input
+                  type="text"
+                  value={fCatatan}
+                  onChange={(e) => setFCatatan(e.target.value)}
+                  placeholder="Catatan tambahan (opsional)"
+                  className="w-full border rounded-lg px-3 py-2 text-sm bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-4 bg-muted/30 flex justify-end gap-3">
+              <button
+                onClick={() => { setShowForm(false); resetForm() }}
+                className="px-4 py-2 text-sm border rounded-lg hover:bg-accent"
+              >
+                Batal
+              </button>
+              <button
                 onClick={handleSave}
                 disabled={!fNama || !fProfesi || Number(fFeePersen) + Number(fFeeRsPersen) !== 100 || createMut.isPending || updateMut.isPending}
+                className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
               >
-                {createMut.isPending || updateMut.isPending ? 'Menyimpan...' : editId ? 'Simpan Perubahan' : 'Tambah'}
-              </Button>
-              <Button variant="ghost" onClick={() => { setShowForm(false); resetForm() }}>Batal</Button>
+                {createMut.isPending || updateMut.isPending ? 'Menyimpan...' : editId ? 'Simpan' : 'Tambah'}
+              </button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* List Tab */}
@@ -485,8 +566,8 @@ export default function TenagaLuarPage() {
                         </span>
                         {p.kontrak_mulai && (
                           <span className="text-muted-foreground">
-                            Kontrak: {new Date(p.kontrak_mulai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            {p.kontrak_selesai && ` — ${new Date(p.kontrak_selesai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+                            Kontrak: {formatTanggal(p.kontrak_mulai)}
+                            {p.kontrak_selesai && ` — ${formatTanggal(p.kontrak_selesai)}`}
                           </span>
                         )}
                       </div>
