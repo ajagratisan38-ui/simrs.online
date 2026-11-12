@@ -20,7 +20,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, getTodayLocal } from '@/lib/utils'
 import { listPatients } from '@/lib/api/patients'
 import { listVisits } from '@/lib/api/registration'
 import { listRooms, listDoctors, createVisit } from '@/lib/api/queues'
@@ -157,7 +157,7 @@ export default function KioskPage() {
     setPatient(p)
     setLoading(true)
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = getTodayLocal()
       const visitsRes = await listVisits({
         patient_id: p.id,
         tanggal: today,

@@ -1,6 +1,6 @@
 'use client'
 
-import { formatRupiah } from '@/lib/utils'
+import { formatRupiah, getTodayLocal } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
@@ -74,7 +74,7 @@ export default function KasirPage() {
   const [activeTab, setActiveTab] = useState('tagihan')
   const [page, setPage] = useState(1)
   const [summaryDate, setSummaryDate] = useState(
-    new Date().toISOString().split('T')[0],
+    getTodayLocal(),
   )
 
   const {
@@ -282,7 +282,7 @@ export default function KasirPage() {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  setSummaryDate(new Date().toISOString().split('T')[0])
+                  setSummaryDate(getTodayLocal())
                 }
               >
                 Hari Ini

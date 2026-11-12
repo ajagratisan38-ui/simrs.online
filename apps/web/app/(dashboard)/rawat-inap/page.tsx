@@ -1,6 +1,6 @@
 'use client'
 
-import { formatRupiah } from '@/lib/utils'
+import { formatRupiah, getTodayLocal } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import {
   BedDouble, Building2, Users, Activity, Wrench,
@@ -63,7 +63,7 @@ function AdmisiModal({
     const fetchVisits = async () => {
       setLoading(true)
       try {
-        const today = new Date().toISOString().split('T')[0]
+        const today = getTodayLocal()
         const [resDiperiksa, resMenunggu, resRawatInap] = await Promise.all([
           listVisits({ tanggal: today, status: 'diperiksa', limit: 50 }),
           listVisits({ tanggal: today, status: 'menunggu', limit: 50 }),

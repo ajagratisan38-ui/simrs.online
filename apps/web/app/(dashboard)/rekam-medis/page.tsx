@@ -16,7 +16,7 @@ import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useVisits } from '@/hooks/use-registration'
 import { useRooms } from '@/hooks/use-queues'
-import { cn } from '@/lib/utils'
+import { cn, getTodayLocal } from '@/lib/utils'
 
 const STATUS_COLORS: Record<string, 'warning' | 'default' | 'success' | 'secondary'> = {
   dipanggil: 'warning',
@@ -38,7 +38,7 @@ export default function RekamMedisPage() {
   const { data: roomsData } = useRooms('poli')
   const rooms = roomsData?.data ?? []
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = getTodayLocal()
 
   // Fetch visits yang statusnya diperiksa
   const {

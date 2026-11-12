@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getTodayLocal } from '@/lib/utils'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -55,7 +56,7 @@ export default function RehabDetailPage() {
 
   // Session form state
   const [showSessionForm, setShowSessionForm] = useState(false)
-  const [sessTanggal, setSessTanggal] = useState(new Date().toISOString().split('T')[0])
+  const [sessTanggal, setSessTanggal] = useState(getTodayLocal())
   const [sessWaktuMulai, setSessWaktuMulai] = useState('')
   const [sessWaktuSelesai, setSessWaktuSelesai] = useState('')
   const [sessTindakan, setSessTindakan] = useState('')

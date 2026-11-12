@@ -1,6 +1,6 @@
 'use client'
 
-import { formatRupiahAccounting as formatRupiah } from '@/lib/utils'
+import { formatRupiahAccounting as formatRupiah, getTodayLocal } from '@/lib/utils'
 import { useState, useMemo, useCallback } from 'react'
 import { DateInput } from '@/components/ui/date-input'
 import {
@@ -472,7 +472,7 @@ function CreateJournalDialog({ onClose }: { onClose: () => void }) {
   const { data: accountsTree } = useAccounts()
   const createMutation = useCreateJournal()
 
-  const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0])
+  const [tanggal, setTanggal] = useState(getTodayLocal())
   const [deskripsi, setDeskripsi] = useState('')
   const [catatan, setCatatan] = useState('')
   const [lines, setLines] = useState<CreateJournalLine[]>([
@@ -1187,7 +1187,7 @@ function BukuBesarTab() {
 // ═══════════════════════════════════════════════════════════
 
 function NeracaTab() {
-  const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split('T')[0])
+  const [asOfDate, setAsOfDate] = useState(getTodayLocal())
   const { data, isLoading } = useBalanceSheet(asOfDate)
 
   const handlePrint = useCallback(() => { window.print() }, [])
@@ -1333,7 +1333,7 @@ function NeracaTab() {
 // ═══════════════════════════════════════════════════════════
 
 function LabaRugiTab() {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getTodayLocal()
   const firstOfMonth = today.substring(0, 8) + '01'
   const [start, setStart] = useState(firstOfMonth)
   const [end, setEnd] = useState(today)

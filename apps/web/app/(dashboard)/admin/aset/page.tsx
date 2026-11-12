@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { DateInput, formatTanggal } from '@/components/ui/date-input'
+import { getTodayLocal } from '@/lib/utils'
 import {
   useAssets, useAsset, useCreateAsset, useUpdateAsset, useDeleteAsset,
   useAssetStats, useDepreciationReport, useAddMaintenance, useMaintenances,
@@ -630,7 +631,7 @@ function MaintenanceTab() {
 function MaintenanceFormDialog({ onClose }: { onClose: () => void }) {
   const addMaint = useAddMaintenance()
   const [form, setForm] = useState({
-    asset_id: '', tipe: 'perbaikan', tanggal: new Date().toISOString().split('T')[0],
+    asset_id: '', tipe: 'perbaikan', tanggal: getTodayLocal(),
     deskripsi: '', teknisi: '', vendor: '', biaya: 0, hasil: 'selesai',
     tanggal_selanjutnya: '', catatan: '',
   })
@@ -753,7 +754,7 @@ function MutationTab() {
 function MutationFormDialog({ onClose }: { onClose: () => void }) {
   const addMut = useAddMutation()
   const [form, setForm] = useState({
-    asset_id: '', tipe: 'pindah', tanggal: new Date().toISOString().split('T')[0],
+    asset_id: '', tipe: 'pindah', tanggal: getTodayLocal(),
     ke_lokasi: '', alasan: '', nilai_jual: 0, no_berita_acara: '', disetujui_oleh: '', catatan: '',
   })
   const { data: assetsData } = useAssets({ limit: 200 })

@@ -1,6 +1,6 @@
 'use client'
 
-import { formatRupiah } from '@/lib/utils'
+import { formatRupiah, getTodayLocal } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
@@ -44,7 +44,7 @@ function formatDate(d: string | null | undefined): string {
 }
 
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0]
+  return getTodayLocal()
 }
 
 function weekStart(): string {
