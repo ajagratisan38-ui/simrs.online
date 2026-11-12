@@ -326,6 +326,40 @@ function buildGuide(role: string | undefined): RoleGuide {
             ],
           },
           {
+            title: 'Tarif Layanan RS',
+            icon: Calculator,
+            steps: [
+              'Buka menu Pengaturan → Tarif Layanan',
+              'Tambah komponen tarif: kode, nama, kategori (visite/tindakan/administrasi/keperawatan)',
+              'Set tarif per kelas kamar: Kelas 3, 2, 1, VIP, IGD, Poli',
+              'Toggle aktif/nonaktif komponen tarif',
+              'Tarif ini digunakan otomatis di billing saat pasien mendapat layanan',
+            ],
+          },
+          {
+            title: 'Tenaga Luar (Mitra Eksternal)',
+            icon: UserCog,
+            steps: [
+              'Buka menu Pengaturan → Tenaga Luar',
+              'Tambah tenaga luar: nama, profesi, spesialisasi, SIP, STR, instansi asal',
+              'Set kontrak: tanggal mulai/selesai, fee share % dokter vs % RS (total 100%)',
+              'Digunakan di modul Rehabilitasi untuk fisioterapis, terapis wicara, dll',
+              'Fee split otomatis dihitung saat sesi rehabilitasi selesai',
+            ],
+          },
+          {
+            title: 'Rehabilitasi Medik',
+            icon: Heart,
+            steps: [
+              'Buka menu Rehabilitasi — 3 tab: Dashboard, Orders, Fees',
+              'Dashboard: statistik sesi, distribusi jenis terapi, ringkasan fee',
+              'Orders: daftar order rehabilitasi dari dokter, filter status/terapi',
+              'Fees: breakdown fee per tenaga luar (split RS vs praktisi)',
+              'Detail order: progress ring, timeline sesi, tambah sesi baru',
+              'Status alur: ordered → in_progress → completed / cancelled',
+            ],
+          },
+          {
             title: 'Manajemen Aset',
             icon: Warehouse,
             steps: [
@@ -493,6 +527,43 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Pilih template edukasi sesuai diagnosis',
               'Isi materi edukasi, metode, evaluasi pemahaman',
               'Tandai status re-edukasi jika diperlukan',
+            ],
+          },
+          {
+            title: 'Order Rehabilitasi',
+            icon: Heart,
+            steps: [
+              'Buka menu Rehabilitasi → klik "Buat Order"',
+              'Pilih pasien, jenis terapi (fisioterapi, terapi wicara, terapi okupasi, dll)',
+              'Pilih tenaga luar (praktisi) yang menangani',
+              'Set jumlah sesi yang direncanakan dan catatan klinis',
+              'Praktisi akan menambah sesi per kunjungan rehabilitasi',
+              'Lihat progress di detail order (progress ring + timeline sesi)',
+            ],
+            tips: [
+              'Fee split otomatis dihitung dari kontrak tenaga luar',
+              'Sesi masuk ke billing pasien dengan kategori "rehabilitasi"',
+            ],
+          },
+          {
+            title: 'Dokter Pengganti (Substitusi)',
+            icon: Users,
+            steps: [
+              'Buka profil dokter → tab "Pengganti"',
+              'Tambah dokter pengganti saat cuti/berhalangan',
+              'Pilih dokter pengganti, tanggal mulai/selesai, alasan',
+              'Dokter pengganti otomatis muncul di pendaftaran selama periode substitusi',
+              'Batalkan substitusi jika berubah rencana',
+            ],
+          },
+          {
+            title: 'Resume Medis',
+            icon: FileText,
+            steps: [
+              'Di halaman pemeriksaan, klik "Resume Medis"',
+              'Resume otomatis diisi dari data kunjungan: identitas, vital, SOAP, diagnosa, resep',
+              'Download PDF format A4 standar RS dengan KOP surat',
+              'File name: Resume-Medis-{nama}-{visitNumber}.pdf',
             ],
           },
         ],
@@ -684,6 +755,34 @@ function buildGuide(role: string | undefined): RoleGuide {
             ],
           },
           {
+            title: 'Display TV Antrian',
+            icon: ClipboardList,
+            steps: [
+              'Di halaman Antrian, klik tombol "Display TV" — buka di tab baru',
+              'Tampilan fullscreen dark theme untuk monitor/TV di ruang tunggu',
+              '3 kolom: Sedang Dipanggil (nomor besar), Menunggu, Dilayani',
+              'Klik ikon gear untuk pengaturan: filter poli, suara on/off, fullscreen',
+              'Auto-refresh setiap 10 detik, suara ding-dong saat panggilan baru',
+              'Cocok untuk TV di ruang tunggu pasien',
+            ],
+          },
+          {
+            title: 'Kiosk / Anjungan Mandiri',
+            icon: ClipboardList,
+            steps: [
+              'Di halaman Antrian, klik tombol "Kiosk" — buka di tab baru',
+              'Tampilan touch-friendly untuk tablet/layar sentuh di lobi RS',
+              'Alur pendaftaran mandiri: Cari Pasien → Pilih Poli → Pilih Dokter → Pembayaran → Konfirmasi',
+              'Pasien input No RM atau NIK via numpad di layar',
+              'Jika sudah terdaftar hari ini, bisa langsung cetak tiket',
+              'Auto-reset ke halaman awal setelah 60 detik tanpa aktivitas',
+            ],
+            tips: [
+              'Ideal untuk mengurangi antrian di loket pendaftaran',
+              'Pastikan tablet/PC kiosk terhubung ke printer thermal untuk cetak tiket',
+            ],
+          },
+          {
             title: 'BPJS — Cek Peserta & SEP',
             icon: Shield,
             steps: [
@@ -691,6 +790,16 @@ function buildGuide(role: string | undefined): RoleGuide {
               'Sistem otomatis cek status kepesertaan, kelas rawat, dan faskes',
               'Setelah pendaftaran, buat SEP (Surat Elegibilitas Peserta)',
               'Pasien ≥17 tahun (non-IGD) wajib verifikasi sidik jari',
+            ],
+          },
+          {
+            title: 'General Consent',
+            icon: FileText,
+            steps: [
+              'Saat pendaftaran pasien baru, buat formulir General Consent',
+              'Isi informasi pasien, wali, dan hak-kewajiban',
+              'Pasien/wali menandatangani formulir',
+              'Cetak formulir persetujuan format A4 standar RS',
             ],
           },
         ],
@@ -902,6 +1011,72 @@ function buildGuide(role: string | undefined): RoleGuide {
             tips: [
               'Hasil bisa dicetak untuk dokter pengirim',
               'Riwayat radiologi pasien bisa dilihat di tab Patient History',
+            ],
+          },
+        ],
+      }
+
+    case 'gizi':
+      return {
+        roleName: 'Ahli Gizi',
+        description:
+          'Sebagai Ahli Gizi, Anda mengelola kebutuhan nutrisi pasien rawat inap, ' +
+          'merencanakan diet, menghitung kebutuhan kalori, dan monitoring food cost.',
+        sections: [
+          {
+            title: 'Order Diet (ADIME)',
+            icon: Utensils,
+            steps: [
+              'Buka menu Gizi — tab pertama "ADIME Orders"',
+              'Lihat daftar order diet dari dokter/perawat untuk pasien rawat inap',
+              'Buat order baru: pilih pasien, jenis diet, instruksi khusus',
+              'Catat log pemberian makanan (pagi/siang/sore/snack)',
+              'Status order: pending → active → completed',
+            ],
+          },
+          {
+            title: 'Kalkulator Gizi',
+            icon: Calculator,
+            steps: [
+              'Buka tab "Kalkulator Gizi"',
+              'Input: jenis kelamin, umur, tinggi badan, berat badan, tingkat aktivitas',
+              'Sistem hitung otomatis: IMT, BMR (Harris-Benedict & Mifflin-St Jeor), TDEE',
+              'Hasil: kebutuhan kalori harian, distribusi makro (karbohidrat, protein, lemak)',
+              'Gunakan hasil ini untuk merencanakan diet pasien',
+            ],
+            tips: [
+              'IMT <18.5 = Kurang, 18.5-24.9 = Normal, 25-29.9 = Overweight, ≥30 = Obesitas',
+              'Faktor aktivitas: bedrest 1.2, ringan 1.375, sedang 1.55, berat 1.725',
+            ],
+          },
+          {
+            title: 'Bahan Makanan',
+            icon: Utensils,
+            steps: [
+              'Buka tab "Bahan Makanan"',
+              'Kelola database bahan makanan: nama, kategori, kalori, protein, lemak, karbo per 100g',
+              'Filter berdasarkan 12 kategori (serealia, sayur, buah, protein hewani, dll)',
+              'Tambah, edit, atau hapus bahan makanan sesuai kebutuhan dapur',
+            ],
+          },
+          {
+            title: 'Meal Plans (Rencana Menu)',
+            icon: ClipboardList,
+            steps: [
+              'Buka tab "Meal Plans"',
+              'Buat rencana menu harian: pilih bahan makanan, atur porsi',
+              'Sistem otomatis hitung total kalori, protein, lemak, karbohidrat',
+              'Simpan meal plan sebagai template untuk digunakan ulang',
+            ],
+          },
+          {
+            title: 'Food Cost & Analytics',
+            icon: BarChart3,
+            steps: [
+              'Buka tab "Food Cost"',
+              'Lihat ringkasan biaya makanan per porsi, per hari',
+              'Analisis food waste (persentase sisa makanan)',
+              'Data ini membantu efisiensi pengelolaan dapur RS',
             ],
           },
         ],
