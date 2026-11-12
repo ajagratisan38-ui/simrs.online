@@ -1003,78 +1003,83 @@ export default function DoctorDetailPage() {
             </Button>
           </div>
 
-          {showSchedForm && (
-            <Card>
-              <CardContent className="pt-4 space-y-3">
-                <PoliPicker
-                  rooms={rooms}
-                  value={schedRoom}
-                  onChange={setSchedRoom}
-                />
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Hari</label>
-                    <Select
-                      value={schedHari}
-                      onChange={(e) => setSchedHari(e.target.value)}
-                    >
-                      {HARI_OPTIONS.map((h) => (
-                        <option key={h.value} value={h.value}>
-                          {h.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Jam Mulai
-                    </label>
-                    <Input
-                      type="time"
-                      value={schedMulai}
-                      onChange={(e) => setSchedMulai(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Jam Selesai
-                    </label>
-                    <Input
-                      type="time"
-                      value={schedSelesai}
-                      onChange={(e) => setSchedSelesai(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Kuota</label>
-                    <Input
-                      type="number"
-                      value={schedKuota}
-                      onChange={(e) => setSchedKuota(e.target.value)}
-                      placeholder="30"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleSaveSchedule}
-                    disabled={upsertSchedMut.isPending}
+          <DialogOverlay
+            open={showSchedForm}
+            onClose={() => setShowSchedForm(false)}
+            title="Tambah Jadwal Praktik"
+            maxWidth="max-w-lg"
+          >
+            <div className="space-y-4">
+              <PoliPicker
+                rooms={rooms}
+                value={schedRoom}
+                onChange={setSchedRoom}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Hari</label>
+                  <Select
+                    value={schedHari}
+                    onChange={(e) => setSchedHari(e.target.value)}
                   >
-                    <Save className="h-4 w-4 mr-1" />
-                    Simpan
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowSchedForm(false)}
-                  >
-                    Batal
-                  </Button>
+                    {HARI_OPTIONS.map((h) => (
+                      <option key={h.value} value={h.value}>
+                        {h.label}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Kuota</label>
+                  <Input
+                    type="number"
+                    value={schedKuota}
+                    onChange={(e) => setSchedKuota(e.target.value)}
+                    placeholder="30"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                    Jam Mulai
+                  </label>
+                  <Input
+                    type="time"
+                    value={schedMulai}
+                    onChange={(e) => setSchedMulai(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                    Jam Selesai
+                  </label>
+                  <Input
+                    type="time"
+                    value={schedSelesai}
+                    onChange={(e) => setSchedSelesai(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSchedForm(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveSchedule}
+                  disabled={upsertSchedMut.isPending}
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  Simpan
+                </Button>
+              </div>
+            </div>
+          </DialogOverlay>
 
           {doctor.schedules.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -1150,68 +1155,85 @@ export default function DoctorDetailPage() {
             </Button>
           </div>
 
-          {showFeeForm && (
-            <Card>
-              <CardContent className="pt-4 space-y-3">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <DialogOverlay
+            open={showFeeForm}
+            onClose={() => setShowFeeForm(false)}
+            title="Tambah Tarif Layanan"
+            maxWidth="max-w-lg"
+          >
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Kode *</label>
                   <Input
                     value={feeKode}
                     onChange={(e) => setFeeKode(e.target.value)}
-                    placeholder="Kode (misal: KSL-001)"
+                    placeholder="KSL-001"
                   />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Nama Layanan *</label>
                   <Input
                     value={feeNama}
                     onChange={(e) => setFeeNama(e.target.value)}
                     placeholder="Nama Layanan"
                   />
-                  <Select
-                    value={feeKategori}
-                    onChange={(e) => setFeeKategori(e.target.value)}
-                  >
-                    {KATEGORI_FEE.map((k) => (
-                      <option key={k} value={k}>
-                        {k.charAt(0).toUpperCase() + k.slice(1)}
-                      </option>
-                    ))}
-                  </Select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Kategori</label>
+                <Select
+                  value={feeKategori}
+                  onChange={(e) => setFeeKategori(e.target.value)}
+                >
+                  {KATEGORI_FEE.map((k) => (
+                    <option key={k} value={k}>
+                      {k.charAt(0).toUpperCase() + k.slice(1)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Tarif (Rp) *</label>
                   <Input
                     type="number"
                     value={feeTarif}
                     onChange={(e) => setFeeTarif(e.target.value)}
-                    placeholder="Tarif (Rp)"
+                    placeholder="150000"
                   />
-                  <div className="flex items-center gap-1">
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">% Dokter</label>
+                  <div className="flex items-center gap-2">
                     <Input
                       type="number"
                       value={feePersen}
                       onChange={(e) => setFeePersen(e.target.value)}
-                      className="w-20"
                     />
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">
-                      % dokter
-                    </span>
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">%</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleSaveFee}
-                    disabled={createFeeMut.isPending}
-                  >
-                    <Save className="h-4 w-4 mr-1" />
-                    Simpan
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowFeeForm(false)}
-                  >
-                    Batal
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFeeForm(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveFee}
+                  disabled={createFeeMut.isPending}
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  Simpan
+                </Button>
+              </div>
+            </div>
+          </DialogOverlay>
 
           {doctor.fees.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
