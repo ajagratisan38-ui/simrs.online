@@ -61,7 +61,11 @@ export class RegistrationService {
       )
     }
 
-    const today = new Date().toISOString().split('T')[0]
+    // Use WIB (UTC+7) for date — RS operates in Indonesian time
+    const now = new Date()
+    const wibOffset = 7 * 60
+    const wibTime = new Date(now.getTime() + (wibOffset + now.getTimezoneOffset()) * 60000)
+    const today = wibTime.toISOString().split('T')[0]
 
     // 4. Cek dokter available & status aktif — dengan auto-substitusi
     const doctor = await this.db
