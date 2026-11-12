@@ -331,15 +331,13 @@ export default function KioskPage() {
         <div className="flex items-center gap-4">
           <div className="text-3xl font-mono font-bold tabular-nums">{clockTime}</div>
           {step !== 'welcome' && (
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={resetAll}
-              className="text-white border-white/20 hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-white/20 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white text-sm font-medium transition-colors"
             >
-              <RotateCcw className="h-4 w-4 mr-1.5" />
+              <RotateCcw className="h-4 w-4" />
               Mulai Ulang
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -451,15 +449,13 @@ export default function KioskPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
+              <button
                 onClick={() => setStep('welcome')}
-                className="flex-1 h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+                className="flex-1 h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5" />
                 Kembali
-              </Button>
+              </button>
               <Button
                 size="lg"
                 onClick={handleSearch}
@@ -558,18 +554,16 @@ export default function KioskPage() {
             )}
 
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
+              <button
                 onClick={() => {
                   setStep('search')
                   setSearchInput('')
                 }}
-                className="flex-1 h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+                className="flex-1 h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5" />
                 Cari Lagi
-              </Button>
+              </button>
               <Button
                 size="lg"
                 onClick={handleNewRegistration}
@@ -617,15 +611,13 @@ export default function KioskPage() {
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="lg"
+            <button
               onClick={() => setStep('patient-found')}
-              className="w-full h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+              className="w-full h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              <ArrowLeft className="h-5 w-5" />
               Kembali
-            </Button>
+            </button>
           </div>
         )}
 
@@ -658,15 +650,13 @@ export default function KioskPage() {
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="lg"
+            <button
               onClick={() => setStep('select-poli')}
-              className="w-full h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+              className="w-full h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              <ArrowLeft className="h-5 w-5" />
               Kembali
-            </Button>
+            </button>
           </div>
         )}
 
@@ -704,15 +694,13 @@ export default function KioskPage() {
               })}
             </div>
 
-            <Button
-              variant="outline"
-              size="lg"
+            <button
               onClick={() => setStep('select-doctor')}
-              className="w-full h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+              className="w-full h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              <ArrowLeft className="h-5 w-5" />
               Kembali
-            </Button>
+            </button>
           </div>
         )}
 
@@ -741,15 +729,13 @@ export default function KioskPage() {
             </div>
 
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
+              <button
                 onClick={() => setStep('select-penjamin')}
-                className="flex-1 h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+                className="flex-1 h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5" />
                 Kembali
-              </Button>
+              </button>
               <Button
                 size="lg"
                 onClick={handleConfirm}
@@ -818,15 +804,13 @@ export default function KioskPage() {
                 <Printer className="h-5 w-5 mr-2" />
                 Cetak Tiket
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
+              <button
                 onClick={resetAll}
-                className="flex-1 h-14 text-base text-white border-white/15 rounded-xl hover:bg-white/10"
+                className="flex-1 h-14 inline-flex items-center justify-center gap-2 text-base font-medium text-white/80 border border-white/15 rounded-xl bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
               >
-                <CheckCircle2 className="h-5 w-5 mr-2" />
+                <CheckCircle2 className="h-5 w-5" />
                 Selesai
-              </Button>
+              </button>
             </div>
           </div>
         )}
