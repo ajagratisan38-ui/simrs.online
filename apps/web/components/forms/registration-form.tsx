@@ -124,9 +124,7 @@ export function RegistrationForm() {
   // Check if selected doctor has active substitution
   const selectedDoctor = doctors.find((d) => d.id === doctorId)
   const doctorUnavailable = selectedDoctor && !selectedDoctor.is_available
-  const { data: activeSubRes } = useActiveSubstitute(
-    doctorUnavailable ? doctorId : '',
-  )
+  const { data: activeSubRes } = useActiveSubstitute(doctorId || '')
   const activeSub = activeSubRes?.data
 
   // Bed data (only for rawat_inap)
@@ -720,7 +718,7 @@ export function RegistrationForm() {
             </Select>
 
             {/* Substitution info banner */}
-            {doctorUnavailable && activeSub && (
+            {activeSub && (
               <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
                 <UserCheck className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                 <div className="text-xs">

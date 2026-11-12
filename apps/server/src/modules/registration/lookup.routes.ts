@@ -66,10 +66,10 @@ router.get('/doctors', async (req: Request, res: Response, next: NextFunction) =
       )
       .from('doctors')
       .join('users', `${req.tenantSchema!}.doctors.user_id`, `${req.tenantSchema!}.users.id`)
-      .where('doctors.is_available', true)
+      .whereNull('doctors.deleted_at')
+      .where('doctors.status', 'aktif')
       .orderBy('users.name')
 
-    // TODO: filter by room assignment when we have that mapping
     const doctors = await query
     res.json({ success: true, data: doctors })
   } catch (error) {

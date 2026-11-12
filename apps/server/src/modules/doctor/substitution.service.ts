@@ -109,6 +109,13 @@ export class SubstitutionService {
       .into('doctor_substitutions')
       .returning('*')
 
+    // Mark original doctor as unavailable
+    await this.db
+      .withSchema(tenantSchema)
+      .table('doctors')
+      .where('id', data.doctor_id)
+      .update({ is_available: false, updated_at: new Date() })
+
     logger.info(`Substitution created: Dr ${doctor.nama} → Dr ${substitute.nama}`, {
       substitutionId: substitution.id,
       tenantSchema,
@@ -273,6 +280,24 @@ export class SubstitutionService {
       })
       .returning('*')
 
+    // Restore original doctor availability (only if no other active substitution)
+    const otherActive = await this.db
+      .withSchema(tenantSchema)
+      .select('id')
+      .from('doctor_substitutions')
+      .where('doctor_id', updated.doctor_id)
+      .where('status', 'active')
+      .whereNot('id', id)
+      .first()
+
+    if (!otherActive) {
+      await this.db
+        .withSchema(tenantSchema)
+        .table('doctors')
+        .where('id', updated.doctor_id)
+        .update({ is_available: true, updated_at: new Date() })
+    }
+
     logger.info(`Substitution cancelled: ${id}`, { userId, tenantSchema })
 
     return updated
@@ -284,12 +309,43 @@ export class SubstitutionService {
   async completeExpiredSubstitutions(tenantSchema: string) {
     const today = new Date().toISOString().split('T')[0]
 
+    // Get doctor IDs of expiring substitutions before updating
+    const expiring = await this.db
+      .withSchema(tenantSchema)
+      .select('doctor_id')
+      .from('doctor_substitutions')
+      .where('status', 'active')
+      .where('tanggal_selesai', '<', today)
+
     const updated = await this.db
       .withSchema(tenantSchema)
       .table('doctor_substitutions')
       .where('status', 'active')
       .where('tanggal_selesai', '<', today)
       .update({ status: 'completed' })
+
+    // Restore availability for doctors whose substitutions just expired
+    if (expiring.length > 0) {
+      const doctorIds = [...new Set(expiring.map((e: { doctor_id: string }) => e.doctor_id))]
+      for (const doctorId of doctorIds) {
+        // Only restore if no other active substitution remains
+        const stillActive = await this.db
+          .withSchema(tenantSchema)
+          .select('id')
+          .from('doctor_substitutions')
+          .where('doctor_id', doctorId)
+          .where('status', 'active')
+          .first()
+
+        if (!stillActive) {
+          await this.db
+            .withSchema(tenantSchema)
+            .table('doctors')
+            .where('id', doctorId)
+            .update({ is_available: true, updated_at: new Date() })
+        }
+      }
+    }
 
     if (updated > 0) {
       logger.info(`Auto-completed ${updated} expired substitutions`, { tenantSchema })
