@@ -6,6 +6,7 @@ import {
   ValidationError,
 } from '../../shared/errors'
 import type { ProcessPaymentInput } from './billing.validator'
+import { DoctorService } from '../doctor/doctor.service'
 
 interface BillItem {
   kategori: string
@@ -618,6 +619,16 @@ export class BillingService {
           .from('bills')
           .where({ id: billId })
           .update({ status: 'dibayar' })
+
+        // Auto-record doctor fee transaction on full payment
+        try {
+          await this.recordDoctorFeeFromBill(billId, tenantSchema, trx)
+        } catch (feeErr) {
+          logger.warn('Auto-record doctor fee failed', {
+            billId,
+            error: String(feeErr),
+          })
+        }
       }
 
       logger.info('Payment processed', {
@@ -838,5 +849,137 @@ export class BillingService {
         totalPages: Math.ceil(total / limit),
       },
     }
+  }
+
+  // ===================================================
+  // AUTO-RECORD DOCTOR FEE FROM PAID BILL
+  // ===================================================
+
+  private async recordDoctorFeeFromBill(
+    billId: string,
+    tenantSchema: string,
+    trx: Knex.Transaction,
+  ) {
+    // Get bill + visit info
+    const bill = await trx
+      .withSchema(tenantSchema)
+      .select('b.id', 'b.visit_id', 'b.total_amount')
+      .from('bills as b')
+      .where('b.id', billId)
+      .first()
+
+    if (!bill?.visit_id) return
+
+    // Get visit with doctor info + substitution info
+    const visit = await trx
+      .withSchema(tenantSchema)
+      .select(
+        'v.id',
+        'v.doctor_id',
+        'v.original_doctor_id',
+        'v.substitution_id',
+        'u.name as doctor_nama',
+        'd.spesialisasi',
+      )
+      .from('visits as v')
+      .join('doctors as d', 'd.id', 'v.doctor_id')
+      .join('users as u', 'u.id', 'd.user_id')
+      .where('v.id', bill.visit_id)
+      .first()
+
+    if (!visit) return
+
+    // Check if fee transaction already exists for this visit
+    const existingFee = await trx
+      .withSchema(tenantSchema)
+      .select('id')
+      .from('doctor_fee_transactions')
+      .where({ visit_id: bill.visit_id })
+      .first()
+
+    if (existingFee) {
+      logger.info('Doctor fee already recorded for this visit', {
+        visitId: bill.visit_id,
+      })
+      return
+    }
+
+    // Get bill items to calculate fee per category
+    const items = await trx
+      .withSchema(tenantSchema)
+      .select('kategori', 'deskripsi', 'total')
+      .from('bill_items')
+      .where({ bill_id: billId })
+
+    // Doctor gets fee from konsultasi + tindakan items
+    const feeableItems = items.filter(
+      (it) => it.kategori === 'konsultasi' || it.kategori === 'tindakan',
+    )
+    const totalFeeable = feeableItems.reduce(
+      (sum, it) => sum + Number(it.total),
+      0,
+    )
+
+    if (totalFeeable <= 0) return
+
+    // Determine fee split from doctor_fees or default 80/20
+    let persenDokter = 80
+    let persenRS = 20
+
+    const doctorFee = await trx
+      .withSchema(tenantSchema)
+      .select('persentase_dokter', 'persentase_rs')
+      .from('doctor_fees')
+      .where({ doctor_id: visit.doctor_id, is_active: true })
+      .first()
+
+    if (doctorFee) {
+      persenDokter = Number(doctorFee.persentase_dokter) || 80
+      persenRS = Number(doctorFee.persentase_rs) || 20
+    }
+
+    const jumlahDokter = (totalFeeable * persenDokter) / 100
+    const jumlahRS = (totalFeeable * persenRS) / 100
+
+    // Build description
+    let deskripsi = feeableItems.map((it) => it.deskripsi).join(', ')
+
+    // If substituted, note it
+    if (visit.original_doctor_id && visit.substitution_id) {
+      const originalDoc = await trx
+        .withSchema(tenantSchema)
+        .select('u.name')
+        .from('doctors as d')
+        .join('users as u', 'u.id', 'd.user_id')
+        .where('d.id', visit.original_doctor_id)
+        .first()
+
+      if (originalDoc) {
+        deskripsi += ` (pengganti dr. ${originalDoc.name})`
+      }
+    }
+
+    // Insert fee transaction — fee goes to visit.doctor_id (the actual treating doctor)
+    await trx
+      .withSchema(tenantSchema)
+      .insert({
+        doctor_id: visit.doctor_id,
+        visit_id: bill.visit_id,
+        deskripsi,
+        tarif: totalFeeable,
+        jumlah_dokter: jumlahDokter,
+        jumlah_rs: jumlahRS,
+      })
+      .into('doctor_fee_transactions')
+
+    logger.info('Doctor fee recorded from bill payment', {
+      billId,
+      visitId: bill.visit_id,
+      doctorId: visit.doctor_id,
+      totalFeeable,
+      jumlahDokter,
+      jumlahRS,
+      isSubstituted: !!visit.substitution_id,
+    })
   }
 }
