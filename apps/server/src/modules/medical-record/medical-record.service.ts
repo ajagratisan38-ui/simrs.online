@@ -5,6 +5,7 @@ import {
   ConflictError,
   ValidationError,
 } from '../../shared/errors'
+import { BillingService } from '../billing/billing.service'
 import type {
   CreateMedicalRecordInput,
   UpdateMedicalRecordInput,
@@ -370,6 +371,18 @@ export class MedicalRecordService {
             .from('visits')
             .where({ id: existing.visit_id })
             .update({ status: 'selesai', updated_by: userId })
+
+          // Auto-generate bill for rawat jalan / IGD
+          try {
+            const billingService = new BillingService(trx as unknown as Knex)
+            await billingService.generateBill(existing.visit_id, userId, tenantSchema)
+            logger.info('Auto-generated bill on finalize', { visitId: existing.visit_id })
+          } catch (billErr) {
+            logger.warn('Auto-generate bill failed (may already exist)', {
+              visitId: existing.visit_id,
+              error: String(billErr),
+            })
+          }
         }
       }
 
